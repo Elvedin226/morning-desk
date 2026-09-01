@@ -1,0 +1,50 @@
+name: Daily dashboard
+
+# Rebuilds dashboard.html each weekday morning and commits it back.
+#
+# WHY THIS EXISTS: the Claude cloud sandbox blocks every market-data host
+# (Yahoo, stooq, Alpaca, Finnhub, Tiingo, polygon — all 000), but reaches
+# raw.githubusercontent.com fine. GitHub Actions runners have open network
+# access, so the data work happens here and the Claude routine only has to read
+# the finished file back out of this repo.
+#
+# 13:00 UTC = 08:00 America/Chicago = 09:00 ET, ~30 min before the US open.
+
+on:
+  schedule:
+    - cron: "0 13 * * 1-5"
+  workflow_dispatch:      # lets you run it by hand from the Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # required to commit the rebuilt dashboard
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install --quiet yfinance pandas numpy
+
+      - name: Build dashboard
+        run: python cloud_bot.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dashboard.html
+          # No-op when the file is byte-identical, so quiet days do not create
+          # empty commits.
+          if git diff --staged --quiet; then
+            echo "dashboard unchanged - nothing to commit"
+          else
+            git commit -m "dashboard: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi

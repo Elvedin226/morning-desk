@@ -1,0 +1,12 @@
+# Local Python environment - rebuilt from requirements.txt
+.venv/
+__pycache__/
+*.pyc
+
+# Generated data. Regenerable, grows daily, and the IV history is large.
+# dashboard.html is deliberately NOT ignored: GitHub Actions commits it, and the
+# Claude routine reads it back from raw.githubusercontent.com.
+data_cache/
+
+# Windows Task Scheduler wrappers - local paths, useless on a runner
+run-*.bat
