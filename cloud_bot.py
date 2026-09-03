@@ -23,6 +23,26 @@ import portfolio
 import risk
 
 ACCOUNT, RISK = 421.0, 0.01
+
+# FORCED MODE - on for the testing period, by request.
+#
+# When the checklist approves nothing, take the best available name anyway:
+# long the strongest uptrend, short the weakest downtrend. The point is to
+# generate a readable record during a two-week test instead of fourteen blank
+# days, and to measure what the filters are actually worth.
+#
+# Every such position is tagged forced=True and its stats are reported
+# SEPARATELY. That separation is the whole reason this is defensible: without
+# it, forced trades would contaminate the record of the strategy they exist to
+# be compared against.
+FORCE_DAILY = True
+FORCED_RISK = 0.005   # half normal size - these are trades the rules rejected
+# Forced positions get their own slot budget. risk.MAX_POSITIONS is 3, which is
+# right for real capital but would fill in three days and then stop, giving you
+# three trades rather than a trade a day. These are half-size and simulated, so
+# a wider budget is affordable; the daily-loss and drawdown switches still bind.
+MAX_FORCED = 10
+FORCED_HOLD_DAYS = 10  # cycle faster than the 40-day default so slots free up
 HOLD_DAYS, MAX_FROM_HIGH, MIN_MOM, MAX_EXT, MAX_RISK, BUF, TARGET_R = 21, -0.15, 0.10, 0.10, 0.08, 0.02, 2.0
 
 SECTOR_ETFS = {"XLK": "Technology", "XLF": "Financials", "XLV": "Health Care", "XLE": "Energy",
@@ -191,6 +211,48 @@ def build():
             "stamp": datetime.now(timezone.utc).strftime("%a %d %b %Y, %H:%M UTC")}
 
 
+def fallback(d, held):
+    """Best available trade when the checklist approves nothing.
+
+    Long the strongest name trading above its 20- and 50-day; short the weakest
+    trading below both. Whichever side has the more extreme momentum wins, so
+    the direction is chosen by the tape rather than fixed in advance.
+
+    Stops use the same 20-day extreme + buffer construction as the real rules,
+    mirrored for shorts, so a forced trade is risk-managed the same way even
+    though it was never approved.
+    """
+    close = d["close"]
+    best = None
+    for t in SECTORS:
+        if t not in close.columns or t in held:
+            continue
+        srs = close[t].dropna()
+        if len(srs) < 252:
+            continue
+        price = float(srs.iloc[-1])
+        s20, s50 = (float(srs.rolling(n).mean().iloc[-1]) for n in (20, 50))
+        mom = float(srs.iloc[-22] / srs.iloc[-252] - 1)
+        if price > s20 > s50:
+            stop = float(srs.iloc[-20:].min()) * (1 - BUF)
+            side, score = "long", mom
+        elif price < s20 < s50:
+            stop = float(srs.iloc[-20:].max()) * (1 + BUF)
+            side, score = "short", -mom
+        else:
+            continue
+        rps = abs(price - stop)
+        if rps <= 0 or rps / price > MAX_RISK:
+            continue
+        target = price + TARGET_R * rps if side == "long" else price - TARGET_R * rps
+        if target <= 0:
+            continue
+        if best is None or score > best["score"]:
+            best = {"ticker": t, "price": price, "stop": stop, "target": target,
+                    "side": side, "mom": mom, "score": score}
+    return best
+
+
 def trade(d):
     """Advance the paper account one day: resolve open positions, then open the
     day's candidate if the risk layer allows it.
@@ -209,10 +271,13 @@ def trade(d):
     # whatever the regime so the dashboard can show what would have qualified.
     # Reading that field as permission to trade put a position on during a red
     # tape - the one condition this long-only strategy was never tested in.
+    forced_note = None
     if not d["reg"]["green"]:
         skip = "regime red - strategy is long-only and untested in this tape"
+        forced_note = "regime red"
     elif c is None:
         skip = "nothing passed the checklist"
+        forced_note = "no checklist pass"
     else:
         curve = book.get("equity_curve", [])
         day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
@@ -233,6 +298,41 @@ def trade(d):
                     target = c["price"] + TARGET_R * (c["price"] - c["stop"])
                     portfolio.open_position(book, c["ticker"], sized.qty,
                                             c["price"], c["stop"], target)
+
+    # FORCED FALLBACK. Only when the rules declined and no slot conflict exists.
+    # Deliberately does NOT override the risk gate: position limits, the daily
+    # loss halt and the drawdown kill switch still apply. Forcing a trade is a
+    # research choice; disabling the thing that bounds losses is not, and the
+    # two are easy to conflate.
+    d["forced"] = None
+    if FORCE_DAILY and skip and not any(p.get("forced") and p["opened"] ==
+                                        datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                                        for p in book["positions"]):
+        curve = book.get("equity_curve", [])
+        day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
+        n_forced = sum(1 for p in book["positions"] if p.get("forced"))
+        # Pass the FORCED count against the forced budget. The loss and drawdown
+        # switches inside gate() are what actually bound risk and still apply.
+        g = risk.gate(equity, book["start_equity"], day_start, n_forced, True,
+                      max_positions=MAX_FORCED)
+        if not g.allowed:
+            d["forced"] = f"not forced: {g.reason}"
+        else:
+            fb = fallback(d, held)
+            if fb is None:
+                d["forced"] = "not forced: nothing tradable in either direction"
+            else:
+                sized = risk.size(equity, fb["price"], fb["stop"],
+                                  risk_pct=FORCED_RISK, side=fb["side"])
+                if not sized.allowed:
+                    d["forced"] = f"not forced: {sized.reason}"
+                else:
+                    portfolio.open_position(
+                        book, fb["ticker"], sized.qty, fb["price"], fb["stop"],
+                        fb["target"], side=fb["side"], forced=True,
+                        note=forced_note or skip)
+                    d["forced"] = (f"forced {fb['side'].upper()} {fb['ticker']} "
+                                   f"@ ${fb['price']:,.2f} ({forced_note})")
 
     portfolio.save(book)
     d["book"], d["closed"], d["skip"] = book, closed, skip
@@ -340,7 +440,12 @@ margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line)}
 .tag{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
 padding:2px 5px;border-radius:2px;border:1px solid var(--line);color:var(--ink-faint)}
 .tag[data-r="target"]{color:var(--go);border-color:var(--go)}
-.tag[data-r="stop"]{color:var(--stop);border-color:var(--stop)}"""
+.tag[data-r="stop"]{color:var(--stop);border-color:var(--stop)}
+.tag[data-s="short"]{color:var(--stop);border-color:var(--stop)}
+.tag[data-s="long"]{color:var(--go);border-color:var(--go)}
+.tag[data-s="forced"]{color:var(--accent);border-color:var(--accent)}
+.arms td:first-child{font-family:"IBM Plex Mono",monospace;font-size:11px;
+letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}"""
 
 CSS = CSS + ACCOUNT_CSS
 
@@ -358,8 +463,12 @@ def account_panel(d):
         # a gap outside the band cannot render a bar wider than its track.
         span = p["target"] - p["stop"]
         frac = min(max((last - p["stop"]) / span, 0.0), 1.0) if span > 0 else 0.0
+        side = p.get("side", "long")
+        badge = f'<span class="tag" data-s="{side}">{side}</span>'
+        if p.get("forced"):
+            badge += '<span class="tag" data-s="forced">forced</span>'
         rows += (f'<tr><td><div class="posname"><span class="tick">{p["ticker"]}</span>'
-                 f'<span class="posmeta">{p["qty"]:.3f} sh</span></div>'
+                 f'{badge}<span class="posmeta">{p["qty"]:.3f} sh</span></div>'
                  f'<div class="posmeta">${p["stop"]:,.2f} &rarr; ${p["target"]:,.2f}</div>'
                  f'<div class="pos-bar"><i style="width:{frac*100:.0f}%"></i></div></td>'
                  f'<td class="num">${p["entry"]:,.2f}</td>'
@@ -370,7 +479,10 @@ def account_panel(d):
 
     done = ""
     for t in reversed(book.get("closed", [])[-8:]):
+        mark = '<span class="tag" data-s="forced">forced</span>' if t.get("forced") else ""
+        sd = t.get("side", "long")
         done += (f'<tr><td><div class="posname"><span class="tick">{t["ticker"]}</span>'
+                 f'<span class="tag" data-s="{sd}">{sd}</span>{mark}'
                  f'<span class="tag" data-r="{t["reason"].split()[0]}">{t["reason"]}</span></div>'
                  f'<div class="posmeta">{t["opened"]} &rarr; {t["closed"]}</div></td>'
                  f'<td class="num">${t["entry"]:,.2f}</td><td class="num">${t["exit"]:,.2f}</td>'
@@ -383,7 +495,30 @@ def account_panel(d):
 <tbody>{done}</tbody></table></section>"""
 
     wr = f"{s['win_rate']*100:.0f}%" if s["win_rate"] is not None else "&mdash;"
-    why = f'<p class="why">Today: {d["skip"]}</p>' if d.get("skip") else ""
+
+    a = s["arms"]
+    def arm_row(label, x):
+        w = f"{x['win_rate']*100:.0f}%" if x["win_rate"] is not None else "&mdash;"
+        avg = f"{x['avg_pct']:+.1f}%" if x["avg_pct"] is not None else "&mdash;"
+        return (f'<tr><td>{label}</td><td class="num">{x["n"]}<small> +{x["open"]} open</small></td>'
+                f'<td class="num">{x["longs"]}L / {x["shorts"]}S</td><td class="num">{w}</td>'
+                f'<td class="num">{avg}</td>'
+                f'<td class="num {"up" if x["pnl"] >= 0 else "down"}">${x["pnl"]:+,.2f}</td></tr>')
+    arms_tbl = f"""<section class="card"><h2>Rules vs forced</h2><table class="arms">
+<thead><tr><th>Arm</th><th class="num">Closed</th><th class="num">Dir</th>
+<th class="num">Win</th><th class="num">Avg</th><th class="num">P&amp;L</th></tr></thead>
+<tbody>{arm_row("By the rules", a["qualified"])}{arm_row("Forced", a["forced"])}</tbody></table>
+<p class="note">Forced trades are taken at half size on days the checklist declined,
+to produce a record during testing. They are scored separately because the point
+is to compare them against the rules &mdash; pooling them would answer neither
+question.</p></section>"""
+
+    lines = []
+    if d.get("skip"):
+        lines.append(f"Rules: {d['skip']}")
+    if d.get("forced"):
+        lines.append(d["forced"])
+    why = f'<p class="why">{"<br>".join(lines)}</p>' if lines else ""
 
     return f"""<section class="card">
 <h2>Paper account</h2>
@@ -400,6 +535,7 @@ def account_panel(d):
 <section class="card"><h2>Open positions</h2><table>
 <thead><tr><th>Position</th><th class="num">Entry</th><th class="num">Last</th><th class="num">P&amp;L</th></tr></thead>
 <tbody>{rows}</tbody></table></section>
+{arms_tbl}
 {closed_tbl}"""
 
 

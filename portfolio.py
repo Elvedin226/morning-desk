@@ -40,6 +40,7 @@ STATE = Path(__file__).parent / "data_cache" / "portfolio.json"
 START_EQUITY = 421.0
 COST_PER_SIDE = 0.0005   # 5bp each way: commission-free broker, spread + slippage
 MAX_HOLD_DAYS = 40       # time stop - a position that has done nothing in 8 weeks
+FORCED_HOLD_DAYS = 10    # forced trades cycle faster so their slots free up
 
 
 def _blank() -> dict:
@@ -80,28 +81,55 @@ def _bars(tickers: list[str]) -> dict[str, pd.DataFrame]:
 
 
 def open_position(state: dict, ticker: str, qty: float, entry: float,
-                  stop: float, target: float) -> dict:
-    """Record a simulated buy. Cost is charged on entry."""
+                  stop: float, target: float, side: str = "long",
+                  forced: bool = False, note: str = "") -> dict:
+    """Record a simulated entry.
+
+    A SHORT is modelled as collateral rather than as borrowed stock: the same
+    notional is set aside from cash and released at exit, and P&L is the mirror
+    of the long case. That skips borrow fees and margin calls, which is a real
+    simplification - but it keeps one cash accounting rule for both sides, and
+    borrow on the large caps in this universe is pennies.
+
+    `forced` marks a position the checklist did NOT approve, so the record can
+    be split later and one arm cannot silently contaminate the other.
+    """
+    # Guard the direction here as well as in risk.size. An inverted short - stop
+    # below entry - looks plausible in JSON and silently resolves on the wrong
+    # side of the bar, producing a profit from what should have been a loss.
+    if side == "short" and stop <= entry:
+        raise ValueError(f"short {ticker}: stop {stop} must be above entry {entry}")
+    if side == "long" and stop >= entry:
+        raise ValueError(f"long {ticker}: stop {stop} must be below entry {entry}")
+
     cost = qty * entry * (1 + COST_PER_SIDE)
-    pos = {"ticker": ticker, "qty": round(qty, 6), "entry": round(entry, 4),
+    pos = {"ticker": ticker, "side": side, "qty": round(qty, 6), "entry": round(entry, 4),
            "stop": round(stop, 4), "target": round(target, 4),
            "opened": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-           "cost_basis": round(cost, 2)}
+           "cost_basis": round(cost, 2), "forced": forced, "note": note}
     state["positions"].append(pos)
     state["cash"] = round(state["cash"] - cost, 2)
     return pos
 
 
 def _close(state: dict, pos: dict, price: float, reason: str) -> dict:
-    proceeds = pos["qty"] * price * (1 - COST_PER_SIDE)
-    pnl = proceeds - pos["cost_basis"]
+    side = pos.get("side", "long")
+    gross = pos["qty"] * price
+    fee = gross * COST_PER_SIDE
+    if side == "short":
+        # Collateral comes back, plus what the price fell (or minus what it rose).
+        pnl = pos["qty"] * (pos["entry"] - price) - fee
+        returned = pos["cost_basis"] + pnl
+    else:
+        returned = gross - fee
+        pnl = returned - pos["cost_basis"]
     rec = {**pos, "exit": round(price, 4), "reason": reason,
            "closed": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-           "proceeds": round(proceeds, 2), "pnl": round(pnl, 2),
+           "proceeds": round(returned, 2), "pnl": round(pnl, 2),
            "pnl_pct": round(pnl / pos["cost_basis"] * 100, 2) if pos["cost_basis"] else None}
     state["closed"].append(rec)
     state["positions"] = [p for p in state["positions"] if p is not pos]
-    state["cash"] = round(state["cash"] + proceeds, 2)
+    state["cash"] = round(state["cash"] + returned, 2)
     return rec
 
 
@@ -138,24 +166,42 @@ def update(state: dict) -> tuple[dict, list[dict]]:
         # Stop checked before target: a bar that touches both is scored as a
         # loss, because the intraday order is unknowable from daily data and
         # assuming the good one would flatter every result.
-        if l <= pos["stop"]:
-            fill = min(o, pos["stop"])   # gapped through -> you get the open
-            closes.append(_close(state, pos, fill, "stop"))
+        #
+        # A short mirrors this: its stop sits ABOVE entry and its target BELOW,
+        # so the comparisons and the gap-through side both invert.
+        short = pos.get("side") == "short"
+        if short:
+            hit_stop, stop_fill = h >= pos["stop"], max(o, pos["stop"])
+            hit_tgt, tgt_fill = l <= pos["target"], min(o, pos["target"])
+        else:
+            hit_stop, stop_fill = l <= pos["stop"], min(o, pos["stop"])
+            hit_tgt, tgt_fill = h >= pos["target"], max(o, pos["target"])
+
+        if hit_stop:
+            closes.append(_close(state, pos, stop_fill, "stop"))
             continue
-        if h >= pos["target"]:
-            fill = max(o, pos["target"])
-            closes.append(_close(state, pos, fill, "target"))
+        if hit_tgt:
+            closes.append(_close(state, pos, tgt_fill, "target"))
             continue
 
         held = (datetime.now(timezone.utc).date()
                 - datetime.strptime(pos["opened"], "%Y-%m-%d").date()).days
-        if held >= MAX_HOLD_DAYS:
+        # Forced positions time out sooner so their slots recycle during a short
+        # test; leaving them on the 40-day clock would jam the budget in a week.
+        limit = FORCED_HOLD_DAYS if pos.get("forced") else MAX_HOLD_DAYS
+        if held >= limit:
             closes.append(_close(state, pos, c, "time stop"))
             continue
 
         pos["last"] = round(c, 4)
-        pos["unrealised"] = round(pos["qty"] * c - pos["cost_basis"], 2)
-        market_value += pos["qty"] * c
+        if short:
+            # Collateral plus P&L, so a winning short raises equity and a losing
+            # one lowers it, exactly as the long case does.
+            pos["unrealised"] = round(pos["qty"] * (pos["entry"] - c), 2)
+            market_value += pos["cost_basis"] + pos["unrealised"]
+        else:
+            pos["unrealised"] = round(pos["qty"] * c - pos["cost_basis"], 2)
+            market_value += pos["qty"] * c
 
     state["market_value"] = round(market_value, 2)
     state["equity"] = round(state["cash"] + market_value, 2)
@@ -191,7 +237,32 @@ def stats(state: dict) -> dict:
                                     for p in state.get("positions", [])), 2),
         "best": max((c["pnl"] for c in closed), default=None),
         "worst": min((c["pnl"] for c in closed), default=None),
+        "arms": arms(state),
     }
+
+
+def arms(state: dict) -> dict:
+    """Qualified trades and forced trades, scored separately.
+
+    Pooling them would destroy the only reason forcing trades is defensible: the
+    forced arm exists to be COMPARED against the rules, and a blended win rate
+    answers neither question.
+    """
+    out = {}
+    for label, want in (("qualified", False), ("forced", True)):
+        rows = [c for c in state.get("closed", []) if bool(c.get("forced")) is want]
+        wins = [c for c in rows if c["pnl"] > 0]
+        longs = [c for c in rows if c.get("side", "long") == "long"]
+        out[label] = {
+            "n": len(rows),
+            "pnl": round(sum(c["pnl"] for c in rows), 2),
+            "win_rate": len(wins) / len(rows) if rows else None,
+            "avg_pct": round(sum(c["pnl_pct"] for c in rows) / len(rows), 2) if rows else None,
+            "longs": len(longs), "shorts": len(rows) - len(longs),
+            "open": sum(1 for p in state.get("positions", [])
+                        if bool(p.get("forced")) is want),
+        }
+    return out
 
 
 if __name__ == "__main__":

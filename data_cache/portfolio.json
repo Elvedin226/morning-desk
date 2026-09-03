@@ -1,15 +1,30 @@
 {
   "start_equity": 421.0,
-  "cash": 421.0,
-  "positions": [],
+  "cash": 385.57,
+  "positions": [
+    {
+      "ticker": "GM",
+      "side": "long",
+      "qty": 0.406,
+      "entry": 87.22,
+      "stop": 82.0358,
+      "target": 97.5884,
+      "opened": "2026-09-03",
+      "cost_basis": 35.43,
+      "forced": true,
+      "note": "regime red",
+      "last": 87.22,
+      "unrealised": -0.02
+    }
+  ],
   "closed": [],
   "equity_curve": [
     {
       "date": "2026-09-03",
-      "equity": 421.0
+      "equity": 420.98
     }
   ],
   "created": "2026-09-03T21:14:14+00:00",
-  "market_value": 0.0,
-  "equity": 421.0
+  "market_value": 35.41,
+  "equity": 420.98
 }

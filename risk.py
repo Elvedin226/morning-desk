@@ -35,7 +35,8 @@ class Decision:
 
 
 def size(equity: float, entry: float, stop: float,
-         risk_pct: float = RISK_PER_TRADE, fractional: bool = True) -> Decision:
+         risk_pct: float = RISK_PER_TRADE, fractional: bool = True,
+         side: str = "long") -> Decision:
     """Position size falls out of the stop. It is never a preference.
 
     Whole shares break down at small accounts — risking $4.21 on a $267 stock
@@ -44,11 +45,16 @@ def size(equity: float, entry: float, stop: float,
     """
     if entry <= 0 or stop <= 0:
         return Decision(False, "bad prices")
-    if stop >= entry:
+    # A short inverts only the direction check. Risk per share is the distance
+    # to the stop either way, so the sizing maths below is unchanged.
+    if side == "short":
+        if stop <= entry:
+            return Decision(False, "short stop is not above entry")
+    elif stop >= entry:
         return Decision(False, "stop is not below entry")
 
     risk_dollars = equity * risk_pct
-    per_share = entry - stop
+    per_share = abs(entry - stop)
     qty = risk_dollars / per_share
     if not fractional:
         qty = float(int(qty))
@@ -65,7 +71,8 @@ def size(equity: float, entry: float, stop: float,
 
 
 def gate(equity: float, start_equity: float, day_start_equity: float,
-         open_positions: int, market_open: bool) -> Decision:
+         open_positions: int, market_open: bool,
+         max_positions: int = MAX_POSITIONS) -> Decision:
     """Pre-trade checks that have nothing to do with the candidate itself.
 
     Ordered cheapest-first, and each returns a reason string that lands in the
@@ -75,8 +82,8 @@ def gate(equity: float, start_equity: float, day_start_equity: float,
     if not market_open:
         return Decision(False, "market closed")
 
-    if open_positions >= MAX_POSITIONS:
-        return Decision(False, f"already holding {open_positions} positions (max {MAX_POSITIONS})")
+    if open_positions >= max_positions:
+        return Decision(False, f"already holding {open_positions} positions (max {max_positions})")
 
     day_loss = 1 - equity / day_start_equity if day_start_equity > 0 else 0
     if day_loss >= MAX_DAILY_LOSS:
