@@ -165,7 +165,7 @@ def chart(series, stop, entry, w=460, h=170):
             + ln(p, "var(--ink)", 1.7) + "</svg>")
 
 
-def build():
+def build(intraday=False):
     close = dl(sorted(set(list(SECTORS) + list(SECTOR_ETFS) + ["SPY"])))
     spy = close["SPY"].dropna()
     a, b, c50 = (spy.rolling(n).mean() for n in (10, 20, 50))
@@ -207,7 +207,12 @@ def build():
         break
 
     return {"close": close, "reg": reg, "secs": secs, "passing": passing,
-            "chosen": chosen, "blocked": blocked, "gaps": gap_scan(GAPPERS),
+            "chosen": chosen, "blocked": blocked,
+            "intraday": intraday,
+            # The gap scan compares pre-market to the prior close; at midday it
+            # measures nothing. Skipping it also removes ~60 requests per run,
+            # which is what makes a half-hourly schedule affordable.
+            "gaps": [] if intraday else gap_scan(GAPPERS),
             "stamp": datetime.now(timezone.utc).strftime("%a %d %b %Y, %H:%M UTC")}
 
 
@@ -253,7 +258,7 @@ def fallback(d, held):
     return best
 
 
-def trade(d):
+def trade(d, intraday=False):
     """Advance the paper account one day: resolve open positions, then open the
     day's candidate if the risk layer allows it.
 
@@ -261,10 +266,13 @@ def trade(d):
     slot released by a stop can be reused the same day.
     """
     book = portfolio.load()
-    book, closed = portfolio.update(book)
+    book, closed = portfolio.update(book, intraday=intraday)
 
     equity = book["equity"]
     held = [p["ticker"] for p in book["positions"]]
+    # Computed AFTER exits settle, so a target hit this run counts toward the
+    # day's number and can stop further entries immediately.
+    day_pnl = portfolio.day_realised(book)
     c, skip = d["chosen"], None
 
     # Regime is checked HERE and not left to build(), which fills in `chosen`
@@ -281,7 +289,8 @@ def trade(d):
     else:
         curve = book.get("equity_curve", [])
         day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
-        g = risk.gate(equity, book["start_equity"], day_start, len(held), True)
+        g = risk.gate(equity, book["start_equity"], day_start, len(held), True,
+                      day_pnl=day_pnl)
         if not g.allowed:
             skip = g.reason
         elif c["ticker"] in held:
@@ -305,16 +314,14 @@ def trade(d):
     # research choice; disabling the thing that bounds losses is not, and the
     # two are easy to conflate.
     d["forced"] = None
-    if FORCE_DAILY and skip and not any(p.get("forced") and p["opened"] ==
-                                        datetime.now(timezone.utc).strftime("%Y-%m-%d")
-                                        for p in book["positions"]):
+    if FORCE_DAILY and skip:
         curve = book.get("equity_curve", [])
         day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
         n_forced = sum(1 for p in book["positions"] if p.get("forced"))
         # Pass the FORCED count against the forced budget. The loss and drawdown
         # switches inside gate() are what actually bound risk and still apply.
         g = risk.gate(equity, book["start_equity"], day_start, n_forced, True,
-                      max_positions=MAX_FORCED)
+                      max_positions=MAX_FORCED, day_pnl=day_pnl)
         if not g.allowed:
             d["forced"] = f"not forced: {g.reason}"
         else:
@@ -444,6 +451,8 @@ padding:2px 5px;border-radius:2px;border:1px solid var(--line);color:var(--ink-f
 .tag[data-s="short"]{color:var(--stop);border-color:var(--stop)}
 .tag[data-s="long"]{color:var(--go);border-color:var(--go)}
 .tag[data-s="forced"]{color:var(--accent);border-color:var(--accent)}
+.target{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.target-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px}
 .arms td:first-child{font-family:"IBM Plex Mono",monospace;font-size:11px;
 letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}"""
 
@@ -531,7 +540,11 @@ question.</p></section>"""
 <div><span class="lab">Realised</span><span class="val {'go-c' if s['realised_pnl'] >= 0 else 'stop-c'}">${s['realised_pnl']:+,.0f}</span></div>
 <div><span class="lab">Open P&amp;L</span><span class="val {'go-c' if s['unrealised_pnl'] >= 0 else 'stop-c'}">${s['unrealised_pnl']:+,.0f}</span></div>
 <div><span class="lab">Win rate</span><span class="val">{wr}<small> {s['wins']}/{s['closed_trades']}</small></span></div>
-</div>{why}</section>
+</div>
+<div class="target"><div class="target-top"><span class="lab">Today &middot; target ${risk.DAILY_PROFIT_TARGET:,.0f}</span>
+<span class="val {'go-c' if s['day_realised'] >= 0 else 'stop-c'}">${s['day_realised']:+,.2f}</span></div>
+<div class="pos-bar"><i style="width:{min(max(s['day_realised'] / risk.DAILY_PROFIT_TARGET, 0), 1)*100:.0f}%"></i></div></div>
+{why}</section>
 <section class="card"><h2>Open positions</h2><table>
 <thead><tr><th>Position</th><th class="num">Entry</th><th class="num">Last</th><th class="num">P&amp;L</th></tr></thead>
 <tbody>{rows}</tbody></table></section>
@@ -626,10 +639,14 @@ Output of fixed rules. Not a recommendation, and not evidence of an edge.</foote
 
 
 if __name__ == "__main__":
-    d = trade(build())
+    import sys
+    intraday = "--intraday" in sys.argv
+    d = trade(build(intraday=intraday), intraday=intraday)
     open("dashboard.html", "w", encoding="utf-8").write(render(d))
     s = d["stats"]
-    print(json.dumps({"regime": "GREEN" if d["reg"]["green"] else "RED",
+    print(json.dumps({"mode": "intraday" if intraday else "morning",
+                      "regime": "GREEN" if d["reg"]["green"] else "RED",
+                      "day_realised": s["day_realised"],
                       "candidate": d["chosen"]["ticker"] if d["chosen"] else None,
                       "skip": d["skip"], "passing": len(d["passing"]),
                       "gaps": len(d["gaps"]), "equity": s["equity"],

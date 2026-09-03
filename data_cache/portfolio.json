@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 385.57,
+  "cash": 261.16,
   "positions": [
     {
       "ticker": "GM",
@@ -15,16 +15,56 @@
       "note": "regime red",
       "last": 87.22,
       "unrealised": -0.02
+    },
+    {
+      "ticker": "KO",
+      "side": "long",
+      "qty": 0.5185,
+      "entry": 88.81,
+      "stop": 84.7504,
+      "target": 96.9292,
+      "opened": "2026-09-03",
+      "cost_basis": 46.07,
+      "forced": true,
+      "note": "regime red",
+      "last": 88.84,
+      "unrealised": -0.01
+    },
+    {
+      "ticker": "BAC",
+      "side": "long",
+      "qty": 0.6804,
+      "entry": 63.04,
+      "stop": 59.9466,
+      "target": 69.2268,
+      "opened": "2026-09-03",
+      "cost_basis": 42.91,
+      "forced": true,
+      "note": "regime red",
+      "last": 63.065,
+      "unrealised": -0.0
+    },
+    {
+      "ticker": "F",
+      "side": "long",
+      "qty": 2.4572,
+      "entry": 14.41,
+      "stop": 13.5534,
+      "target": 16.1232,
+      "opened": "2026-09-03",
+      "cost_basis": 35.43,
+      "forced": true,
+      "note": "regime red"
     }
   ],
   "closed": [],
   "equity_curve": [
     {
       "date": "2026-09-03",
-      "equity": 420.98
+      "equity": 420.97
     }
   ],
   "created": "2026-09-03T21:14:14+00:00",
-  "market_value": 35.41,
-  "equity": 420.98
+  "market_value": 124.38,
+  "equity": 420.97
 }

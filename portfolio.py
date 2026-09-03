@@ -80,6 +80,38 @@ def _bars(tickers: list[str]) -> dict[str, pd.DataFrame]:
     return {t: raw[t].dropna() for t in tickers if t in lvl0}
 
 
+def _intraday_bars(tickers: list[str]) -> dict[str, pd.DataFrame]:
+    """Today's session so far, as a single synthetic bar per ticker.
+
+    Built from 5-minute bars, so the high and low are the running extremes of the
+    session rather than yesterday's finished ones. This is what lets a stop fire
+    on the day it is hit instead of the next morning.
+
+    Yahoo's free intraday feed runs about 15 minutes behind. A stop is therefore
+    detected up to ~15 min late, and the fill is recorded at the stop level - so
+    a fast breakdown is modelled better than it would really fill. Called out
+    here because it flatters results and is invisible in the output.
+    """
+    raw = yf.download(tickers, period="1d", interval="5m",
+                      auto_adjust=True, progress=False, group_by="ticker")
+    if raw.empty:
+        return {}
+    out = {}
+    for t in tickers:
+        df = raw if not isinstance(raw.columns, pd.MultiIndex) else (
+            raw[t] if t in set(raw.columns.get_level_values(0)) else None)
+        if df is None:
+            continue
+        df = df.dropna()
+        if df.empty:
+            continue
+        out[t] = pd.DataFrame([{
+            "Open": float(df["Open"].iloc[0]), "High": float(df["High"].max()),
+            "Low": float(df["Low"].min()), "Close": float(df["Close"].iloc[-1]),
+        }])
+    return out
+
+
 def open_position(state: dict, ticker: str, qty: float, entry: float,
                   stop: float, target: float, side: str = "long",
                   forced: bool = False, note: str = "") -> dict:
@@ -133,9 +165,13 @@ def _close(state: dict, pos: dict, price: float, reason: str) -> dict:
     return rec
 
 
-def update(state: dict) -> tuple[dict, list[dict]]:
+def update(state: dict, intraday: bool = False) -> tuple[dict, list[dict]]:
     """Mark open positions to market and close any that hit stop, target or the
-    time stop. Returns (state, list of closes made this run)."""
+    time stop. Returns (state, list of closes made this run).
+
+    intraday=True scores against the CURRENT session's running high/low instead
+    of the last completed daily bar, so exits land on the day they happen.
+    """
     if not state["positions"]:
         state["market_value"] = 0.0
         state["equity"] = state["cash"]
@@ -144,7 +180,11 @@ def update(state: dict) -> tuple[dict, list[dict]]:
 
     tickers = sorted({p["ticker"] for p in state["positions"]})
     try:
-        bars = _bars(tickers)
+        bars = _intraday_bars(tickers) if intraday else _bars(tickers)
+        if intraday and not bars:
+            # Before the open, or a feed hiccup. Fall back to daily rather than
+            # marking the book to nothing.
+            bars = _bars(tickers)
     except Exception:
         # Data failure must not silently mark the book to stale prices.
         state["equity"] = state["cash"] + sum(p["cost_basis"] for p in state["positions"])
@@ -218,6 +258,17 @@ def _stamp_equity(state: dict) -> None:
     state["equity_curve"] = curve[-260:]
 
 
+def day_realised(state: dict) -> float:
+    """Realised P&L booked today. Drives the daily profit target.
+
+    Realised only - an open position showing a gain has not banked anything, and
+    counting it would stop the bot on profit it does not yet have.
+    """
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return round(sum(c["pnl"] for c in state.get("closed", [])
+                     if c.get("closed") == today), 2)
+
+
 def stats(state: dict) -> dict:
     closed = state.get("closed", [])
     wins = [c for c in closed if c["pnl"] > 0]
@@ -238,6 +289,7 @@ def stats(state: dict) -> dict:
         "best": max((c["pnl"] for c in closed), default=None),
         "worst": min((c["pnl"] for c in closed), default=None),
         "arms": arms(state),
+        "day_realised": day_realised(state),
     }
 
 

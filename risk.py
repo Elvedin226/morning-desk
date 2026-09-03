@@ -19,6 +19,7 @@ from datetime import date
 RISK_PER_TRADE = 0.01     # fraction of equity risked per position
 MAX_POSITIONS = 3         # concurrent open positions
 MAX_DAILY_LOSS = 0.03     # halt for the day past this drawdown
+DAILY_PROFIT_TARGET = 20.0  # bank the day once realised P&L reaches this
 MAX_TOTAL_DRAWDOWN = 0.15 # halt entirely past this, pending manual restart
 MIN_ORDER_VALUE = 1.0     # brokers reject dust
 MAX_CORRELATION = 0.70    # reject a candidate this correlated with something held
@@ -72,7 +73,8 @@ def size(equity: float, entry: float, stop: float,
 
 def gate(equity: float, start_equity: float, day_start_equity: float,
          open_positions: int, market_open: bool,
-         max_positions: int = MAX_POSITIONS) -> Decision:
+         max_positions: int = MAX_POSITIONS,
+         day_pnl: float | None = None) -> Decision:
     """Pre-trade checks that have nothing to do with the candidate itself.
 
     Ordered cheapest-first, and each returns a reason string that lands in the
@@ -84,6 +86,13 @@ def gate(equity: float, start_equity: float, day_start_equity: float,
 
     if open_positions >= max_positions:
         return Decision(False, f"already holding {open_positions} positions (max {max_positions})")
+
+    # Profit target: once the day has banked its number, stop opening. Checked
+    # on REALISED P&L only - an open position showing +$20 has not made $20, and
+    # treating it as though it had is how a good day becomes a flat one.
+    # Existing positions keep running; this blocks new entries, not exits.
+    if day_pnl is not None and day_pnl >= DAILY_PROFIT_TARGET:
+        return Decision(False, f"day's target hit (${day_pnl:+,.2f}) - done trading today")
 
     day_loss = 1 - equity / day_start_equity if day_start_equity > 0 else 0
     if day_loss >= MAX_DAILY_LOSS:

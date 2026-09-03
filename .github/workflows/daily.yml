@@ -12,8 +12,20 @@ name: Daily dashboard
 
 on:
   schedule:
+    # 13:00 UTC = 08:00 CT, half an hour before the open. Full run: resolves
+    # exits, picks the day's entry, scans pre-market gaps.
     - cron: "0 13 * * 1-5"
+    # Every half hour through the session (14:00-20:30 UTC = 09:00-15:30 CT).
+    # These manage EXITS against the live session high/low so a stop fires on
+    # the day it is hit, and take further forced entries.
+    - cron: "0,30 14-20 * * 1-5"
   workflow_dispatch:      # lets you run it by hand from the Actions tab
+
+# Runs push to the same branch, so two overlapping runs would race on the push.
+# Queue them instead of cancelling: a cancelled run could drop a recorded exit.
+concurrency:
+  group: morning-desk
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -33,7 +45,14 @@ jobs:
         run: pip install --quiet yfinance pandas numpy
 
       - name: Run the paper account and build the dashboard
-        run: python cloud_bot.py
+        # The 13:00 run is the full morning build; every other schedule is an
+        # intraday pass that skips the pre-market gap scan.
+        run: |
+          if [ "${{ github.event.schedule }}" = "0 13 * * 1-5" ] || [ -z "${{ github.event.schedule }}" ]; then
+            python cloud_bot.py
+          else
+            python cloud_bot.py --intraday
+          fi
 
       - name: Commit if changed
         run: |
@@ -49,5 +68,8 @@ jobs:
             echo "dashboard unchanged - nothing to commit"
           else
             git commit -m "dashboard: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            # Another run may have pushed while this one was working. Rebase
+            # rather than force: losing a recorded exit would corrupt the record.
+            git pull --rebase --autostash origin main || true
             git push
           fi
