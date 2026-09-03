@@ -43,6 +43,11 @@ FORCED_RISK = 0.005   # half normal size - these are trades the rules rejected
 # a wider budget is affordable; the daily-loss and drawdown switches still bind.
 MAX_FORCED = 10
 FORCED_HOLD_DAYS = 10  # cycle faster than the 40-day default so slots free up
+
+# Connors RSI-2. See rsi2_candidates() for what the testing actually showed.
+RSI2_ENABLED = True
+RSI2_ENTRY = 5.0      # RSI(2) below this, inside a 200-day uptrend
+RSI2_STOP = 0.08      # hard stop the original strategy lacks
 HOLD_DAYS, MAX_FROM_HIGH, MIN_MOM, MAX_EXT, MAX_RISK, BUF, TARGET_R = 21, -0.15, 0.10, 0.10, 0.08, 0.02, 2.0
 
 SECTOR_ETFS = {"XLK": "Technology", "XLF": "Financials", "XLV": "Health Care", "XLE": "Energy",
@@ -216,6 +221,53 @@ def build(intraday=False):
             "stamp": datetime.now(timezone.utc).strftime("%a %d %b %Y, %H:%M UTC")}
 
 
+def rsi2(series, n=2):
+    d = series.diff()
+    up = d.clip(lower=0).ewm(alpha=1 / n, adjust=False).mean()
+    dn = (-d.clip(upper=0)).ewm(alpha=1 / n, adjust=False).mean()
+    return 100 - 100 / (1 + up / dn.replace(0, np.nan))
+
+
+def rsi2_candidates(d, held):
+    """Connors RSI-2: a sharp pullback inside a long-term uptrend.
+
+    Added because it is the only strategy tested in this project that cleared
+    its own shuffled-bars null (p=0.05 on SPY 2011-now, real OOS Sharpe 0.64
+    against a shuffled 95th percentile of 0.64 - marginal, but it cleared).
+    Across 90 names it fires about 110 times a year, which is roughly one signal
+    every other day; the 21-day swing checklist fires far less often.
+
+    Measured over 2011-2026 from $421: +3.76% a year at 20% per position. That
+    is real but it LOSES to buying and holding SPY (+14.19%) over the same
+    window. It is here because it trades often enough to be tested and observed,
+    not because it beats the index.
+
+    Exit is Connors' own rule - close above the 5-day average - plus a hard 8%
+    stop the original does not have. Without a stop, a mean-reversion entry has
+    no defined loss, and the 2011-2026 run showed avg loss ($5.19) already
+    exceeding avg win ($3.35).
+    """
+    close = d["close"]
+    out = []
+    for t in SECTORS:
+        if t not in close.columns or t in held:
+            continue
+        srs = close[t].dropna()
+        if len(srs) < 220:
+            continue
+        r = float(rsi2(srs).iloc[-1])
+        sma200 = float(srs.rolling(200).mean().iloc[-1])
+        price = float(srs.iloc[-1])
+        if not (np.isfinite(r) and price > sma200 and r < RSI2_ENTRY):
+            continue
+        stop = price * (1 - RSI2_STOP)
+        out.append({"ticker": t, "price": price, "stop": stop,
+                    "target": price + TARGET_R * (price - stop),
+                    "side": "long", "rsi2": r,
+                    "exit_ma": float(srs.rolling(5).mean().iloc[-1])})
+    return sorted(out, key=lambda x: x["rsi2"])
+
+
 def fallback(d, held):
     """Best available trade when the checklist approves nothing.
 
@@ -307,6 +359,41 @@ def trade(d, intraday=False):
                     target = c["price"] + TARGET_R * (c["price"] - c["stop"])
                     portfolio.open_position(book, c["ticker"], sized.qty,
                                             c["price"], c["stop"], target)
+
+    # CONNORS RSI-2. Runs before the forced fallback so a tested signal always
+    # outranks a manufactured one. Sized at normal risk, not forced risk, and
+    # tagged forced=False because it IS a rule - just a different rule from the
+    # 21-day swing checklist.
+    d["rsi2"] = None
+    if RSI2_ENABLED:
+        cands = rsi2_candidates(d, held)
+        d["rsi2_seen"] = [f"{c['ticker']} ({c['rsi2']:.1f})" for c in cands[:5]]
+        g = risk.gate(equity, book["start_equity"],
+                      (book.get("equity_curve") or [{}])[-2].get("equity", equity)
+                      if len(book.get("equity_curve", [])) >= 2 else equity,
+                      len(held), True, day_pnl=day_pnl)
+        if not g.allowed:
+            d["rsi2"] = f"no RSI-2 entry: {g.reason}"
+        elif not cands:
+            d["rsi2"] = "no RSI-2 signal today"
+        else:
+            for c2 in cands:
+                corr = risk.correlation_veto(c2["ticker"], held, d["close"])
+                if not corr.allowed:
+                    continue
+                sized = risk.size(equity, c2["price"], c2["stop"])
+                if not sized.allowed:
+                    continue
+                portfolio.open_position(book, c2["ticker"], sized.qty, c2["price"],
+                                        c2["stop"], c2["target"], side="long",
+                                        forced=False, note=f"RSI-2 {c2['rsi2']:.1f}")
+                held.append(c2["ticker"])
+                d["rsi2"] = (f"RSI-2 LONG {c2['ticker']} @ ${c2['price']:,.2f} "
+                             f"(RSI {c2['rsi2']:.1f})")
+                skip = None
+                break
+            else:
+                d["rsi2"] = "RSI-2 signals all vetoed (correlation or size)"
 
     # FORCED FALLBACK. Only when the rules declined and no slot conflict exists.
     # Deliberately does NOT override the risk gate: position limits, the daily
@@ -523,8 +610,10 @@ is to compare them against the rules &mdash; pooling them would answer neither
 question.</p></section>"""
 
     lines = []
+    if d.get("rsi2"):
+        lines.append(d["rsi2"])
     if d.get("skip"):
-        lines.append(f"Rules: {d['skip']}")
+        lines.append(f"Swing rules: {d['skip']}")
     if d.get("forced"):
         lines.append(d["forced"])
     why = f'<p class="why">{"<br>".join(lines)}</p>' if lines else ""

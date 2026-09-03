@@ -87,6 +87,44 @@ class RSIReversion(Strategy):
         return _hold(rsi < self.params["oversold"], rsi > self.params["overbought"])
 
 
+class ConnorsRSI2(Strategy):
+    """Larry Connors' 2-period RSI mean reversion, with the 200-day trend filter.
+
+    Buy a short, sharp pullback INSIDE an uptrend; exit as soon as price recovers
+    above its 5-day average. Holds are typically 1-3 days, which is why it is a
+    plausible fit for a small account with a daily target - unlike a 21-day swing
+    that ties capital up for a month.
+
+    Rules as published:
+        enter  RSI(2) < 5  and close > 200sma
+        exit   close > 5sma, or close falls below the 200sma
+
+    The published record is 75-85% win rates on indices from the mid-1990s to
+    2010. That period is the concern, not the claim: the strategy was published
+    in 2008-2011 and is now in every screener. McLean & Pontiff measured 58%
+    decay in published anomalies AFTER publication, so the honest expectation is
+    that most of that record is gone. Which is what the test is for.
+
+    Long/flat only, like every strategy in this file. Connors' short side needs
+    borrow costs the engine does not model.
+    """
+
+    name = "connors_rsi2"
+    defaults = {"rsi_period": 2, "entry": 5, "exit_ma": 5, "trend_ma": 200}
+    grid = {"rsi_period": [2, 3], "entry": [5, 10, 15], "exit_ma": [5, 10],
+            "trend_ma": [100, 200]}
+
+    def signals(self, df: pd.DataFrame) -> pd.Series:
+        close = df["close"]
+        rsi = _rsi(close, self.params["rsi_period"])
+        trend = close.rolling(self.params["trend_ma"]).mean()
+        fast = close.rolling(self.params["exit_ma"]).mean()
+        uptrend = close > trend
+        enter = (rsi < self.params["entry"]) & uptrend
+        exit_ = (close > fast) | (~uptrend)
+        return _hold(enter, exit_)
+
+
 class BollingerReversion(Strategy):
     """Mean reversion: buy a close below the lower band, exit back at the middle."""
 
@@ -216,7 +254,8 @@ def _rsi(close: pd.Series, period: int) -> pd.Series:
 
 
 STRATEGIES: dict[str, type[Strategy]] = {
-    cls.name: cls for cls in (MACross, RSIReversion, BollingerReversion, Godmode, BuyAndHold)
+    cls.name: cls for cls in (MACross, RSIReversion, BollingerReversion, ConnorsRSI2,
+                              Godmode, BuyAndHold)
 }
 
 
