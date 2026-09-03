@@ -48,6 +48,14 @@ FORCED_HOLD_DAYS = 10  # cycle faster than the 40-day default so slots free up
 RSI2_ENABLED = True
 RSI2_ENTRY = 5.0      # RSI(2) below this, inside a 200-day uptrend
 RSI2_STOP = 0.08      # hard stop the original strategy lacks
+
+# Stated goal: $421 -> $1,000 by 31 Dec 2026. Tracked on the dashboard so the
+# gap between the goal and the trajectory stays visible rather than assumed.
+# target_test.py measures P(hit) for the current engine at essentially 0% - the
+# edge is real (+0.287%/trade) but far too small over ~85 sessions. Reaching it
+# requires convex bets whose measured expected value is negative.
+GOAL_EQUITY = 1000.0
+GOAL_DATE = "2026-12-31"
 HOLD_DAYS, MAX_FROM_HIGH, MIN_MOM, MAX_EXT, MAX_RISK, BUF, TARGET_R = 21, -0.15, 0.10, 0.10, 0.08, 0.02, 2.0
 
 SECTOR_ETFS = {"XLK": "Technology", "XLF": "Financials", "XLV": "Health Care", "XLE": "Energy",
@@ -630,6 +638,13 @@ question.</p></section>"""
 <div><span class="lab">Open P&amp;L</span><span class="val {'go-c' if s['unrealised_pnl'] >= 0 else 'stop-c'}">${s['unrealised_pnl']:+,.0f}</span></div>
 <div><span class="lab">Win rate</span><span class="val">{wr}<small> {s['wins']}/{s['closed_trades']}</small></span></div>
 </div>
+<div class="target"><div class="target-top">
+<span class="lab">Goal &middot; ${GOAL_EQUITY:,.0f} by {GOAL_DATE[5:]}</span>
+<span class="val">{(s['equity'] - s['start_equity']) / (GOAL_EQUITY - s['start_equity']) * 100:+.1f}%</span></div>
+<div class="pos-bar"><i style="width:{min(max((s['equity'] - s['start_equity']) / (GOAL_EQUITY - s['start_equity']), 0), 1)*100:.0f}%"></i></div>
+<p class="note">${GOAL_EQUITY - s['equity']:,.0f} to go. Measured probability for the
+current engine is near zero over the remaining sessions &mdash; the edge is real but
+small. See target_test.py.</p></div>
 <div class="target"><div class="target-top"><span class="lab">Today &middot; target ${risk.DAILY_PROFIT_TARGET:,.0f}</span>
 <span class="val {'go-c' if s['day_realised'] >= 0 else 'stop-c'}">${s['day_realised']:+,.2f}</span></div>
 <div class="pos-bar"><i style="width:{min(max(s['day_realised'] / risk.DAILY_PROFIT_TARGET, 0), 1)*100:.0f}%"></i></div></div>
