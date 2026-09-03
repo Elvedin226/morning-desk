@@ -1,17 +1,26 @@
-"""Standalone dashboard builder for the cloud routine.
+"""Dashboard builder and paper-account driver, run by GitHub Actions each weekday.
 
-Single file, no local imports, installs its own dependencies. This is the version
-embedded in the scheduled cloud agent's prompt, which runs in a sandbox with no
-access to the rest of this project. Kept here so it can be tested locally before
-being embedded, and so the two versions can be diffed later.
+This began as a single file with no local imports, because it was meant to be
+embedded in a cloud agent's prompt and run in a sandbox with no repo. That is no
+longer how it runs: GitHub Actions checks out the whole repo, so it imports
+portfolio.py and risk.py directly. Duplicating the account and sizing maths here
+would guarantee the two copies drift, and a paper account that disagrees with
+itself is worse than none.
 
-Logic mirrors bot.py + publish.py. If you change the rules there, change them here.
+The strategy rules ARE still duplicated from bot.py (evaluate / regime / sector
+strength). If you change the rules there, change them here.
+
+The workflow commits data_cache/portfolio.json, so the account persists between
+runs and the record accumulates in git history.
 """
 
 import json, warnings
 from datetime import datetime, timezone
 warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd, yfinance as yf
+
+import portfolio
+import risk
 
 ACCOUNT, RISK = 421.0, 0.01
 HOLD_DAYS, MAX_FROM_HIGH, MIN_MOM, MAX_EXT, MAX_RISK, BUF, TARGET_R = 21, -0.15, 0.10, 0.10, 0.08, 0.02, 2.0
@@ -182,6 +191,75 @@ def build():
             "stamp": datetime.now(timezone.utc).strftime("%a %d %b %Y, %H:%M UTC")}
 
 
+def trade(d):
+    """Advance the paper account one day: resolve open positions, then open the
+    day's candidate if the risk layer allows it.
+
+    Exits are settled BEFORE the entry is sized, so freed cash is available and a
+    slot released by a stop can be reused the same day.
+    """
+    book = portfolio.load()
+    book, closed = portfolio.update(book)
+
+    equity = book["equity"]
+    held = [p["ticker"] for p in book["positions"]]
+    c, skip = d["chosen"], None
+
+    # Regime is checked HERE and not left to build(), which fills in `chosen`
+    # whatever the regime so the dashboard can show what would have qualified.
+    # Reading that field as permission to trade put a position on during a red
+    # tape - the one condition this long-only strategy was never tested in.
+    if not d["reg"]["green"]:
+        skip = "regime red - strategy is long-only and untested in this tape"
+    elif c is None:
+        skip = "nothing passed the checklist"
+    else:
+        curve = book.get("equity_curve", [])
+        day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
+        g = risk.gate(equity, book["start_equity"], day_start, len(held), True)
+        if not g.allowed:
+            skip = g.reason
+        elif c["ticker"] in held:
+            skip = f"already holding {c['ticker']}"
+        else:
+            corr = risk.correlation_veto(c["ticker"], held, d["close"])
+            if not corr.allowed:
+                skip = corr.reason
+            else:
+                sized = risk.size(equity, c["price"], c["stop"])
+                if not sized.allowed:
+                    skip = sized.reason
+                else:
+                    target = c["price"] + TARGET_R * (c["price"] - c["stop"])
+                    portfolio.open_position(book, c["ticker"], sized.qty,
+                                            c["price"], c["stop"], target)
+
+    portfolio.save(book)
+    d["book"], d["closed"], d["skip"] = book, closed, skip
+    d["stats"] = portfolio.stats(book)
+    return d
+
+
+def equity_spark(curve, w=220, h=44):
+    """The account's own line. Flat until there are trades - which is itself the
+    honest picture, and better than hiding the panel until it looks good."""
+    if len(curve) < 2:
+        return ""
+    v = np.array([p["equity"] for p in curve], dtype=float)
+    lo, hi = float(v.min()), float(v.max())
+    rng = hi - lo if hi - lo > 1e-9 else max(abs(hi), 1.0) * 0.02
+    xs = np.linspace(1, w - 1, len(v))
+    ys = [h - 4 - (x - lo) / rng * (h - 10) for x in v]
+    pts = " ".join(f"{a:.1f},{b:.1f}" for a, b in zip(xs, ys))
+    col = "var(--go)" if v[-1] >= v[0] else "var(--stop)"
+    base = f"{xs[0]:.1f},{h} " + pts + f" {xs[-1]:.1f},{h}"
+    return (f'<svg class="eqline" viewBox="0 0 {w} {h}" width="100%" height="{h}" '
+            f'preserveAspectRatio="none" role="img" aria-label="Account equity over time">'
+            f'<polygon points="{base}" fill="{col}" opacity="0.10"/>'
+            f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="1.6"/>'
+            f'<circle cx="{xs[-1]:.1f}" cy="{ys[-1]:.1f}" r="2.4" fill="{col}"/></svg>')
+
+
 CSS = """:root{--ground:#0F1216;--surface:#171B21;--line:#2A313B;--ink:#E6EAEF;--ink-soft:#98A2AE;
 --ink-faint:#6B7482;--accent:#C9A227;--go:#3FB27F;--stop:#E06C5A;--go-bg:#12271F;--stop-bg:#2A1815}
 :root[data-theme="light"]{--ground:#F2F4F7;--surface:#FFFFFF;--line:#D3DAE3;--ink:#161A1F;
@@ -240,6 +318,89 @@ tr[data-hot="1"] td.num:last-child{color:var(--accent);font-weight:600}
 .note{font-size:13px;color:var(--ink-faint);margin:12px 0 0}
 footer{font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.7;color:var(--ink-faint);
 border-top:1px solid var(--line);padding-top:16px}"""
+
+# Account styles kept separate so publish.py can interpolate them into its own
+# stylesheet instead of holding a second copy that drifts.
+ACCOUNT_CSS = """.acct-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:2px}
+.equity{font-family:"IBM Plex Mono",monospace;font-size:2.1rem;font-weight:600;letter-spacing:-.02em;
+font-variant-numeric:tabular-nums;line-height:1}
+.delta{font-family:"IBM Plex Mono",monospace;font-size:1rem;font-variant-numeric:tabular-nums}
+.eqline{display:block;width:100%;height:auto;margin:10px 0 14px}
+.acct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 8px;
+padding-top:14px;border-top:1px solid var(--line)}
+.acct-grid>div{display:flex;flex-direction:column;gap:2px}
+.pos-bar{height:4px;border-radius:2px;background:var(--line);position:relative;overflow:hidden;
+margin-top:5px}
+.pos-bar i{position:absolute;top:0;bottom:0;left:0;border-radius:2px;background:var(--accent)}
+.posname{display:flex;align-items:baseline;gap:7px}
+.posmeta{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-faint);
+letter-spacing:.04em}
+.why{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);
+margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line)}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+padding:2px 5px;border-radius:2px;border:1px solid var(--line);color:var(--ink-faint)}
+.tag[data-r="target"]{color:var(--go);border-color:var(--go)}
+.tag[data-r="stop"]{color:var(--stop);border-color:var(--stop)}"""
+
+CSS = CSS + ACCOUNT_CSS
+
+
+def account_panel(d):
+    """The paper account: what it holds, what it closed, what that came to."""
+    book, s = d["book"], d["stats"]
+    sign = "go-c" if s["total_return"] >= 0 else "stop-c"
+
+    rows = ""
+    for p in book["positions"]:
+        last = p.get("last", p["entry"])
+        pnl = p.get("unrealised", 0.0)
+        # How far price has travelled from stop to target, as a bar. Clamped so
+        # a gap outside the band cannot render a bar wider than its track.
+        span = p["target"] - p["stop"]
+        frac = min(max((last - p["stop"]) / span, 0.0), 1.0) if span > 0 else 0.0
+        rows += (f'<tr><td><div class="posname"><span class="tick">{p["ticker"]}</span>'
+                 f'<span class="posmeta">{p["qty"]:.3f} sh</span></div>'
+                 f'<div class="posmeta">${p["stop"]:,.2f} &rarr; ${p["target"]:,.2f}</div>'
+                 f'<div class="pos-bar"><i style="width:{frac*100:.0f}%"></i></div></td>'
+                 f'<td class="num">${p["entry"]:,.2f}</td>'
+                 f'<td class="num">${last:,.2f}</td>'
+                 f'<td class="num {"up" if pnl >= 0 else "down"}">${pnl:+,.2f}</td></tr>')
+    if not rows:
+        rows = '<tr><td colspan="4" class="empty">No open positions.</td></tr>'
+
+    done = ""
+    for t in reversed(book.get("closed", [])[-8:]):
+        done += (f'<tr><td><div class="posname"><span class="tick">{t["ticker"]}</span>'
+                 f'<span class="tag" data-r="{t["reason"].split()[0]}">{t["reason"]}</span></div>'
+                 f'<div class="posmeta">{t["opened"]} &rarr; {t["closed"]}</div></td>'
+                 f'<td class="num">${t["entry"]:,.2f}</td><td class="num">${t["exit"]:,.2f}</td>'
+                 f'<td class="num {"up" if t["pnl"] >= 0 else "down"}">${t["pnl"]:+,.2f}<br>'
+                 f'<small>{t["pnl_pct"]:+.1f}%</small></td></tr>')
+    closed_tbl = ""
+    if done:
+        closed_tbl = f"""<section class="card"><h2>Closed trades</h2><table>
+<thead><tr><th>Trade</th><th class="num">In</th><th class="num">Out</th><th class="num">P&amp;L</th></tr></thead>
+<tbody>{done}</tbody></table></section>"""
+
+    wr = f"{s['win_rate']*100:.0f}%" if s["win_rate"] is not None else "&mdash;"
+    why = f'<p class="why">Today: {d["skip"]}</p>' if d.get("skip") else ""
+
+    return f"""<section class="card">
+<h2>Paper account</h2>
+<div class="acct-top"><span class="equity">${s['equity']:,.2f}</span>
+<span class="delta {sign}">{s['total_return']*100:+.2f}%</span></div>
+<span class="posmeta">from ${s['start_equity']:,.0f} &middot; simulated, no real money</span>
+{equity_spark(book.get('equity_curve', []))}
+<div class="acct-grid">
+<div><span class="lab">Cash</span><span class="val">${s['cash']:,.0f}</span></div>
+<div><span class="lab">Realised</span><span class="val {'go-c' if s['realised_pnl'] >= 0 else 'stop-c'}">${s['realised_pnl']:+,.0f}</span></div>
+<div><span class="lab">Open P&amp;L</span><span class="val {'go-c' if s['unrealised_pnl'] >= 0 else 'stop-c'}">${s['unrealised_pnl']:+,.0f}</span></div>
+<div><span class="lab">Win rate</span><span class="val">{wr}<small> {s['wins']}/{s['closed_trades']}</small></span></div>
+</div>{why}</section>
+<section class="card"><h2>Open positions</h2><table>
+<thead><tr><th>Position</th><th class="num">Entry</th><th class="num">Last</th><th class="num">P&amp;L</th></tr></thead>
+<tbody>{rows}</tbody></table></section>
+{closed_tbl}"""
 
 
 def render(d):
@@ -304,6 +465,7 @@ def render(d):
 <header><span class="eyebrow">Morning Desk &middot; {RISK*100:.0f}% risk per trade</span>
 <span class="asof">as of {d['stamp']}</span></header>
 <section class="verdict" data-state="{state}"><h1>{verdict}</h1><p>{why}</p></section>
+{account_panel(d)}
 {card}
 <section class="card"><h2>Regime &middot; SPY {reg['spy']:,.2f}</h2><table>
 <tr><td>10-day</td><td class="num">{reg['s10']:,.2f}</td></tr>
@@ -320,14 +482,22 @@ the regime where intraday fill rates fall to roughly 1 in 5.</p></section>
 <section class="card"><h2>Sector strength</h2><table>
 <thead><tr><th>Sector</th><th class="num">1mo</th><th class="num">3mo</th></tr></thead>
 <tbody>{sectors}</tbody></table></section>
-<footer>Snapshot, not live &mdash; built when the routine last ran.<br>
+<footer>Snapshot, not live &mdash; rebuilt each weekday morning before the open.<br>
+The account is simulated. Entries fill at the decision price, exits at the stop or
+target, 5bp cost each way. Real fills would be worse.<br>
 Output of fixed rules. Not a recommendation, and not evidence of an edge.</footer>
 </div>"""
 
 
 if __name__ == "__main__":
-    d = build()
+    d = trade(build())
     open("dashboard.html", "w", encoding="utf-8").write(render(d))
+    s = d["stats"]
     print(json.dumps({"regime": "GREEN" if d["reg"]["green"] else "RED",
                       "candidate": d["chosen"]["ticker"] if d["chosen"] else None,
-                      "passing": len(d["passing"]), "gaps": len(d["gaps"])}))
+                      "skip": d["skip"], "passing": len(d["passing"]),
+                      "gaps": len(d["gaps"]), "equity": s["equity"],
+                      "open": s["open_positions"], "closed": s["closed_trades"],
+                      "realised": s["realised_pnl"],
+                      "closed_today": [f'{c["ticker"]} {c["reason"]} {c["pnl"]:+.2f}'
+                                       for c in d["closed"]]}))

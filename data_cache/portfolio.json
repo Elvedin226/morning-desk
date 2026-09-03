@@ -1,0 +1,15 @@
+{
+  "start_equity": 421.0,
+  "cash": 421.0,
+  "positions": [],
+  "closed": [],
+  "equity_curve": [
+    {
+      "date": "2026-09-03",
+      "equity": 421.0
+    }
+  ],
+  "created": "2026-09-03T21:14:14+00:00",
+  "market_value": 0.0,
+  "equity": 421.0
+}

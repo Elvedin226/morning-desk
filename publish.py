@@ -25,6 +25,8 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 import bot
+import cloud_bot
+import portfolio
 import premarket
 import watchlist
 
@@ -143,7 +145,16 @@ def gather() -> dict:
     pos = bot.size_position(chosen, ACCOUNT, RISK) if chosen else None
     gaps = premarket.scan(premarket.DEFAULT_UNIVERSE, 3.0)
 
+    # READ-ONLY on the paper account. cloud_bot.py (GitHub Actions) is the only
+    # writer; if this file also opened positions, a local run on a day CI had
+    # already run would enter the same trade twice. Marking to market is safe -
+    # it only refreshes prices - but nothing here opens or closes anything.
+    book = portfolio.load()
+    book, _ = portfolio.update(book)
+
     return {
+        "book": book, "stats": portfolio.stats(book),
+        "skip": None if chosen else "no candidate today",
         "stamp": datetime.now().strftime("%a %d %b %Y, %H:%M"),
         "regime": reg, "sectors": sectors, "candidate": chosen,
         "position": pos, "passing": passing, "blocked": blocked, "gaps": gaps,
@@ -315,6 +326,7 @@ td.up{{color:var(--go)}} td.down{{color:var(--stop)}}
 tr[data-hot="1"] td.num:last-child{{color:var(--accent);font-weight:600}}
 .empty{{color:var(--ink-faint);font-style:italic;padding:14px 0}}
 .note{{font-size:13px;color:var(--ink-faint);margin:12px 0 0}}
+{cloud_bot.ACCOUNT_CSS}
 footer{{font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.7;
   color:var(--ink-faint);border-top:1px solid var(--line);padding-top:16px}}
 </style>
@@ -329,6 +341,7 @@ footer{{font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.7;
     <h1>{verdict}</h1>
     <p>{html.escape(because)}</p>
   </section>
+{cloud_bot.account_panel(d)}
 {card}
   <section class="card">
     <h2>Regime &middot; SPY {reg['spy']:,.2f}</h2>

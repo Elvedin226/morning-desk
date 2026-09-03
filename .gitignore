@@ -10,3 +10,10 @@ data_cache/
 
 # Windows Task Scheduler wrappers - local paths, useless on a runner
 run-*.bat
+
+# ...except the paper account. This is the whole record of what the bot did and
+# it must survive between GitHub Actions runs, which share nothing but the repo.
+# Ignoring it would restart the account from scratch every morning.
+!data_cache/
+data_cache/*
+!data_cache/portfolio.json
