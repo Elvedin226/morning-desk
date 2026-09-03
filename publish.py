@@ -321,7 +321,7 @@ footer{{font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.7;
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Morning Desk &middot; ${ACCOUNT:,.0f} &middot; {RISK*100:.0f}% risk</span>
+    <span class="eyebrow">Morning Desk &middot; {RISK*100:.0f}% risk per trade</span>
     <span class="asof">as of {d['stamp']}</span>
   </header>
 

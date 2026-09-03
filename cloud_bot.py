@@ -301,7 +301,7 @@ def render(d):
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>{CSS}</style>
 <div class="wrap">
-<header><span class="eyebrow">Morning Desk &middot; ${ACCOUNT:,.0f} &middot; {RISK*100:.0f}% risk</span>
+<header><span class="eyebrow">Morning Desk &middot; {RISK*100:.0f}% risk per trade</span>
 <span class="asof">as of {d['stamp']}</span></header>
 <section class="verdict" data-state="{state}"><h1>{verdict}</h1><p>{why}</p></section>
 {card}
