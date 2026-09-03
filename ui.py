@@ -1,8 +1,30 @@
-<title>Morning Desk</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<style>
+"""Dashboard renderer: data as JSON, rendered client-side.
+
+WHY THIS REPLACED SERVER-BUILT HTML. The previous renderer pasted finished
+markup together in Python, which made every interactive idea expensive - a tab,
+an expandable row, a scrubable chart each meant another string-concatenation
+branch. Here the page ships one JSON payload and a small app that draws it, so
+interaction is cheap and the Python side only has to be correct about numbers.
+
+WHAT IT CANNOT DO. An Artifact runs under a strict CSP that blocks every
+external host, so this page cannot fetch a live quote - not from Yahoo, not from
+anywhere. "Live" here means the page animates, scrubs and recomputes elapsed
+time locally; the prices themselves are as of the last GitHub Actions run. That
+limit is stated on the page rather than hidden, because a trading screen that
+looks live and is not is worse than one that admits it.
+
+The CSS and JS are plain (non-f) strings and the payload is substituted with a
+token replace. f-strings here would need every CSS and JS brace doubled, which
+is how two files in this project got mangled already.
+"""
+
+from __future__ import annotations
+
+import json
+
+TOKEN = "__PAYLOAD__"
+
+CSS = """
 :root{
   --ground:#0A0C0F; --surface:#14181D; --surface-2:#1B2027; --line:#232A33;
   --ink:#EDF1F6; --ink-soft:#8E99A8; --ink-faint:#5C6675;
@@ -182,95 +204,9 @@ footer{font-size:.74rem;line-height:1.65;color:var(--ink-faint);
   .draw{stroke-dashoffset:0}
   .reveal{opacity:1;transform:none}
 }
-</style>
+"""
 
-<div id="bar">
-  <span class="eyebrow"><i class="dot live"></i>Morning Desk</span>
-  <span><span id="bar-eq" class="b-eq mono"></span> <span id="bar-d" class="b-d mono"></span></span>
-</div>
-
-<div class="wrap">
-  <header>
-    <div class="eyebrow"><i class="dot live"></i>Paper account
-      <span style="color:var(--ink-faint);letter-spacing:.08em">&middot; simulated</span></div>
-    <div id="eq-val" class="equity mono">$0.00</div>
-    <div id="eq-delta" class="delta"></div>
-    <div class="sub">Updated <span id="ago">just now</span> &middot; prices as of the last run, not live</div>
-  </header>
-
-  <div class="chartwrap">
-    <svg id="eq" viewBox="0 0 560 190" preserveAspectRatio="none" role="img"
-         aria-label="Account equity over time"></svg>
-    <div id="readout" class="readout mono"></div>
-    <div class="scrub"></div>
-  </div>
-  <div class="ranges" role="tablist" aria-label="Chart range">
-    <button class="range" data-r="7" role="tab" aria-selected="false">1W</button>
-    <button class="range" data-r="21" role="tab" aria-selected="false">1M</button>
-    <button class="range" data-r="63" role="tab" aria-selected="false">3M</button>
-    <button class="range" data-r="ALL" role="tab" aria-selected="true">ALL</button>
-  </div>
-
-  <div id="status" class="status">
-    <div><h3 id="st-h"></h3><p id="st-p"></p></div>
-  </div>
-
-  <div class="tabs" role="tablist">
-    <button class="tab" data-p="p-book" role="tab" aria-selected="true">Book</button>
-    <button class="tab" data-p="p-perf" role="tab" aria-selected="false">Performance</button>
-    <button class="tab" data-p="p-sig"  role="tab" aria-selected="false">Signals</button>
-  </div>
-
-  <section id="p-book" class="panel">
-    <div class="card"><h2>Open positions <span id="pos-n"></span></h2><div id="pos"></div>
-      <p class="note">Tap a position for its stop, target and cost.</p></div>
-    <div class="card"><h2>Closed trades</h2><div id="closed"></div></div>
-  </section>
-
-  <section id="p-perf" class="panel" hidden>
-    <div class="card"><h2>Today</h2><div id="today" class="statgrid"></div>
-      <div id="t-track" class="track"><i class="up" data-w="0"></i></div>
-      <p class="note">The bot stops opening new positions once the day's realised
-        profit reaches its target. Open positions keep running.</p></div>
-    <div class="card"><h2>Goal</h2><div id="goal" class="statgrid"></div>
-      <div id="g-track" class="track"><i data-w="0"></i></div>
-      <p class="note" id="g-note"></p></div>
-    <div class="card"><h2>Rules vs forced</h2><div class="scroll"><table>
-      <thead><tr><th>Arm</th><th class="n">Closed</th><th class="n">Dir</th>
-      <th class="n">Win</th><th class="n">P&amp;L</th></tr></thead>
-      <tbody id="arms"></tbody></table></div>
-      <p class="note">Forced trades are taken at half size on days the checklist declined.
-        They are scored separately &mdash; pooling them would answer neither question.</p></div>
-  </section>
-
-  <section id="p-sig" class="panel" hidden>
-    <div class="card"><h2>Regime</h2><div id="regime" class="dgrid"></div>
-      <p class="note">Long-only rules stand down when SPY's short averages roll over.
-        Measured over 2007&ndash;2026 this filter did not improve 21-day outcomes,
-        so forced trades ignore it while it is being tested.</p></div>
-    <div class="card"><h2>Passing the checklist</h2><div class="scroll"><table>
-      <thead><tr><th>Ticker</th><th class="n">Price</th><th class="n">Momentum</th></tr></thead>
-      <tbody id="watch"></tbody></table></div></div>
-    <div class="card"><h2>Sector strength</h2><div class="scroll"><table>
-      <thead><tr><th>Sector</th><th class="n">1mo</th><th class="n">3mo</th></tr></thead>
-      <tbody id="sectors"></tbody></table></div></div>
-    <div class="card"><h2>Pre-market gaps</h2><div class="scroll"><table>
-      <thead><tr><th>Ticker</th><th class="n">Pre</th><th class="n">Gap</th></tr></thead>
-      <tbody id="gaps"></tbody></table></div></div>
-  </section>
-
-  <footer>
-    Simulated account &mdash; no broker is connected and no real order is placed.
-    Entries fill at the decision price, exits at the stop or target, 5bp cost each way.
-    Real fills would be worse.<br><br>
-    Prices are a snapshot from the last scheduled run, not a live feed &mdash; this page
-    cannot reach a market-data host. Output of fixed rules; not a recommendation,
-    and not evidence of an edge.
-  </footer>
-</div>
-
-<script>window.__DESK__ = {"built": "2026-09-03T23:45:53+00:00", "intraday": true, "equity": 420.95, "start_equity": 421.0, "cash": 217.69, "curve": [{"date": "2026-09-03", "equity": 420.95}], "positions": [{"ticker": "GM", "side": "long", "qty": 0.406, "entry": 87.22, "stop": 82.0358, "target": 97.5884, "opened": "2026-09-03", "cost_basis": 35.43, "forced": true, "note": "regime red", "last": 87.22, "unrealised": -0.02}, {"ticker": "KO", "side": "long", "qty": 0.5185, "entry": 88.81, "stop": 84.7504, "target": 96.9292, "opened": "2026-09-03", "cost_basis": 46.07, "forced": true, "note": "regime red", "last": 88.84, "unrealised": -0.01}, {"ticker": "BAC", "side": "long", "qty": 0.6804, "entry": 63.04, "stop": 59.9466, "target": 69.2268, "opened": "2026-09-03", "cost_basis": 42.91, "forced": true, "note": "regime red", "last": 63.065, "unrealised": -0.0}, {"ticker": "F", "side": "long", "qty": 2.4572, "entry": 14.41, "stop": 13.5534, "target": 16.1232, "opened": "2026-09-03", "cost_basis": 35.43, "forced": true, "note": "regime red", "last": 14.41, "unrealised": -0.02}, {"ticker": "JPM", "side": "long", "qty": 0.12, "entry": 362.06, "stop": 344.519, "target": 397.142, "opened": "2026-09-03", "cost_basis": 43.47, "forced": true, "note": "regime red"}], "closed": [], "arms": {"qualified": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 0}, "forced": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 5}}, "day_realised": 0, "day_target": 20.0, "goal_target": 1000.0, "goal_date": "Dec 31", "days_left": 85, "verdict": "NO TRADE", "why": "Regime is red. The long-only swing rules stand down.", "lines": ["no RSI-2 entry: already holding 4 positions (max 3)", "forced LONG JPM @ $362.06 (regime red)", "Swing rules: regime red - strategy is long-only and untested in this tape"], "regime": {"green": false, "spy": 773.1699829101562, "s10": 766.8789855957032, "s20": 769.206494140625, "s50": 756.1394006347656}, "passing": [{"ticker": "KO", "price": 88.80999755859375, "mom": 0.30826501552884644}, {"ticker": "BAC", "price": 63.040000915527344, "mom": 0.2767247067433156}, {"ticker": "JPM", "price": 362.05999755859375, "mom": 0.20503092942228096}, {"ticker": "ABBV", "price": 260.2099914550781, "mom": 0.19172687787892073}, {"ticker": "TMO", "price": 618.4299926757812, "mom": 0.18477717709134134}, {"ticker": "SCHW", "price": 110.37999725341797, "mom": 0.117305590860737}, {"ticker": "GM", "price": 87.22000122070312, "mom": 0.5473038749195243}], "sectors": [{"sector": "Energy", "m1": 0.12755193156735456, "m3": 0.10784727985080078}, {"sector": "Health Care", "m1": 0.05543366618982959, "m3": 0.14429325063751186}, {"sector": "Financials", "m1": 0.009655196091224338, "m3": 0.1259846215989291}, {"sector": "Cons Staples", "m1": -0.0008203409506870596, "m3": 0.046460129548988816}, {"sector": "Communication", "m1": 0.02263907679855559, "m3": 0.004994764011974073}, {"sector": "Materials", "m1": -0.00037994791025031116, "m3": 0.023183906436274215}], "gaps": []};</script>
-<script>
+JS = r"""
 const D = window.__DESK__;
 const $ = s => document.querySelector(s);
 const money = n => (n<0?"-":"") + "$" + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -508,4 +444,107 @@ function boot(){
   });
 }
 document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", boot) : boot();
-</script>
+"""
+
+SHELL = """<title>Morning Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>__CSS__</style>
+
+<div id="bar">
+  <span class="eyebrow"><i class="dot live"></i>Morning Desk</span>
+  <span><span id="bar-eq" class="b-eq mono"></span> <span id="bar-d" class="b-d mono"></span></span>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><i class="dot live"></i>Paper account
+      <span style="color:var(--ink-faint);letter-spacing:.08em">&middot; simulated</span></div>
+    <div id="eq-val" class="equity mono">$0.00</div>
+    <div id="eq-delta" class="delta"></div>
+    <div class="sub">Updated <span id="ago">just now</span> &middot; prices as of the last run, not live</div>
+  </header>
+
+  <div class="chartwrap">
+    <svg id="eq" viewBox="0 0 560 190" preserveAspectRatio="none" role="img"
+         aria-label="Account equity over time"></svg>
+    <div id="readout" class="readout mono"></div>
+    <div class="scrub"></div>
+  </div>
+  <div class="ranges" role="tablist" aria-label="Chart range">
+    <button class="range" data-r="7" role="tab" aria-selected="false">1W</button>
+    <button class="range" data-r="21" role="tab" aria-selected="false">1M</button>
+    <button class="range" data-r="63" role="tab" aria-selected="false">3M</button>
+    <button class="range" data-r="ALL" role="tab" aria-selected="true">ALL</button>
+  </div>
+
+  <div id="status" class="status">
+    <div><h3 id="st-h"></h3><p id="st-p"></p></div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" data-p="p-book" role="tab" aria-selected="true">Book</button>
+    <button class="tab" data-p="p-perf" role="tab" aria-selected="false">Performance</button>
+    <button class="tab" data-p="p-sig"  role="tab" aria-selected="false">Signals</button>
+  </div>
+
+  <section id="p-book" class="panel">
+    <div class="card"><h2>Open positions <span id="pos-n"></span></h2><div id="pos"></div>
+      <p class="note">Tap a position for its stop, target and cost.</p></div>
+    <div class="card"><h2>Closed trades</h2><div id="closed"></div></div>
+  </section>
+
+  <section id="p-perf" class="panel" hidden>
+    <div class="card"><h2>Today</h2><div id="today" class="statgrid"></div>
+      <div id="t-track" class="track"><i class="up" data-w="0"></i></div>
+      <p class="note">The bot stops opening new positions once the day's realised
+        profit reaches its target. Open positions keep running.</p></div>
+    <div class="card"><h2>Goal</h2><div id="goal" class="statgrid"></div>
+      <div id="g-track" class="track"><i data-w="0"></i></div>
+      <p class="note" id="g-note"></p></div>
+    <div class="card"><h2>Rules vs forced</h2><div class="scroll"><table>
+      <thead><tr><th>Arm</th><th class="n">Closed</th><th class="n">Dir</th>
+      <th class="n">Win</th><th class="n">P&amp;L</th></tr></thead>
+      <tbody id="arms"></tbody></table></div>
+      <p class="note">Forced trades are taken at half size on days the checklist declined.
+        They are scored separately &mdash; pooling them would answer neither question.</p></div>
+  </section>
+
+  <section id="p-sig" class="panel" hidden>
+    <div class="card"><h2>Regime</h2><div id="regime" class="dgrid"></div>
+      <p class="note">Long-only rules stand down when SPY's short averages roll over.
+        Measured over 2007&ndash;2026 this filter did not improve 21-day outcomes,
+        so forced trades ignore it while it is being tested.</p></div>
+    <div class="card"><h2>Passing the checklist</h2><div class="scroll"><table>
+      <thead><tr><th>Ticker</th><th class="n">Price</th><th class="n">Momentum</th></tr></thead>
+      <tbody id="watch"></tbody></table></div></div>
+    <div class="card"><h2>Sector strength</h2><div class="scroll"><table>
+      <thead><tr><th>Sector</th><th class="n">1mo</th><th class="n">3mo</th></tr></thead>
+      <tbody id="sectors"></tbody></table></div></div>
+    <div class="card"><h2>Pre-market gaps</h2><div class="scroll"><table>
+      <thead><tr><th>Ticker</th><th class="n">Pre</th><th class="n">Gap</th></tr></thead>
+      <tbody id="gaps"></tbody></table></div></div>
+  </section>
+
+  <footer>
+    Simulated account &mdash; no broker is connected and no real order is placed.
+    Entries fill at the decision price, exits at the stop or target, 5bp cost each way.
+    Real fills would be worse.<br><br>
+    Prices are a snapshot from the last scheduled run, not a live feed &mdash; this page
+    cannot reach a market-data host. Output of fixed rules; not a recommendation,
+    and not evidence of an edge.
+  </footer>
+</div>
+
+<script>window.__DESK__ = __PAYLOAD__;</script>
+<script>__JS__</script>"""
+
+
+def render(payload: dict) -> str:
+    """Assemble the page. Token replacement, never f-strings - the CSS and JS are
+    full of braces and this file would be unmaintainable otherwise."""
+    html = SHELL.replace("__CSS__", CSS).replace("__JS__", JS)
+    # Split the closing tag so the JSON can never terminate the script block early.
+    blob = json.dumps(payload, default=str).replace("</", "<\\/")
+    return html.replace(TOKEN, blob)

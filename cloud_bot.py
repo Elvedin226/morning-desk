@@ -14,7 +14,7 @@ The workflow commits data_cache/portfolio.json, so the account persists between
 runs and the record accumulates in git history.
 """
 
-import json, warnings
+import json, os, warnings
 from datetime import datetime, timezone
 warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd, yfinance as yf
@@ -742,11 +742,55 @@ Output of fixed rules. Not a recommendation, and not evidence of an edge.</foote
 </div>"""
 
 
+def payload(d):
+    """Everything the page needs, as plain JSON. No markup built in Python."""
+    book, st = d["book"], d["stats"]
+    reg, c = d["reg"], d["chosen"]
+
+    if not reg["green"]:
+        verdict, why = "NO TRADE", "Regime is red. The long-only swing rules stand down."
+    elif c is None:
+        verdict, why = "NO TRADE", "Regime is clear, but nothing passes the checklist today."
+    else:
+        verdict, why = "TRADE", f"{c['ticker']} passes every filter."
+
+    lines = [x for x in (d.get("rsi2"), d.get("forced")) if x]
+    if d.get("skip"):
+        lines.append("Swing rules: " + d["skip"])
+
+    left = int(np.busday_count(datetime.now(timezone.utc).date().isoformat(),
+                               GOAL_DATE))
+    return {
+        "built": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "intraday": bool(d.get("intraday")),
+        "equity": st["equity"], "start_equity": st["start_equity"],
+        "cash": book["cash"], "curve": book.get("equity_curve", []),
+        "positions": book["positions"], "closed": book.get("closed", []),
+        "arms": st["arms"], "day_realised": st["day_realised"],
+        "day_target": risk.DAILY_PROFIT_TARGET,
+        "goal_target": GOAL_EQUITY,
+        "goal_date": datetime.strptime(GOAL_DATE, "%Y-%m-%d").strftime("%b %-d")
+                     if os.name != "nt" else
+                     datetime.strptime(GOAL_DATE, "%Y-%m-%d").strftime("%b %#d"),
+        "days_left": max(left, 0),
+        "verdict": verdict, "why": why, "lines": lines,
+        "regime": {"green": reg["green"], "spy": reg["spy"], "s10": reg["s10"],
+                   "s20": reg["s20"], "s50": reg["s50"]},
+        "passing": [{"ticker": r["ticker"], "price": r["price"], "mom": r["mom"]}
+                    for r in d["passing"][:8]],
+        "sectors": [{"sector": x["sector"], "m1": x["m1"], "m3": x["m3"]}
+                    for x in d["secs"][:6]],
+        "gaps": [{"ticker": g["ticker"], "pre": g["pre"], "gap": g["gap"]}
+                 for g in d["gaps"][:8]],
+    }
+
+
 if __name__ == "__main__":
     import sys
     intraday = "--intraday" in sys.argv
     d = trade(build(intraday=intraday), intraday=intraday)
-    open("dashboard.html", "w", encoding="utf-8").write(render(d))
+    import ui
+    open("dashboard.html", "w", encoding="utf-8").write(ui.render(payload(d)))
     s = d["stats"]
     print(json.dumps({"mode": "intraday" if intraday else "morning",
                       "regime": "GREEN" if d["reg"]["green"] else "RED",
