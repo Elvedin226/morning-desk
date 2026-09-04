@@ -421,6 +421,7 @@ function render(){
     `<div><span class="lab">Your net P&L</span><span class="big ${cls(R.pnl)}">${sign(R.pnl)}</span></div>
      <div><span class="lab">Win rate</span><span class="big">${R.win_rate==null?"&mdash;":(R.win_rate*100).toFixed(0)+"%"}<small> ${R.wins}/${R.trades}</small></span></div>
      <div><span class="lab">Per session</span><span class="big ${cls(R.per_session||0)}">${R.per_session==null?"&mdash;":sign(R.per_session)}</span></div>
+     <div><span class="lab">Your open P&L</span><span class="big ${cls(R.unrealised||0)}">${sign(R.unrealised||0)}<small> ${R.open_positions||0} pos</small></span></div>
      <div><span class="lab">Bot net P&L</span><span class="big ${cls(D.stats_realised)}">${sign(D.stats_realised)}</span></div>`;
   $("#ch-head").innerHTML =
     `<span class="lab">Challenge &middot; ${C.sessions_used}/${C.sessions_total} sessions</span>

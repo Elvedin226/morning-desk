@@ -38,7 +38,7 @@ CHALLENGE_SESSIONS = 4
 
 
 def _blank() -> dict:
-    return {"trades": [], "flat_days": [],
+    return {"trades": [], "flat_days": [], "open": [],
             "created": datetime.now(timezone.utc).isoformat(timespec="seconds")}
 
 
@@ -69,6 +69,20 @@ def add(sym: str, pnl: float, pct: float | None = None, date: str | None = None,
     return row
 
 
+def add_open(sym: str, cost: float, mark: float, opened: str, note: str = "") -> dict:
+    """An OPEN position. Kept out of realised P&L on purpose - an unrealised
+    gain is not a result, and folding one into a realised book would flatter
+    the record by whatever the position happens to be worth today."""
+    st = load()
+    row = {"sym": sym, "cost": float(cost), "mark": float(mark),
+           "opened": opened, "note": note,
+           "unrealised": round((float(mark) - float(cost)) * 100, 2),
+           "pct": round((float(mark) / float(cost) - 1) * 100, 2)}
+    st.setdefault("open", []).append(row)
+    save(st)
+    return row
+
+
 def flat(date: str | None = None) -> None:
     """Record a session with no trades. Without this, a quiet day is
     indistinguishable from a day that was never logged, and the per-session
@@ -91,6 +105,7 @@ def stats(st: dict | None = None) -> dict:
     for d in st.get("flat_days", []):
         by_day.setdefault(d, 0.0)
 
+    op = st.get("open", [])
     ch = [t for t in tr if CHALLENGE_START <= t["date"] <= CHALLENGE_END]
     ch_days = sorted({t["date"] for t in ch}
                      | {d for d in st.get("flat_days", [])
@@ -103,6 +118,9 @@ def stats(st: dict | None = None) -> dict:
         "best": max((t["pnl"] for t in tr), default=None),
         "worst": min((t["pnl"] for t in tr), default=None),
         "sessions": len(days),
+        "open_positions": len(op),
+        "unrealised": round(sum(o["unrealised"] for o in op), 2),
+        "open_list": op,
         "per_session": round(sum(t["pnl"] for t in tr) / len(days), 2) if days else None,
         "by_day": dict(sorted(by_day.items())),
         "challenge": {
