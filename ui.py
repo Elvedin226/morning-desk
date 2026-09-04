@@ -26,22 +26,37 @@ TOKEN = "__PAYLOAD__"
 
 CSS = """
 :root{
-  --ground:#0A0C0F; --surface:#14181D; --surface-2:#1B2027; --line:#232A33;
-  --ink:#EDF1F6; --ink-soft:#8E99A8; --ink-faint:#5C6675;
-  --accent:#E8B33C; --up:#35D89A; --down:#FF5C4D;
-  --up-dim:rgba(53,216,154,.13); --down-dim:rgba(255,92,77,.13);
-  --r:14px;
+  /* Cool ground, warm accent. A neutral black with a gold accent is the safe
+     default for a trading screen and reads flat; a blue-violet ground with a
+     warm amber cutting across it has actual temperature contrast, which is what
+     makes a dark UI feel lit rather than switched off.
+     Neutrals are hue-biased toward the ground, never pure grey. */
+  --ground:#090C18; --ground-2:#0E1326;
+  --surface:#141A2E; --surface-2:#1D2540; --line:#2A3352; --line-soft:#212942;
+  --ink:#EEF1FA; --ink-soft:#98A3C4; --ink-faint:#626E96;
+  --accent:#FFB340;                        /* warm amber: structure and labels */
+  --up:#2EE6A8; --down:#FF5470;            /* semantic only, never decorative */
+  --up-dim:rgba(46,230,168,.14); --down-dim:rgba(255,84,112,.14);
+  --glow-up:rgba(46,230,168,.34); --glow-down:rgba(255,84,112,.34);
+  --r:16px;
 }
 :root[data-theme="light"]{
-  --ground:#F5F7FA; --surface:#FFFFFF; --surface-2:#EEF2F7; --line:#DCE3EC;
-  --ink:#0E1319; --ink-soft:#525E6E; --ink-faint:#8592A3;
-  --accent:#9A7411; --up:#0E9E68; --down:#D33A28;
-  --up-dim:rgba(14,158,104,.10); --down-dim:rgba(211,58,40,.10);
+  --ground:#F4F6FC; --ground-2:#FFFFFF;
+  --surface:#FFFFFF; --surface-2:#EDF1FA; --line:#D9E0F0; --line-soft:#E6EBF6;
+  --ink:#0B1024; --ink-soft:#4B5675; --ink-faint:#7A85A6;
+  --accent:#A45E00;
+  --up:#00875A; --down:#D01E45;
+  --up-dim:rgba(0,135,90,.10); --down-dim:rgba(208,30,69,.10);
+  --glow-up:rgba(0,135,90,.16); --glow-down:rgba(208,30,69,.16);
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{
-  margin:0; background:var(--ground); color:var(--ink);
+  margin:0; color:var(--ink);
+  background:
+    radial-gradient(120% 62% at 50% -8%, var(--ground-2) 0%, transparent 62%),
+    var(--ground);
+  background-attachment:fixed;
   font-family:Archivo,system-ui,-apple-system,sans-serif;
   font-size:16px; line-height:1.45; -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
@@ -69,12 +84,17 @@ header{padding:18px 0 4px}
   text-transform:uppercase; color:var(--accent); display:flex; gap:8px;
   align-items:center; flex-wrap:wrap;
 }
-.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block}
-.dot.live{background:var(--up);animation:pulse 2.4s ease-in-out infinite}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;
+  box-shadow:0 0 8px var(--accent)}
+.dot.live{background:var(--up);box-shadow:0 0 9px var(--glow-up);
+  animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
 .equity{
   font-size:clamp(2.9rem,13vw,3.9rem); font-weight:600; letter-spacing:-.035em;
   line-height:1.02; margin:12px 0 4px;
+  /* A faint bloom off the ground colour. Enough to read as backlit, not enough
+     to soften the digits - legibility of the number is the whole job. */
+  text-shadow:0 0 34px rgba(238,241,250,.16);
 }
 .delta{display:flex;align-items:baseline;gap:9px;font-size:1rem;font-weight:500}
 .delta .pill{
@@ -88,9 +108,14 @@ header{padding:18px 0 4px}
 /* ---------- chart ---------- */
 .chartwrap{position:relative;margin:14px -4px 0;touch-action:pan-y}
 #eq{display:block;width:100%;height:190px;overflow:visible}
-#eq path.line{fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
-#eq .area{opacity:.14}
+/* The glow uses currentColor, so drawChart() sets `color` on these elements
+   alongside `stroke`/`fill` - otherwise currentColor inherits the ink and the
+   line blooms white regardless of whether the day was up or down. */
+#eq path.line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px currentColor)}
+#eq .area{opacity:.9}
 #eq .base{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+#eq circle.head{filter:drop-shadow(0 0 7px currentColor)}
 .draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 1.15s cubic-bezier(.22,.8,.3,1) forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 .scrub{position:absolute;inset:0;cursor:crosshair}
@@ -113,12 +138,16 @@ header{padding:18px 0 4px}
 
 /* ---------- status chip (replaces the big red block) ---------- */
 .status{
-  display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;padding:12px 14px;
+  display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;padding:13px 15px;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
   border-left:3px solid var(--ink-faint);
 }
-.status[data-s="go"]{border-left-color:var(--up)}
-.status[data-s="stop"]{border-left-color:var(--down)}
+/* Tint the whole chip toward its state instead of only the rail - a coloured
+   edge on a grey box still reads grey. */
+.status[data-s="go"]{border-left-color:var(--up);
+  background:linear-gradient(96deg,var(--up-dim) 0%,var(--surface) 58%)}
+.status[data-s="stop"]{border-left-color:var(--down);
+  background:linear-gradient(96deg,var(--down-dim) 0%,var(--surface) 58%)}
 .status h3{margin:0 0 2px;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;
   font-family:"IBM Plex Mono",monospace}
 .status[data-s="go"] h3{color:var(--up)} .status[data-s="stop"] h3{color:var(--down)}
@@ -132,14 +161,20 @@ header{padding:18px 0 4px}
   color:var(--ink-faint);font-family:Archivo,sans-serif;font-size:.82rem;
   font-weight:500;cursor:pointer;transition:background .18s,color .18s;
 }
-.tab[aria-selected="true"]{background:var(--surface-2);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--surface-2);color:var(--ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
 .panel[hidden]{display:none}
 .panel{animation:fade .3s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* ---------- cards / rows ---------- */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  padding:15px;margin-bottom:12px}
+/* A flat fill reads as a grey box. The gradient is barely perceptible on its
+   own; what sells it is the 1px inset highlight on the top edge, which is how a
+   raised surface catches light. */
+.card{background:linear-gradient(174deg,var(--surface-2) 0%,var(--surface) 46%);
+  border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 1px 2px rgba(0,0,0,.28);
+  padding:16px;margin-bottom:12px}
 .card h2{
   margin:0 0 12px;font-family:"IBM Plex Mono",monospace;font-size:10px;
   letter-spacing:.19em;text-transform:uppercase;color:var(--accent);
@@ -248,7 +283,10 @@ function drawChart(range){
   const span = (hi-lo) || Math.max(hi*0.01, 1);
   const base = series[0].equity;
   const gain = v[v.length-1] >= base;
-  const col = gain ? "var(--up)" : "var(--down)";
+  const css = getComputedStyle(document.documentElement);
+  // Resolve to a literal so `color` can drive the drop-shadow glow; a var()
+  // reference inside currentColor does not cascade the way we need here.
+  const col = css.getPropertyValue(gain ? "--up" : "--down").trim() || (gain?"#2EE6A8":"#FF5470");
 
   xs = v.map((_,i)=> PAD + i*(W-2*PAD)/(v.length-1));
   ys = v.map(x => H-PAD - (x-lo)/span*(H-2*PAD));
@@ -264,8 +302,9 @@ function drawChart(range){
     </linearGradient></defs>
     <line class="base" x1="0" x2="${W}" y1="${by.toFixed(1)}" y2="${by.toFixed(1)}"/>
     <path class="area" d="${area}" fill="url(#g)"/>
-    <path class="line draw" d="${d}" stroke="${col}"/>
-    <circle cx="${xs[xs.length-1].toFixed(1)}" cy="${ys[ys.length-1].toFixed(1)}" r="3.6" fill="${col}"/>
+    <path class="line draw" d="${d}" stroke="${col}" style="color:${col}"/>
+    <circle class="head" cx="${xs[xs.length-1].toFixed(1)}" cy="${ys[ys.length-1].toFixed(1)}"
+      r="3.8" fill="${col}" style="color:${col}"/>
     <g id="cross"><line y1="0" y2="${H}" stroke="var(--ink-faint)" stroke-width="1"/>
       <circle r="4.5" fill="${col}" stroke="var(--ground)" stroke-width="2"/></g>`;
   const path = $("#eq path.line");

@@ -4,22 +4,37 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 :root{
-  --ground:#0A0C0F; --surface:#14181D; --surface-2:#1B2027; --line:#232A33;
-  --ink:#EDF1F6; --ink-soft:#8E99A8; --ink-faint:#5C6675;
-  --accent:#E8B33C; --up:#35D89A; --down:#FF5C4D;
-  --up-dim:rgba(53,216,154,.13); --down-dim:rgba(255,92,77,.13);
-  --r:14px;
+  /* Cool ground, warm accent. A neutral black with a gold accent is the safe
+     default for a trading screen and reads flat; a blue-violet ground with a
+     warm amber cutting across it has actual temperature contrast, which is what
+     makes a dark UI feel lit rather than switched off.
+     Neutrals are hue-biased toward the ground, never pure grey. */
+  --ground:#090C18; --ground-2:#0E1326;
+  --surface:#141A2E; --surface-2:#1D2540; --line:#2A3352; --line-soft:#212942;
+  --ink:#EEF1FA; --ink-soft:#98A3C4; --ink-faint:#626E96;
+  --accent:#FFB340;                        /* warm amber: structure and labels */
+  --up:#2EE6A8; --down:#FF5470;            /* semantic only, never decorative */
+  --up-dim:rgba(46,230,168,.14); --down-dim:rgba(255,84,112,.14);
+  --glow-up:rgba(46,230,168,.34); --glow-down:rgba(255,84,112,.34);
+  --r:16px;
 }
 :root[data-theme="light"]{
-  --ground:#F5F7FA; --surface:#FFFFFF; --surface-2:#EEF2F7; --line:#DCE3EC;
-  --ink:#0E1319; --ink-soft:#525E6E; --ink-faint:#8592A3;
-  --accent:#9A7411; --up:#0E9E68; --down:#D33A28;
-  --up-dim:rgba(14,158,104,.10); --down-dim:rgba(211,58,40,.10);
+  --ground:#F4F6FC; --ground-2:#FFFFFF;
+  --surface:#FFFFFF; --surface-2:#EDF1FA; --line:#D9E0F0; --line-soft:#E6EBF6;
+  --ink:#0B1024; --ink-soft:#4B5675; --ink-faint:#7A85A6;
+  --accent:#A45E00;
+  --up:#00875A; --down:#D01E45;
+  --up-dim:rgba(0,135,90,.10); --down-dim:rgba(208,30,69,.10);
+  --glow-up:rgba(0,135,90,.16); --glow-down:rgba(208,30,69,.16);
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{
-  margin:0; background:var(--ground); color:var(--ink);
+  margin:0; color:var(--ink);
+  background:
+    radial-gradient(120% 62% at 50% -8%, var(--ground-2) 0%, transparent 62%),
+    var(--ground);
+  background-attachment:fixed;
   font-family:Archivo,system-ui,-apple-system,sans-serif;
   font-size:16px; line-height:1.45; -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
@@ -47,12 +62,17 @@ header{padding:18px 0 4px}
   text-transform:uppercase; color:var(--accent); display:flex; gap:8px;
   align-items:center; flex-wrap:wrap;
 }
-.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block}
-.dot.live{background:var(--up);animation:pulse 2.4s ease-in-out infinite}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;
+  box-shadow:0 0 8px var(--accent)}
+.dot.live{background:var(--up);box-shadow:0 0 9px var(--glow-up);
+  animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
 .equity{
   font-size:clamp(2.9rem,13vw,3.9rem); font-weight:600; letter-spacing:-.035em;
   line-height:1.02; margin:12px 0 4px;
+  /* A faint bloom off the ground colour. Enough to read as backlit, not enough
+     to soften the digits - legibility of the number is the whole job. */
+  text-shadow:0 0 34px rgba(238,241,250,.16);
 }
 .delta{display:flex;align-items:baseline;gap:9px;font-size:1rem;font-weight:500}
 .delta .pill{
@@ -66,9 +86,14 @@ header{padding:18px 0 4px}
 /* ---------- chart ---------- */
 .chartwrap{position:relative;margin:14px -4px 0;touch-action:pan-y}
 #eq{display:block;width:100%;height:190px;overflow:visible}
-#eq path.line{fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
-#eq .area{opacity:.14}
+/* The glow uses currentColor, so drawChart() sets `color` on these elements
+   alongside `stroke`/`fill` - otherwise currentColor inherits the ink and the
+   line blooms white regardless of whether the day was up or down. */
+#eq path.line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px currentColor)}
+#eq .area{opacity:.9}
 #eq .base{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+#eq circle.head{filter:drop-shadow(0 0 7px currentColor)}
 .draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 1.15s cubic-bezier(.22,.8,.3,1) forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 .scrub{position:absolute;inset:0;cursor:crosshair}
@@ -91,12 +116,16 @@ header{padding:18px 0 4px}
 
 /* ---------- status chip (replaces the big red block) ---------- */
 .status{
-  display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;padding:12px 14px;
+  display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;padding:13px 15px;
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
   border-left:3px solid var(--ink-faint);
 }
-.status[data-s="go"]{border-left-color:var(--up)}
-.status[data-s="stop"]{border-left-color:var(--down)}
+/* Tint the whole chip toward its state instead of only the rail - a coloured
+   edge on a grey box still reads grey. */
+.status[data-s="go"]{border-left-color:var(--up);
+  background:linear-gradient(96deg,var(--up-dim) 0%,var(--surface) 58%)}
+.status[data-s="stop"]{border-left-color:var(--down);
+  background:linear-gradient(96deg,var(--down-dim) 0%,var(--surface) 58%)}
 .status h3{margin:0 0 2px;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;
   font-family:"IBM Plex Mono",monospace}
 .status[data-s="go"] h3{color:var(--up)} .status[data-s="stop"] h3{color:var(--down)}
@@ -110,14 +139,20 @@ header{padding:18px 0 4px}
   color:var(--ink-faint);font-family:Archivo,sans-serif;font-size:.82rem;
   font-weight:500;cursor:pointer;transition:background .18s,color .18s;
 }
-.tab[aria-selected="true"]{background:var(--surface-2);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--surface-2);color:var(--ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
 .panel[hidden]{display:none}
 .panel{animation:fade .3s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* ---------- cards / rows ---------- */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  padding:15px;margin-bottom:12px}
+/* A flat fill reads as a grey box. The gradient is barely perceptible on its
+   own; what sells it is the 1px inset highlight on the top edge, which is how a
+   raised surface catches light. */
+.card{background:linear-gradient(174deg,var(--surface-2) 0%,var(--surface) 46%);
+  border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 1px 2px rgba(0,0,0,.28);
+  padding:16px;margin-bottom:12px}
 .card h2{
   margin:0 0 12px;font-family:"IBM Plex Mono",monospace;font-size:10px;
   letter-spacing:.19em;text-transform:uppercase;color:var(--accent);
@@ -269,7 +304,7 @@ footer{font-size:.74rem;line-height:1.65;color:var(--ink-faint);
   </footer>
 </div>
 
-<script>window.__DESK__ = {"built": "2026-09-03T23:45:53+00:00", "intraday": true, "equity": 420.95, "start_equity": 421.0, "cash": 217.69, "curve": [{"date": "2026-09-03", "equity": 420.95}], "positions": [{"ticker": "GM", "side": "long", "qty": 0.406, "entry": 87.22, "stop": 82.0358, "target": 97.5884, "opened": "2026-09-03", "cost_basis": 35.43, "forced": true, "note": "regime red", "last": 87.22, "unrealised": -0.02}, {"ticker": "KO", "side": "long", "qty": 0.5185, "entry": 88.81, "stop": 84.7504, "target": 96.9292, "opened": "2026-09-03", "cost_basis": 46.07, "forced": true, "note": "regime red", "last": 88.84, "unrealised": -0.01}, {"ticker": "BAC", "side": "long", "qty": 0.6804, "entry": 63.04, "stop": 59.9466, "target": 69.2268, "opened": "2026-09-03", "cost_basis": 42.91, "forced": true, "note": "regime red", "last": 63.065, "unrealised": -0.0}, {"ticker": "F", "side": "long", "qty": 2.4572, "entry": 14.41, "stop": 13.5534, "target": 16.1232, "opened": "2026-09-03", "cost_basis": 35.43, "forced": true, "note": "regime red", "last": 14.41, "unrealised": -0.02}, {"ticker": "JPM", "side": "long", "qty": 0.12, "entry": 362.06, "stop": 344.519, "target": 397.142, "opened": "2026-09-03", "cost_basis": 43.47, "forced": true, "note": "regime red"}], "closed": [], "arms": {"qualified": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 0}, "forced": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 5}}, "day_realised": 0, "day_target": 20.0, "goal_target": 1000.0, "goal_date": "Dec 31", "days_left": 85, "verdict": "NO TRADE", "why": "Regime is red. The long-only swing rules stand down.", "lines": ["no RSI-2 entry: already holding 4 positions (max 3)", "forced LONG JPM @ $362.06 (regime red)", "Swing rules: regime red - strategy is long-only and untested in this tape"], "regime": {"green": false, "spy": 773.1699829101562, "s10": 766.8789855957032, "s20": 769.206494140625, "s50": 756.1394006347656}, "passing": [{"ticker": "KO", "price": 88.80999755859375, "mom": 0.30826501552884644}, {"ticker": "BAC", "price": 63.040000915527344, "mom": 0.2767247067433156}, {"ticker": "JPM", "price": 362.05999755859375, "mom": 0.20503092942228096}, {"ticker": "ABBV", "price": 260.2099914550781, "mom": 0.19172687787892073}, {"ticker": "TMO", "price": 618.4299926757812, "mom": 0.18477717709134134}, {"ticker": "SCHW", "price": 110.37999725341797, "mom": 0.117305590860737}, {"ticker": "GM", "price": 87.22000122070312, "mom": 0.5473038749195243}], "sectors": [{"sector": "Energy", "m1": 0.12755193156735456, "m3": 0.10784727985080078}, {"sector": "Health Care", "m1": 0.05543366618982959, "m3": 0.14429325063751186}, {"sector": "Financials", "m1": 0.009655196091224338, "m3": 0.1259846215989291}, {"sector": "Cons Staples", "m1": -0.0008203409506870596, "m3": 0.046460129548988816}, {"sector": "Communication", "m1": 0.02263907679855559, "m3": 0.004994764011974073}, {"sector": "Materials", "m1": -0.00037994791025031116, "m3": 0.023183906436274215}], "gaps": []};</script>
+<script>window.__DESK__ = {"built": "2026-09-04T00:07:54+00:00", "intraday": false, "equity": 421.0, "start_equity": 421.0, "cash": 368.39, "curve": [{"date": "2026-09-04", "equity": 421.0}], "positions": [{"ticker": "BLK", "side": "long", "qty": 0.0475, "entry": 1107.08, "stop": 1018.5136, "target": 1284.2127, "opened": "2026-09-04", "cost_basis": 52.61, "forced": false, "note": "RSI-2 0.7"}], "closed": [], "arms": {"qualified": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 1}, "forced": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 0}}, "day_realised": 0, "day_target": 20.0, "goal_target": 1000.0, "goal_date": "Dec 31", "days_left": 84, "verdict": "NO TRADE", "why": "Regime is red. The long-only swing rules stand down.", "lines": ["RSI-2 LONG BLK @ $1,107.08 (RSI 0.7)"], "regime": {"green": false, "spy": 765.1599731445312, "s10": 765.8219848632813, "s20": 768.9759948730468, "s50": 755.34080078125}, "passing": [{"ticker": "BMY", "price": 67.66000366210938, "mom": 0.45373946801354004}, {"ticker": "SBUX", "price": 106.72000122070312, "mom": 0.22674927350307028}], "sectors": [{"sector": "Health Care", "m1": 0.06693393236393752, "m3": 0.17731442558918942}, {"sector": "Energy", "m1": 0.11244015661118256, "m3": 0.11683676394326903}, {"sector": "Financials", "m1": -0.003800988539102157, "m3": 0.13744805272744576}, {"sector": "Cons Staples", "m1": 0.0018741481500215151, "m3": 0.04824066567738883}, {"sector": "Materials", "m1": 0.018269245441143278, "m3": 0.02940119668554253}, {"sector": "Communication", "m1": 0.0033916212987579186, "m3": 0.005642954401218425}], "gaps": [{"ticker": "HOOD", "pre": 113.8, "gap": 0.05968898407672962}, {"ticker": "COIN", "pre": 181.63, "gap": 0.0378857142857143}]};</script>
 <script>
 const D = window.__DESK__;
 const $ = s => document.querySelector(s);
@@ -312,7 +347,10 @@ function drawChart(range){
   const span = (hi-lo) || Math.max(hi*0.01, 1);
   const base = series[0].equity;
   const gain = v[v.length-1] >= base;
-  const col = gain ? "var(--up)" : "var(--down)";
+  const css = getComputedStyle(document.documentElement);
+  // Resolve to a literal so `color` can drive the drop-shadow glow; a var()
+  // reference inside currentColor does not cascade the way we need here.
+  const col = css.getPropertyValue(gain ? "--up" : "--down").trim() || (gain?"#2EE6A8":"#FF5470");
 
   xs = v.map((_,i)=> PAD + i*(W-2*PAD)/(v.length-1));
   ys = v.map(x => H-PAD - (x-lo)/span*(H-2*PAD));
@@ -328,8 +366,9 @@ function drawChart(range){
     </linearGradient></defs>
     <line class="base" x1="0" x2="${W}" y1="${by.toFixed(1)}" y2="${by.toFixed(1)}"/>
     <path class="area" d="${area}" fill="url(#g)"/>
-    <path class="line draw" d="${d}" stroke="${col}"/>
-    <circle cx="${xs[xs.length-1].toFixed(1)}" cy="${ys[ys.length-1].toFixed(1)}" r="3.6" fill="${col}"/>
+    <path class="line draw" d="${d}" stroke="${col}" style="color:${col}"/>
+    <circle class="head" cx="${xs[xs.length-1].toFixed(1)}" cy="${ys[ys.length-1].toFixed(1)}"
+      r="3.8" fill="${col}" style="color:${col}"/>
     <g id="cross"><line y1="0" y2="${H}" stroke="var(--ink-faint)" stroke-width="1"/>
       <circle r="4.5" fill="${col}" stroke="var(--ground)" stroke-width="2"/></g>`;
   const path = $("#eq path.line");
