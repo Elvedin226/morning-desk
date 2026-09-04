@@ -235,7 +235,7 @@ def build(intraday=False):
             # Once a day. The chain barely moves intraday and each snapshot is
             # a few hundred requests; snapshot() also overwrites same-day rows
             # so a re-run cannot inflate the sample.
-            "gex": _gex_safe() if not intraday else gamma.load_history()[-2:],
+            "gex": _gex_safe() if not intraday else gamma.load_latest(),
             "stamp": datetime.now(timezone.utc).strftime("%a %d %b %Y, %H:%M UTC")}
 
 
@@ -333,7 +333,7 @@ def _gex_safe():
     try:
         return gamma.snapshot()
     except Exception:
-        return gamma.load_history()[-2:]
+        return gamma.load_latest()
 
 
 def trade(d, intraday=False):

@@ -214,6 +214,13 @@ header{padding:18px 0 4px}
   width:0;transition:width .9s cubic-bezier(.22,.8,.3,1)}
 .track i.up{background:var(--up)}
 .tick{position:absolute;top:-2px;bottom:-2px;width:1.5px;background:var(--ink-faint);opacity:.5}
+.gexchart{display:block;width:100%;height:132px;margin:10px 0 2px}
+.gexhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gexkey{display:flex;flex-wrap:wrap;gap:4px 13px;font-family:"IBM Plex Mono",monospace;
+  font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint)}
+.gexkey span{display:flex;align-items:center;gap:5px}
+.gexkey i{width:11px;height:2px;display:inline-block;border-radius:1px}
+.gexkey i.dash{background:repeating-linear-gradient(90deg,var(--accent) 0 3px,transparent 3px 6px)}
 .gexrow{padding:11px 0;border-bottom:1px solid var(--line)}
 .gexrow:last-child{border-bottom:0}
 .empty{color:var(--ink-faint);font-size:.86rem;padding:16px 0;text-align:center}
@@ -332,6 +339,63 @@ function scrub(clientX){
 }
 function endScrub(){ $("#cross").classList.remove("on"); $("#readout").classList.remove("on"); }
 
+/* ---- gamma profile: strikes as bars, spot and flip as lines ---- */
+function gexCard(g){
+  const below = g.flip!=null && g.spot < g.flip;
+  const neg = g.regime === "negative";
+  const W=560, H=132, PAD=8;
+  const lad = (g.strikes||[]).filter(([k])=> k >= g.spot*0.965 && k <= g.spot*1.035);
+  let chart = "";
+  if(lad.length > 3){
+    const ks = lad.map(r=>r[0]), vs = lad.map(r=>r[1]);
+    const kmin=Math.min(...ks), kmax=Math.max(...ks);
+    const amp = Math.max(...vs.map(Math.abs)) || 1;
+    const x = k => PAD + (k-kmin)/((kmax-kmin)||1)*(W-2*PAD);
+    const mid = H/2;
+    const bars = lad.map(([k,v])=>{
+      const h = Math.abs(v)/amp*(mid-PAD);
+      const up = v>=0;
+      return `<rect x="${(x(k)-1.4).toFixed(1)}" y="${(up?mid-h:mid).toFixed(1)}"
+        width="2.8" height="${Math.max(h,0.5).toFixed(1)}"
+        fill="${up?'var(--up)':'var(--down)'}" opacity=".8"/>`;
+    }).join("");
+    const spotX = x(Math.min(Math.max(g.spot,kmin),kmax));
+    const flipX = g.flip==null ? null : x(Math.min(Math.max(g.flip,kmin),kmax));
+    chart = `<svg class="gexchart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"
+        role="img" aria-label="${g.ticker} dealer gamma by strike, with spot and gamma flip marked">
+      <line x1="0" x2="${W}" y1="${mid}" y2="${mid}" stroke="var(--line)" stroke-width="1"/>
+      ${bars}
+      ${flipX==null?"":`<line x1="${flipX.toFixed(1)}" x2="${flipX.toFixed(1)}" y1="2" y2="${H-2}"
+        stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"/>`}
+      <line x1="${spotX.toFixed(1)}" x2="${spotX.toFixed(1)}" y1="2" y2="${H-2}"
+        stroke="var(--ink)" stroke-width="1.5"/>
+    </svg>
+    <div class="gexkey">
+      <span><i style="background:var(--ink)"></i>spot ${money(g.spot)}</span>
+      <span><i class="dash"></i>flip ${g.flip==null?"&mdash;":money(g.flip)}</span>
+      <span><i style="background:var(--up)"></i>call gamma</span>
+      <span><i style="background:var(--down)"></i>put gamma</span>
+    </div>`;
+  }
+  const gap = g.flip==null ? null : g.spot - g.flip;
+  return `<div class="gexrow">
+    <div class="gexhead">
+      <div class="posname"><span class="tick">${g.ticker}</span>
+        <span class="tag" data-t="${neg?'short':'long'}">${g.regime} gamma</span></div>
+      <span class="mono ${below?'down':'up'}" style="font-size:.86rem">
+        ${gap==null?"&mdash;":(below?"":"+")+gap.toFixed(2)} vs flip</span>
+    </div>
+    ${chart}
+    <div class="dgrid" style="padding-top:10px">
+      <div><span class="lab">Spot</span><span class="val">${money(g.spot)}</span></div>
+      <div><span class="lab">Flip</span><span class="val ${below?'down':'up'}">${g.flip==null?"&mdash;":money(g.flip)}</span></div>
+      <div><span class="lab">Net</span><span class="val ${neg?'down':'up'}">$${(g.total/1e6).toFixed(0)}M</span></div>
+      <div><span class="lab">Peak call</span><span class="val up">${money(g.peak_call_strike)}</span></div>
+      <div><span class="lab">Peak put</span><span class="val down">${money(g.peak_put_strike)}</span></div>
+      <div><span class="lab">Regime</span><span class="val ${below?'down':'up'}">${below?"amplifying":"damping"}</span></div>
+    </div></div>`;
+}
+
 /* ---- rows ---- */
 function posRow(p){
   const last = p.last ?? p.entry, pnl = p.unrealised ?? 0;
@@ -448,21 +512,8 @@ function render(){
      <div><span class="lab">Regime</span><span class="val ${D.regime.green?"up":"down"}">${D.regime.green?"GREEN":"RED"}</span></div>`;
   /* dealer gamma */
   const gx = D.gex || [];
-  $("#gex").innerHTML = gx.length ? gx.map(g=>{
-    const below = g.flip!=null && g.spot < g.flip;
-    const neg = g.regime === "negative";
-    return `<div class="gexrow">
-      <div class="posname"><span class="tick">${g.ticker}</span>
-        <span class="tag" data-t="${neg?'short':'long'}">${g.regime} gamma</span></div>
-      <div class="dgrid" style="padding-top:9px">
-        <div><span class="lab">Spot</span><span class="val">${money(g.spot)}</span></div>
-        <div><span class="lab">Flip</span><span class="val ${below?'down':'up'}">${g.flip==null?"&mdash;":money(g.flip)}</span></div>
-        <div><span class="lab">vs flip</span><span class="val ${below?'down':'up'}">${g.flip==null?"&mdash;":(below?"below":"above")}</span></div>
-        <div><span class="lab">Peak call</span><span class="val up">${money(g.peak_call_strike)}</span></div>
-        <div><span class="lab">Peak put</span><span class="val down">${money(g.peak_put_strike)}</span></div>
-        <div><span class="lab">Net</span><span class="val ${neg?'down':'up'}">$${(g.total/1e6).toFixed(0)}M</span></div>
-      </div></div>`;
-  }).join("") : '<p class="empty">No gamma snapshot yet.</p>';
+  $("#gex").innerHTML = gx.length ? gx.map(g=>gexCard(g)).join("")
+    : '<p class="empty">No gamma snapshot yet.</p>';
 
   $("#watch").innerHTML = D.passing.length
     ? D.passing.map(r=>`<tr><td style="font-weight:600">${r.ticker}</td>

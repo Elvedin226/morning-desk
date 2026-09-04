@@ -61,7 +61,7 @@ jobs:
           # portfolio.json is the paper account itself. Runners share nothing but
           # the repo, so if this is not committed the account resets to its
           # opening balance every morning and no record ever accumulates.
-          git add dashboard.html data_cache/portfolio.json data_cache/gex_history.jsonl
+          git add dashboard.html data_cache/portfolio.json data_cache/gex_history.jsonl data_cache/gex_latest.json
           # No-op when the file is byte-identical, so quiet days do not create
           # empty commits.
           if git diff --staged --quiet; then

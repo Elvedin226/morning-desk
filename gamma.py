@@ -43,6 +43,10 @@ import pandas as pd
 import yfinance as yf
 
 HISTORY = Path(__file__).parent / "data_cache" / "gex_history.jsonl"
+# History is slimmed (no strike ladder) because only the levels get tested
+# later. The chart needs the full ladder, so the latest profile is kept whole
+# here - otherwise intraday runs, which read history, have nothing to draw.
+LATEST = Path(__file__).parent / "data_cache" / "gex_latest.json"
 CONTRACT = 100
 
 
@@ -168,6 +172,9 @@ def snapshot(tickers=("SPY", "QQQ")) -> list[dict]:
         if p:
             fresh.append(p)
 
+    if fresh:
+        LATEST.write_text(json.dumps(fresh, default=str), encoding="utf-8")
+
     with open(HISTORY, "w", encoding="utf-8") as f:
         for row in keep + fresh:
             # The full strike ladder is large and only the latest is useful
@@ -175,6 +182,16 @@ def snapshot(tickers=("SPY", "QQQ")) -> list[dict]:
             slim = {k: v for k, v in row.items() if k != "strikes"}
             f.write(json.dumps(slim, default=str) + "\n")
     return fresh
+
+
+def load_latest() -> list[dict]:
+    """Most recent full profiles, strike ladder included."""
+    if not LATEST.exists():
+        return []
+    try:
+        return json.loads(LATEST.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
 
 
 def load_history() -> list[dict]:
