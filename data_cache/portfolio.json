@@ -13,8 +13,8 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1121.83,
-      "unrealised": 0.68
+      "last": 1121.78,
+      "unrealised": 0.67
     },
     {
       "ticker": "LLY",
@@ -55,8 +55,8 @@
       "cost_basis": 29.93,
       "forced": true,
       "note": "regime red",
-      "last": 66.83,
-      "unrealised": -0.12
+      "last": 66.825,
+      "unrealised": -0.13
     }
   ],
   "closed": [],
