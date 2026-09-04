@@ -13,8 +13,8 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1123.295,
-      "unrealised": 0.75
+      "last": 1120.035,
+      "unrealised": 0.59
     },
     {
       "ticker": "LLY",
@@ -27,7 +27,7 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1145.8149,
+      "last": 1145.825,
       "unrealised": -0.05
     },
     {
@@ -41,8 +41,8 @@
       "cost_basis": 34.18,
       "forced": true,
       "note": "regime red",
-      "last": 87.24,
-      "unrealised": -0.09
+      "last": 87.185,
+      "unrealised": -0.11
     },
     {
       "ticker": "BMY",
@@ -55,18 +55,18 @@
       "cost_basis": 29.93,
       "forced": true,
       "note": "regime red",
-      "last": 66.9,
-      "unrealised": -0.09
+      "last": 66.77,
+      "unrealised": -0.15
     }
   ],
   "closed": [],
   "equity_curve": [
     {
       "date": "2026-09-04",
-      "equity": 421.51
+      "equity": 421.28
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 169.99,
-  "equity": 421.51
+  "market_value": 169.76,
+  "equity": 421.28
 }
