@@ -135,6 +135,11 @@ def open_position(state: dict, ticker: str, qty: float, entry: float,
         raise ValueError(f"long {ticker}: stop {stop} must be below entry {entry}")
 
     cost = qty * entry * (1 + COST_PER_SIDE)
+    # Last line of defence. Reaching here with too little cash means a caller
+    # skipped the risk gate; failing loudly beats a book that quietly borrows.
+    if cost > state["cash"] + 1e-9:
+        raise ValueError(f"{ticker}: cost ${cost:.2f} exceeds cash ${state['cash']:.2f}")
+
     pos = {"ticker": ticker, "side": side, "qty": round(qty, 6), "entry": round(entry, 4),
            "stop": round(stop, 4), "target": round(target, 4),
            "opened": datetime.now(timezone.utc).strftime("%Y-%m-%d"),

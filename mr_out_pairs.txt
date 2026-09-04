@@ -1,0 +1,84 @@
+  WITHIN-SECTOR PAIRS  ::  formation 504 bars -> trade 252 bars, rolled
+  Every pair inside every watchlist.SECTORS bucket. No hand-picking.
+  Short leg costs nothing here - no borrow modelled. Optimistic by construction.
+
+    window ending 2002: 225 pair-windows so far
+    window ending 2003: 463 pair-windows so far
+    window ending 2004: 701 pair-windows so far
+    window ending 2005: 957 pair-windows so far
+    window ending 2006: 1213 pair-windows so far
+    window ending 2007: 1489 pair-windows so far
+    window ending 2008: 1765 pair-windows so far
+    window ending 2009: 2049 pair-windows so far
+    window ending 2010: 2349 pair-windows so far
+    window ending 2011: 2658 pair-windows so far
+    window ending 2012: 2984 pair-windows so far
+    window ending 2013: 3325 pair-windows so far
+    window ending 2014: 3666 pair-windows so far
+    window ending 2015: 4059 pair-windows so far
+    window ending 2016: 4452 pair-windows so far
+    window ending 2017: 4845 pair-windows so far
+    window ending 2018: 5268 pair-windows so far
+    window ending 2019: 5712 pair-windows so far
+    window ending 2020: 6156 pair-windows so far
+    window ending 2021: 6600 pair-windows so far
+    window ending 2022: 7063 pair-windows so far
+    window ending 2023: 7614 pair-windows so far
+    window ending 2024: 8195 pair-windows so far
+    window ending 2025: 8776 pair-windows so far
+
+============================================================================================
+  COINTEGRATION: does an in-sample pass survive out of sample?
+============================================================================================
+  pair-windows tested                 8,776
+  cointegrated IN-sample (EG 5%)      710  (8.1%)
+  of those, still cointegrated OOS    20  (2.8%)
+  BASE RATE: OOS pass among IS-fails  168  (2.1%)
+  lift from selection                 1.35x
+  difference in proportions           t=1.14  p=2.53e-01
+  mean OOS ADF t | IS pass            -1.52
+  mean OOS ADF t | IS fail            -1.49
+  (5% critical value is -3.34; by construction ~5% of random pairs pass by chance)
+
+============================================================================================
+  P&L OF THE SELECTED PAIRS  (cost sweep)
+============================================================================================
+  slippage         trades   EV/trade  t(year)      win  med bars    yrs +
+  ------------------------------------------------------------------------
+  0 bp/side         17772    -0.076%    -1.37      46%         1     8/24
+  5 bp/side         17772    -0.176%    -3.53      42%         1     4/24
+  10 bp/side        17772    -0.276%    -5.69      38%         1     2/24
+  20 bp/side        17772    -0.476%   -10.02      30%         1     1/24
+  50 bp/side        17772    -1.076%   -22.99      17%         1     0/24
+
+  BY YEAR @ 5bp/side
+
+  year      trades   EV/trade      win   pairs sel  OOS coint%
+  ------------------------------------------------------------
+  2002        1124    -0.152%      46%          27          0%
+  2003         285    -0.047%      41%          40          2%
+  2004         284    -0.542%      37%          21         10%
+  2005         287    -0.086%      37%          11          0%
+  2006         255     0.005%      42%          13         15%
+  2007          71    -0.623%      38%           6          0%
+  2008         773    -0.117%      43%          17         12%
+  2009         682     0.216%      43%          29         14%
+  2010         730    -0.094%      43%          50          2%
+  2011        1132    -0.144%      40%          58          2%
+  2012         212    -0.165%      39%          10          0%
+  2013         930    -0.447%      41%          31          0%
+  2014         148     0.452%      44%          25          0%
+  2015         836    -0.156%      39%          32          0%
+  2016        1038    -0.124%      41%          23          0%
+  2017         973    -0.346%      40%          35          6%
+  2018        1251    -0.241%      43%          30          7%
+  2019         867    -0.377%      41%          40          0%
+  2020        1638    -0.184%      44%          34          0%
+  2021         616    -0.090%      45%          31          0%
+  2022        1188    -0.151%      41%          44          5%
+  2023         708    -0.376%      40%          24          0%
+  2024         989    -0.136%      42%          53          0%
+  2025         755     0.007%      45%          26          4%
+
+  stopped out at |z|>4.0: 96.1% of trades
+  loss on stopped trades: -0.47%   vs non-stopped 7.10%

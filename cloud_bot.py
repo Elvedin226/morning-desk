@@ -42,6 +42,10 @@ FORCED_RISK = 0.005   # half normal size - these are trades the rules rejected
 # three trades rather than a trade a day. These are half-size and simulated, so
 # a wider budget is affordable; the daily-loss and drawdown switches still bind.
 MAX_FORCED = 10
+# The schedule now runs ~15 times a day. Without a per-DAY cap, one forced entry
+# per RUN exhausts the whole budget on the first morning and then goes silent for
+# ten days while the time stops unwind - the opposite of "a trade a day".
+MAX_FORCED_PER_DAY = 2
 FORCED_HOLD_DAYS = 10  # cycle faster than the 40-day default so slots free up
 
 # Connors RSI-2. See rsi2_candidates() for what the testing actually showed.
@@ -360,7 +364,7 @@ def trade(d, intraday=False):
             if not corr.allowed:
                 skip = corr.reason
             else:
-                sized = risk.size(equity, c["price"], c["stop"])
+                sized = risk.size(equity, c["price"], c["stop"], cash=book["cash"])
                 if not sized.allowed:
                     skip = sized.reason
                 else:
@@ -389,7 +393,7 @@ def trade(d, intraday=False):
                 corr = risk.correlation_veto(c2["ticker"], held, d["close"])
                 if not corr.allowed:
                     continue
-                sized = risk.size(equity, c2["price"], c2["stop"])
+                sized = risk.size(equity, c2["price"], c2["stop"], cash=book["cash"])
                 if not sized.allowed:
                     continue
                 portfolio.open_position(book, c2["ticker"], sized.qty, c2["price"],
@@ -409,7 +413,16 @@ def trade(d, intraday=False):
     # research choice; disabling the thing that bounds losses is not, and the
     # two are easy to conflate.
     d["forced"] = None
-    if FORCE_DAILY and skip:
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # Count entries OPENED today, including any already closed again, so a
+    # same-day round trip still consumes its slot.
+    opened_today = (sum(1 for p in book["positions"]
+                        if p.get("forced") and p["opened"] == today_str)
+                    + sum(1 for c in book.get("closed", [])
+                          if c.get("forced") and c["opened"] == today_str))
+    if FORCE_DAILY and skip and opened_today >= MAX_FORCED_PER_DAY:
+        d["forced"] = f"daily forced cap reached ({opened_today}/{MAX_FORCED_PER_DAY})"
+    elif FORCE_DAILY and skip:
         curve = book.get("equity_curve", [])
         day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
         n_forced = sum(1 for p in book["positions"] if p.get("forced"))
@@ -425,7 +438,8 @@ def trade(d, intraday=False):
                 d["forced"] = "not forced: nothing tradable in either direction"
             else:
                 sized = risk.size(equity, fb["price"], fb["stop"],
-                                  risk_pct=FORCED_RISK, side=fb["side"])
+                                  risk_pct=FORCED_RISK, side=fb["side"],
+                                  cash=book["cash"])
                 if not sized.allowed:
                     d["forced"] = f"not forced: {sized.reason}"
                 else:

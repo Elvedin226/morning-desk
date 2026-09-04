@@ -156,7 +156,7 @@ def run_once(dry_override: bool = False) -> dict:
         return journal.record("blocked", reason=corr.reason, ticker=c["ticker"],
                               equity=equity, mode=bk.mode)
 
-    sized = risk.size(equity, c["price"], c["stop"])
+    sized = risk.size(equity, c["price"], c["stop"], cash=book["cash"])
     if not sized.allowed:
         print(f"\n  >>> BLOCKED - {sized.reason}\n")
         return journal.record("blocked", reason=sized.reason, ticker=c["ticker"],

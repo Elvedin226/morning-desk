@@ -37,7 +37,7 @@ class Decision:
 
 def size(equity: float, entry: float, stop: float,
          risk_pct: float = RISK_PER_TRADE, fractional: bool = True,
-         side: str = "long") -> Decision:
+         side: str = "long", cash: float | None = None) -> Decision:
     """Position size falls out of the stop. It is never a preference.
 
     Whole shares break down at small accounts — risking $4.21 on a $267 stock
@@ -67,6 +67,12 @@ def size(equity: float, entry: float, stop: float,
     # risk implies leverage. Refuse rather than silently truncate.
     if value > equity:
         return Decision(False, f"position ${value:.0f} exceeds equity ${equity:.0f}")
+    # Equity is not spendable - most of it may already be in open positions.
+    # Two independent slot budgets (qualified and forced) made it reachable to
+    # open a position with no cash behind it, which silently levers a simulated
+    # cash account and turns the whole equity curve into fiction.
+    if cash is not None and value > cash:
+        return Decision(False, f"position ${value:.0f} exceeds free cash ${cash:.0f}")
 
     return Decision(True, "ok", qty=round(qty, 4), value=value, risk_dollars=risk_dollars)
 
