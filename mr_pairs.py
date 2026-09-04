@@ -48,7 +48,12 @@ TRADE = 252         # 1 year to trade, then roll
 ENTRY_Z = 2.0
 EXIT_Z = 0.0
 STOP_Z = 4.0
+# MacKinnon critical values for a 2-variable cointegrating REGRESSION (the
+# coefficients were fitted, so the residual test needs the stricter table).
 CRIT = {"1%": -3.90, "5%": -3.34, "10%": -3.04}
+# Out of sample the hedge ratio is NOT refitted - the spread is a known series -
+# so the correct threshold there is the plain ADF one. Both are reported.
+CRIT_OOS = -2.86
 SLIPS = [0.0, 0.0005, 0.0010, 0.0020, 0.0050]
 
 
@@ -92,9 +97,13 @@ def trade_spread(z: np.ndarray, ra: np.ndarray, rb: np.ndarray, b: float,
     trades, pos, entry_i = [], 0, 0
     for i in range(len(z)):
         if pos == 0:
-            if z[i] < -ENTRY_Z:
+            # Entry needs ENTRY_Z < |z| < STOP_Z. Without the upper guard the rule
+            # opens positions that are ALREADY past the stop - the spread has
+            # already broken - and closes them one bar later for the cost. That
+            # was 96% of trades on the first pass; it is a bug, not a finding.
+            if -STOP_Z < z[i] < -ENTRY_Z:
                 pos, entry_i = 1, i
-            elif z[i] > ENTRY_Z:
+            elif ENTRY_Z < z[i] < STOP_Z:
                 pos, entry_i = -1, i
         else:
             close = (pos == 1 and z[i] >= EXIT_Z) or (pos == -1 and z[i] <= EXIT_Z) \
@@ -147,7 +156,9 @@ def run(slip: float, verbose: bool = False) -> dict:
                 coint_is = t_is < CRIT["5%"]
                 rec = {"year": year, "sector": sec, "pair": f"{a}/{b_}",
                        "t_is": t_is, "t_oos": t_oos,
-                       "coint_is": coint_is, "coint_oos": bool(t_oos < CRIT["5%"]),
+                       "coint_is": coint_is,
+                       "coint_oos": bool(t_oos < CRIT["5%"]),
+                       "coint_oos_plain": bool(t_oos < CRIT_OOS),
                        "beta": beta}
                 rows.append(rec)
 
@@ -207,6 +218,15 @@ def main() -> None:
     print(f"  mean OOS ADF t | IS fail            {is_fail['t_oos'].mean():.2f}")
     print(f"  (5% critical value is {CRIT['5%']}; by construction ~5% of random pairs "
           f"pass by chance)")
+    a = is_pass["coint_oos_plain"].mean()
+    b = is_fail["coint_oos_plain"].mean()
+    print(f"\n  Same test at the PLAIN ADF 5% value ({CRIT_OOS}), which is the right")
+    print("  threshold out of sample because the hedge ratio is not refitted there:")
+    print(f"  OOS pass | IS pass                  {is_pass['coint_oos_plain'].sum():,}  ({a*100:.1f}%)")
+    print(f"  OOS pass | IS fail (base rate)      {is_fail['coint_oos_plain'].sum():,}  ({b*100:.1f}%)")
+    tt2, pv2 = stats.ttest_ind(is_pass["coint_oos_plain"].astype(float),
+                               is_fail["coint_oos_plain"].astype(float), equal_var=False)
+    print(f"  lift {a/b:.2f}x   t={tt2:.2f}  p={pv2:.2e}")
 
     print("\n" + "=" * 92)
     print("  P&L OF THE SELECTED PAIRS  (cost sweep)")

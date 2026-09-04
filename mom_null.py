@@ -3,9 +3,9 @@
 Two nulls, because they answer different questions and neither alone is enough.
 
 (A) POOLED PANEL NULL -- the one that matters here.
-    Shuffle EVERY ticker's bars independently (validate.shuffle_bars), rebuild
-    the whole equal-weight portfolio, and re-run the same parameter search that
-    was run on real data. Repeat 40x. This asks: given 92 names, a grid to search
+    Shuffle EVERY ticker's bars independently (validate.shuffle_bars) and re-run
+    the same parameter search that was run on real data, scoring the median
+    per-ticker Sharpe. Repeat 40x. This asks: given 92 names, a grid to search
     and 19 years, how much Sharpe does this procedure manufacture from price
     paths with no exploitable ordering? The real number has to beat that.
     Sample is ~92x larger than a single-ticker null, so it has real power.
@@ -14,7 +14,19 @@ Two nulls, because they answer different questions and neither alone is enough.
     study is comparable to connors_test.py. Parameters are refit every 90 days on
     the trailing 365, only test-window returns are scored.
 
-KNOWN LIMITATIONS OF THE NULL, stated rather than buried:
+THE STATISTIC MATTERS -- a first attempt at this got it wrong and is worth
+recording. Scoring the pooled null on the equal-weight PORTFOLIO Sharpe returned
+a null median of 3.42 against a real value of 0.95, p = 1.00, for every strategy.
+That is not a strategy failing, it is a broken null: shuffling each of 92 tickers
+independently destroys the market factor they all share, so the shuffled
+portfolio diversifies away almost all of its variance and prints an absurd
+Sharpe. Real portfolios cannot do that because real stocks co-move.
+
+The fix used below is to score the MEDIAN PER-TICKER Sharpe instead. A single
+ticker's Sharpe does not depend on its correlation with the other 91, so real and
+shuffled are measured on the same footing.
+
+OTHER LIMITATIONS, stated rather than buried:
   * shuffle_bars rebuilds high/low as max/min of open/close, so shuffled bars
     have NO intrabar range. That shrinks ATR and narrows Donchian channels,
     which makes breakouts EASIER to trigger on shuffled data. For mom_donchian
@@ -46,17 +58,23 @@ SLIP = 0.0005
 RUNS = 40
 
 
-def best_portfolio_sharpe(panel, name) -> tuple[float, dict]:
-    """Search the strategy's own grid; return the best equal-weight Sharpe."""
+def best_median_sharpe(panel, name) -> tuple[float, dict]:
+    """Search the strategy's own grid; return the best MEDIAN PER-TICKER Sharpe.
+
+    Per-ticker rather than portfolio, so that independently shuffling the panel
+    does not flatter the null by deleting the market factor. See module docstring.
+    """
     best, best_c = -np.inf, None
     for c in validate.param_combos(name):
-        cols = {t: backtest.run(df, strategy.build(name, **c), timeframe=TF,
-                                fee_pct=0.0, slippage_pct=SLIP).returns
-                for t, df in panel.items()}
-        port = pd.DataFrame(cols).mean(axis=1).dropna()
-        sh = backtest.core_metrics(port, TF)["sharpe"]
-        if np.isfinite(sh) and sh > best:
-            best, best_c = sh, c
+        sharpes = [backtest.run(df, strategy.build(name, **c), timeframe=TF,
+                                fee_pct=0.0, slippage_pct=SLIP).metrics["sharpe"]
+                   for df in panel.values()]
+        sharpes = [s for s in sharpes if np.isfinite(s)]
+        if not sharpes:
+            continue
+        med = float(np.median(sharpes))
+        if med > best:
+            best, best_c = med, c
     return best, best_c
 
 
@@ -65,7 +83,7 @@ def pooled_null(panel, name, runs=RUNS, seed=0):
     out = []
     for i in range(runs):
         shuffled = {t: validate.shuffle_bars(df, rng) for t, df in panel.items()}
-        sh, _ = best_portfolio_sharpe(shuffled, name)
+        sh, _ = best_median_sharpe(shuffled, name)
         out.append(sh)
         print(f"      run {i+1:>2}/{runs}  sharpe {sh:>6.2f}", flush=True)
     return np.array([s for s in out if np.isfinite(s)])
@@ -78,7 +96,7 @@ def main():
     print("=" * 78)
     rows = []
     for name in MS.MOM_STRATEGIES:
-        real, params = best_portfolio_sharpe(panel, name)
+        real, params = best_median_sharpe(panel, name)
         print(f"\n  {name}: real best Sharpe {real:.3f} at {params}", flush=True)
         null = pooled_null(panel, name)
         p = float(np.mean(null >= real))
@@ -88,7 +106,7 @@ def main():
 
     print("\n\n  SUMMARY -- pooled panel null")
     print("  " + "-" * 74)
-    print(f"  {'strategy':<16}{'real Sh':>9}{'null med':>10}{'null 95th':>11}{'p':>8}{'runs':>7}")
+    print(f"  {'strategy':<16}{'real med':>9}{'null med':>10}{'null 95th':>11}{'p':>8}{'runs':>7}")
     for n, r, _, med, p95, p, k in rows:
         print(f"  {n:<16}{r:>9.3f}{med:>10.3f}{p95:>11.3f}{p:>8.3f}{k:>7}")
 

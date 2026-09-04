@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 248.3,
+  "cash": 315.63,
   "positions": [
     {
       "ticker": "BLK",
@@ -13,60 +13,30 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1118.4399,
-      "unrealised": 0.52
-    },
-    {
-      "ticker": "GM",
-      "side": "long",
-      "qty": 0.4069,
-      "entry": 87.22,
-      "stop": 82.0358,
-      "target": 97.5884,
-      "opened": "2026-09-04",
-      "cost_basis": 35.51,
-      "forced": true,
-      "note": "regime red",
-      "last": 87.46,
-      "unrealised": 0.08
+      "last": 1121.1899,
+      "unrealised": 0.65
     },
     {
       "ticker": "LLY",
       "side": "long",
       "qty": 0.046,
-      "entry": 1143.3,
-      "stop": 1051.836,
-      "target": 1326.2281,
+      "entry": 1146.4449,
+      "stop": 1054.7294,
+      "target": 1329.8761,
       "opened": "2026-09-04",
-      "cost_basis": 52.62,
+      "cost_basis": 52.76,
       "forced": false,
-      "note": "RSI-2 2.4",
-      "last": 1144.49,
-      "unrealised": 0.03
-    },
-    {
-      "ticker": "BMY",
-      "side": "long",
-      "qty": 0.4786,
-      "entry": 66.74,
-      "stop": 62.3378,
-      "target": 75.5444,
-      "opened": "2026-09-04",
-      "cost_basis": 31.96,
-      "forced": true,
-      "note": "regime red",
-      "last": 67.03,
-      "unrealised": 0.12
+      "note": "RSI-2 2.9"
     }
   ],
   "closed": [],
   "equity_curve": [
     {
       "date": "2026-09-04",
-      "equity": 421.74
+      "equity": 421.65
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 173.44,
-  "equity": 421.74
+  "market_value": 53.26,
+  "equity": 421.65
 }

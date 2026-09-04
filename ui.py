@@ -414,6 +414,23 @@ function render(){
   $("#g-track i").dataset.w = Math.min(Math.max(gp?(D.equity-D.start_equity)/gp*100:0,0),100).toFixed(0);
   $("#g-note").textContent = money(D.goal_target-D.equity)+" to go, "+D.days_left+" sessions left";
 
+  /* you vs the bot */
+  const R = D.real, C = R.challenge;
+  const chPct = Math.min(Math.max(C.pnl / C.target * 100, 0), 100);
+  $("#real").innerHTML =
+    `<div><span class="lab">Your net P&L</span><span class="big ${cls(R.pnl)}">${sign(R.pnl)}</span></div>
+     <div><span class="lab">Win rate</span><span class="big">${R.win_rate==null?"&mdash;":(R.win_rate*100).toFixed(0)+"%"}<small> ${R.wins}/${R.trades}</small></span></div>
+     <div><span class="lab">Per session</span><span class="big ${cls(R.per_session||0)}">${R.per_session==null?"&mdash;":sign(R.per_session)}</span></div>
+     <div><span class="lab">Bot net P&L</span><span class="big ${cls(D.stats_realised)}">${sign(D.stats_realised)}</span></div>`;
+  $("#ch-head").innerHTML =
+    `<span class="lab">Challenge &middot; ${C.sessions_used}/${C.sessions_total} sessions</span>
+     <span class="val ${cls(C.pnl)}">${sign(C.pnl)} / $${C.target.toFixed(0)}</span>`;
+  $("#ch-track i").dataset.w = chPct.toFixed(0);
+  const days = Object.entries(R.by_day||{});
+  $("#realdays").innerHTML = days.length
+    ? days.reverse().map(([d,v])=>`<tr><td>${d}</td><td class="n ${cls(v)}">${sign(v)}</td></tr>`).join("")
+    : '<tr><td colspan="2" class="empty">No sessions logged yet.</td></tr>';
+
   /* arms */
   const arm = (k,x)=>`<tr><td>${k}</td><td class="n">${x.n}<span style="color:var(--ink-faint)"> +${x.open}</span></td>
     <td class="n">${x.longs}L/${x.shorts}S</td>
@@ -535,6 +552,15 @@ SHELL = """<title>Morning Desk</title>
   </section>
 
   <section id="p-perf" class="panel" hidden>
+    <div class="card"><h2>You vs the bot</h2><div id="real" class="statgrid"></div>
+      <div class="target"><div class="target-top" id="ch-head"></div>
+        <div id="ch-track" class="track"><i class="up" data-w="0"></i></div></div>
+      <div class="scroll" style="margin-top:12px"><table>
+        <thead><tr><th>Session</th><th class="n">Your P&amp;L</th></tr></thead>
+        <tbody id="realdays"></tbody></table></div>
+      <p class="note">Two separate books. The bot tests a fixed rule set; you are
+        testing discretionary direction calls. Pooling them would answer neither.
+        Your trades are self-reported.</p></div>
     <div class="card"><h2>Today</h2><div id="today" class="statgrid"></div>
       <div id="t-track" class="track"><i class="up" data-w="0"></i></div>
       <p class="note">The bot stops opening new positions once the day's realised

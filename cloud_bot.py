@@ -20,6 +20,7 @@ warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd, yfinance as yf
 
 import portfolio
+import realbook
 import risk
 
 ACCOUNT, RISK = 421.0, 0.01
@@ -788,6 +789,10 @@ def payload(d):
                      datetime.strptime(GOAL_DATE, "%Y-%m-%d").strftime("%b %#d"),
         "days_left": max(left, 0),
         "verdict": verdict, "why": why, "lines": lines,
+        # The owner's real trades. A separate book on purpose: the bot is
+        # testing a fixed rule set, the owner is testing discretionary
+        # direction calls, and pooling them would answer neither.
+        "real": realbook.stats(), "stats_realised": st["realised_pnl"],
         "regime": {"green": reg["green"], "spy": reg["spy"], "s10": reg["s10"],
                    "s20": reg["s20"], "s50": reg["s50"]},
         "passing": [{"ticker": r["ticker"], "price": r["price"], "mom": r["mom"]}

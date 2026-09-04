@@ -1,0 +1,17 @@
+  permutation nulls: 40 runs each, bar-preserving shuffle,
+  walk-forward train=365 test=90, 5bp/side, 2000-2026 full history
+  tickers (3 indexes + 3 seeded-random): SPY, QQQ, IWM, ADBE, COP, CVX
+  36 jobs
+
+  mr_connors    SPY    OOS   0.32  null med  -0.02  p95   0.25  p=0.024  (144s)
+  mr_connors    QQQ    OOS   0.45  null med  -0.04  p95   0.34  p=0.049  (144s)
+  mr_connors    IWM    OOS   0.50  null med   0.03  p95   0.34  p=0.024  (142s)
+  mr_connors    ADBE   OOS   0.43  null med   0.07  p95   0.31  p=0.049  (146s)
+  mr_connors    COP    OOS   0.06  null med   0.10  p95   0.41  p=0.561  (158s)
+  mr_connors    CVX    OOS   0.14  null med   0.09  p95   0.36  p=0.390  (158s)
+  mr_cumrsi     SPY    OOS   0.24  null med  -0.02  p95   0.21  p=0.049  (283s)
+  mr_cumrsi     QQQ    OOS   0.53  null med  -0.02  p95   0.22  p=0.024  (284s)
+  mr_cumrsi     IWM    OOS   0.30  null med   0.06  p95   0.29  p=0.049  (284s)
+  mr_cumrsi     ADBE   OOS   0.52  null med   0.11  p95   0.30  p=0.024  (287s)
+  mr_cumrsi     COP    OOS   0.04  null med   0.09  p95   0.35  p=0.634  (284s)
+  mr_cumrsi     CVX    OOS   0.08  null med   0.10  p95   0.38  p=0.585  (286s)

@@ -74,10 +74,19 @@ def rebalance_dates(index):
 
 
 def selection(close, k, abs_filter, picker=None, rng=None):
-    """Boolean (date x ticker): held on that date. Ranking uses data through t only."""
+    """Boolean (date x ticker): held on that date. Ranking uses data through t only.
+
+    Holding runs [d, next_d) -- inclusive of the signal date, EXCLUSIVE of the
+    next one. Using a closed range would leave the old and new baskets both
+    flagged on the handover date, and after the engine's shift(1) that is one day
+    a month at up to 2x gross exposure. In a rising market that fabricates return
+    out of nothing. Half-open here, so the handover is exactly flat.
+    """
     mom = close.shift(21) / close.shift(252) - 1
     rebals = rebalance_dates(close.index)
     held = pd.DataFrame(False, index=close.index, columns=close.columns)
+    col = {c: i for i, c in enumerate(close.columns)}
+    pos = {d: i for i, d in enumerate(close.index)}
 
     for i, d in enumerate(rebals):
         row = mom.loc[d].dropna()
@@ -92,8 +101,9 @@ def selection(close, k, abs_filter, picker=None, rng=None):
             pick = picker(row, k, rng)
         if not pick:
             continue
-        end = rebals[i + 1] if i + 1 < len(rebals) else close.index[-1]
-        held.loc[(held.index >= d) & (held.index <= end), pick] = True
+        start = pos[d]
+        end = pos[rebals[i + 1]] if i + 1 < len(rebals) else len(close.index)
+        held.iloc[start:end, [col[t] for t in pick]] = True
     return held
 
 
