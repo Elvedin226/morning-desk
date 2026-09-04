@@ -17,3 +17,6 @@ run-*.bat
 !data_cache/
 data_cache/*
 !data_cache/portfolio.json
+# Gamma snapshots accumulate one row a day and only become testable with
+# enough of them - losing them to a fresh runner would reset the experiment.
+!data_cache/gex_history.jsonl

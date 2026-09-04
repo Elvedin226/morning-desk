@@ -19,6 +19,7 @@ from datetime import datetime, timezone
 warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd, yfinance as yf
 
+import gamma
 import portfolio
 import realbook
 import risk
@@ -231,6 +232,10 @@ def build(intraday=False):
             # measures nothing. Skipping it also removes ~60 requests per run,
             # which is what makes a half-hourly schedule affordable.
             "gaps": [] if intraday else gap_scan(GAPPERS),
+            # Once a day. The chain barely moves intraday and each snapshot is
+            # a few hundred requests; snapshot() also overwrites same-day rows
+            # so a re-run cannot inflate the sample.
+            "gex": _gex_safe() if not intraday else gamma.load_history()[-2:],
             "stamp": datetime.now(timezone.utc).strftime("%a %d %b %Y, %H:%M UTC")}
 
 
@@ -321,6 +326,14 @@ def fallback(d, held):
             best = {"ticker": t, "price": price, "stop": stop, "target": target,
                     "side": side, "mom": mom, "score": score}
     return best
+
+
+def _gex_safe():
+    """A dashboard must not fail because an options chain did not load."""
+    try:
+        return gamma.snapshot()
+    except Exception:
+        return gamma.load_history()[-2:]
 
 
 def trade(d, intraday=False):
@@ -793,6 +806,7 @@ def payload(d):
         # testing a fixed rule set, the owner is testing discretionary
         # direction calls, and pooling them would answer neither.
         "real": realbook.stats(), "stats_realised": st["realised_pnl"],
+        "gex": d.get("gex") or [],
         "regime": {"green": reg["green"], "spy": reg["spy"], "s10": reg["s10"],
                    "s20": reg["s20"], "s50": reg["s50"]},
         "passing": [{"ticker": r["ticker"], "price": r["price"], "mom": r["mom"]}

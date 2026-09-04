@@ -192,6 +192,8 @@ header{padding:18px 0 4px}
   width:0;transition:width .9s cubic-bezier(.22,.8,.3,1)}
 .track i.up{background:var(--up)}
 .tick{position:absolute;top:-2px;bottom:-2px;width:1.5px;background:var(--ink-faint);opacity:.5}
+.gexrow{padding:11px 0;border-bottom:1px solid var(--line)}
+.gexrow:last-child{border-bottom:0}
 .empty{color:var(--ink-faint);font-size:.86rem;padding:16px 0;text-align:center}
 .note{font-size:.78rem;color:var(--ink-faint);margin:11px 0 0;line-height:1.5}
 .spark{display:block}
@@ -292,6 +294,12 @@ footer{font-size:.74rem;line-height:1.65;color:var(--ink-faint);
       <p class="note">Long-only rules stand down when SPY's short averages roll over.
         Measured over 2007&ndash;2026 this filter did not improve 21-day outcomes,
         so forced trades ignore it while it is being tested.</p></div>
+    <div class="card"><h2>Dealer gamma</h2><div id="gex"></div>
+      <p class="note">Below the flip, dealer hedging amplifies moves; above it,
+        hedging damps them and price tends toward the big strikes. UNVALIDATED
+        here &mdash; snapshots are recorded daily so the claim can be tested,
+        which is not the same as it working. The long/short convention is an
+        assumption open interest cannot confirm.</p></div>
     <div class="card"><h2>Passing the checklist</h2><div class="scroll"><table>
       <thead><tr><th>Ticker</th><th class="n">Price</th><th class="n">Momentum</th></tr></thead>
       <tbody id="watch"></tbody></table></div></div>
@@ -313,7 +321,7 @@ footer{font-size:.74rem;line-height:1.65;color:var(--ink-faint);
   </footer>
 </div>
 
-<script>window.__DESK__ = {"built": "2026-09-04T17:14:00+00:00", "intraday": true, "equity": 421.18, "start_equity": 421.0, "cash": 251.52, "curve": [{"date": "2026-09-04", "equity": 421.18}], "positions": [{"ticker": "BLK", "side": "long", "qty": 0.0475, "entry": 1107.08, "stop": 1018.5136, "target": 1284.2127, "opened": "2026-09-04", "cost_basis": 52.61, "forced": false, "note": "RSI-2 0.7", "last": 1122.61, "unrealised": 0.71}, {"ticker": "LLY", "side": "long", "qty": 0.046, "entry": 1146.4449, "stop": 1054.7294, "target": 1329.8761, "opened": "2026-09-04", "cost_basis": 52.76, "forced": false, "note": "RSI-2 2.9", "last": 1143.4054, "unrealised": -0.16}, {"ticker": "GM", "side": "long", "qty": 0.3908, "entry": 87.43, "stop": 82.0358, "target": 98.2184, "opened": "2026-09-04", "cost_basis": 34.18, "forced": true, "note": "regime red", "last": 87.045, "unrealised": -0.16}, {"ticker": "BMY", "side": "long", "qty": 0.446, "entry": 67.065, "stop": 62.3378, "target": 76.5194, "opened": "2026-09-04", "cost_basis": 29.93, "forced": true, "note": "regime red", "last": 66.64, "unrealised": -0.21}], "closed": [], "arms": {"qualified": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 2}, "forced": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 2}}, "day_realised": 0, "day_target": 20.0, "goal_target": 1000.0, "goal_date": "Dec 31", "days_left": 84, "verdict": "NO TRADE", "why": "Regime is red. The long-only swing rules stand down.", "lines": ["no RSI-2 entry: already holding 4 positions (max 3)", "daily forced cap reached (2/2)", "Swing rules: regime red - strategy is long-only and untested in this tape"], "real": {"trades": 0, "pnl": 0, "wins": 0, "win_rate": null, "best": null, "worst": null, "sessions": 0, "open_positions": 0, "unrealised": 0, "open_list": [], "per_session": null, "by_day": {}, "challenge": {"target": 100.0, "window": "2026-09-07 to 2026-09-11", "sessions_used": 0, "sessions_total": 4, "pnl": 0, "trades": 0}}, "stats_realised": 0, "regime": {"green": false, "spy": 770.39501953125, "s10": 767.3464904785156, "s20": 769.0632446289062, "s50": 756.8613012695313}, "passing": [{"ticker": "MS", "price": 216.97500610351562, "mom": 0.4760994940828813}, {"ticker": "BMY", "price": 66.63999938964844, "mom": 0.42615862352279077}, {"ticker": "OXY", "price": 60.095001220703125, "mom": 0.24589206008893072}, {"ticker": "JPM", "price": 358.70001220703125, "mom": 0.2334949328427205}, {"ticker": "TMO", "price": 613.6300048828125, "mom": 0.1817591184666183}, {"ticker": "GM", "price": 87.04499816894531, "mom": 0.5017865294938149}], "sectors": [{"sector": "Energy", "m1": 0.10281979982677769, "m3": 0.12021094768827245}, {"sector": "Health Care", "m1": 0.0432045962869505, "m3": 0.12614596309780213}, {"sector": "Financials", "m1": 0.006919178371900925, "m3": 0.11690076145461026}, {"sector": "Materials", "m1": 0.007763132225586666, "m3": 0.04229871051823775}, {"sector": "Technology", "m1": 0.010009149674697904, "m3": 0.03942427716905206}, {"sector": "Cons Staples", "m1": -0.00293737514049075, "m3": 0.024074865536180434}], "gaps": []};</script>
+<script>window.__DESK__ = {"built": "2026-09-04T17:31:18+00:00", "intraday": true, "equity": 421.01, "start_equity": 421.0, "cash": 251.52, "curve": [{"date": "2026-09-04", "equity": 421.01}], "positions": [{"ticker": "BLK", "side": "long", "qty": 0.0475, "entry": 1107.08, "stop": 1018.5136, "target": 1284.2127, "opened": "2026-09-04", "cost_basis": 52.61, "forced": false, "note": "RSI-2 0.7", "last": 1119.895, "unrealised": 0.59}, {"ticker": "LLY", "side": "long", "qty": 0.046, "entry": 1146.4449, "stop": 1054.7294, "target": 1329.8761, "opened": "2026-09-04", "cost_basis": 52.76, "forced": false, "note": "RSI-2 2.9", "last": 1142.8, "unrealised": -0.19}, {"ticker": "GM", "side": "long", "qty": 0.3908, "entry": 87.43, "stop": 82.0358, "target": 98.2184, "opened": "2026-09-04", "cost_basis": 34.18, "forced": true, "note": "regime red", "last": 87.055, "unrealised": -0.16}, {"ticker": "BMY", "side": "long", "qty": 0.446, "entry": 67.065, "stop": 62.3378, "target": 76.5194, "opened": "2026-09-04", "cost_basis": 29.93, "forced": true, "note": "regime red", "last": 66.6, "unrealised": -0.23}], "closed": [], "arms": {"qualified": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 2}, "forced": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 2}}, "day_realised": 0, "day_target": 20.0, "goal_target": 1000.0, "goal_date": "Dec 31", "days_left": 84, "verdict": "NO TRADE", "why": "Regime is red. The long-only swing rules stand down.", "lines": ["no RSI-2 entry: already holding 4 positions (max 3)", "daily forced cap reached (2/2)", "Swing rules: regime red - strategy is long-only and untested in this tape"], "real": {"trades": 6, "pnl": 142.39, "wins": 4, "win_rate": 0.6666666666666666, "best": 105.0, "worst": -20.0, "sessions": 3, "open_positions": 1, "unrealised": 9440.0, "open_list": [{"sym": "MRVL 100C 1/15/27", "cost": 16.95, "mark": 111.35, "opened": "2026-03-06", "note": "SPY-inclusion thesis; MRVL 89.50 -> 220.24, +146%", "unrealised": 9440.0, "pct": 556.93}], "per_session": 47.46, "by_day": {"2026-08-04": 105.0, "2026-09-03": 1.37, "2026-09-04": 36.019999999999996}, "challenge": {"target": 100.0, "window": "2026-09-07 to 2026-09-11", "sessions_used": 0, "sessions_total": 4, "pnl": 0, "trades": 0}}, "stats_realised": 0, "gex": [{"ts": "2026-09-04T17:30:18+00:00", "ticker": "SPY", "spot": 769.84, "expiries": ["2026-09-04", "2026-09-08", "2026-09-09"], "total": -5434591168.050674, "flip": 770.53, "peak_call_strike": 771.0, "peak_call": 898953577.6337047, "peak_put_strike": 770.0, "peak_put": -6965359674.998404, "regime": "negative", "above_flip": false}, {"ts": "2026-09-04T17:30:19+00:00", "ticker": "QQQ", "spot": 717.46, "expiries": ["2026-09-04", "2026-09-08", "2026-09-09"], "total": -992485396.9249816, "flip": 717.95, "peak_call_strike": 720.0, "peak_call": 595425478.2520305, "peak_put_strike": 718.0, "peak_put": -1439451922.5520642, "regime": "negative", "above_flip": false}], "regime": {"green": false, "spy": 769.5900268554688, "s10": 767.2659912109375, "s20": 769.0229949951172, "s50": 756.8452014160156}, "passing": [{"ticker": "MS", "price": 216.96499633789062, "mom": 0.4760996496240131}, {"ticker": "BMY", "price": 66.5999984741211, "mom": 0.42615850257469523}, {"ticker": "OXY", "price": 60.14500045776367, "mom": 0.24589206008893072}, {"ticker": "TMO", "price": 612.5549926757812, "mom": 0.18175919194592205}, {"ticker": "GM", "price": 87.05500030517578, "mom": 0.5017865294938149}], "sectors": [{"sector": "Energy", "m1": 0.10367600784321707, "m3": 0.12108065785639299}, {"sector": "Health Care", "m1": 0.04244448681708346, "m3": 0.1253254201151024}, {"sector": "Financials", "m1": 0.006313749439524674, "m3": 0.11622920404453962}, {"sector": "Materials", "m1": 0.006900529480291517, "m3": 0.041406546774238606}, {"sector": "Technology", "m1": 0.008147598834064906, "m3": 0.037508511220236906}, {"sector": "Cons Staples", "m1": -0.004699818153100277, "m3": 0.022264674735569923}], "gaps": []};</script>
 <script>
 const D = window.__DESK__;
 const $ = s => document.querySelector(s);
@@ -517,6 +525,24 @@ function render(){
     `<div><span class="lab">SPY</span><span class="val">${D.regime.spy.toFixed(2)}</span></div>
      <div><span class="lab">10 / 20 / 50</span><span class="val">${D.regime.s10.toFixed(0)} / ${D.regime.s20.toFixed(0)} / ${D.regime.s50.toFixed(0)}</span></div>
      <div><span class="lab">Regime</span><span class="val ${D.regime.green?"up":"down"}">${D.regime.green?"GREEN":"RED"}</span></div>`;
+  /* dealer gamma */
+  const gx = D.gex || [];
+  $("#gex").innerHTML = gx.length ? gx.map(g=>{
+    const below = g.flip!=null && g.spot < g.flip;
+    const neg = g.regime === "negative";
+    return `<div class="gexrow">
+      <div class="posname"><span class="tick">${g.ticker}</span>
+        <span class="tag" data-t="${neg?'short':'long'}">${g.regime} gamma</span></div>
+      <div class="dgrid" style="padding-top:9px">
+        <div><span class="lab">Spot</span><span class="val">${money(g.spot)}</span></div>
+        <div><span class="lab">Flip</span><span class="val ${below?'down':'up'}">${g.flip==null?"&mdash;":money(g.flip)}</span></div>
+        <div><span class="lab">vs flip</span><span class="val ${below?'down':'up'}">${g.flip==null?"&mdash;":(below?"below":"above")}</span></div>
+        <div><span class="lab">Peak call</span><span class="val up">${money(g.peak_call_strike)}</span></div>
+        <div><span class="lab">Peak put</span><span class="val down">${money(g.peak_put_strike)}</span></div>
+        <div><span class="lab">Net</span><span class="val ${neg?'down':'up'}">$${(g.total/1e6).toFixed(0)}M</span></div>
+      </div></div>`;
+  }).join("") : '<p class="empty">No gamma snapshot yet.</p>';
+
   $("#watch").innerHTML = D.passing.length
     ? D.passing.map(r=>`<tr><td style="font-weight:600">${r.ticker}</td>
         <td class="n">${money(r.price)}</td><td class="n ${cls(r.mom)}">${pct(r.mom*100)}</td></tr>`).join("")

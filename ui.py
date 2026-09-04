@@ -214,6 +214,8 @@ header{padding:18px 0 4px}
   width:0;transition:width .9s cubic-bezier(.22,.8,.3,1)}
 .track i.up{background:var(--up)}
 .tick{position:absolute;top:-2px;bottom:-2px;width:1.5px;background:var(--ink-faint);opacity:.5}
+.gexrow{padding:11px 0;border-bottom:1px solid var(--line)}
+.gexrow:last-child{border-bottom:0}
 .empty{color:var(--ink-faint);font-size:.86rem;padding:16px 0;text-align:center}
 .note{font-size:.78rem;color:var(--ink-faint);margin:11px 0 0;line-height:1.5}
 .spark{display:block}
@@ -444,6 +446,24 @@ function render(){
     `<div><span class="lab">SPY</span><span class="val">${D.regime.spy.toFixed(2)}</span></div>
      <div><span class="lab">10 / 20 / 50</span><span class="val">${D.regime.s10.toFixed(0)} / ${D.regime.s20.toFixed(0)} / ${D.regime.s50.toFixed(0)}</span></div>
      <div><span class="lab">Regime</span><span class="val ${D.regime.green?"up":"down"}">${D.regime.green?"GREEN":"RED"}</span></div>`;
+  /* dealer gamma */
+  const gx = D.gex || [];
+  $("#gex").innerHTML = gx.length ? gx.map(g=>{
+    const below = g.flip!=null && g.spot < g.flip;
+    const neg = g.regime === "negative";
+    return `<div class="gexrow">
+      <div class="posname"><span class="tick">${g.ticker}</span>
+        <span class="tag" data-t="${neg?'short':'long'}">${g.regime} gamma</span></div>
+      <div class="dgrid" style="padding-top:9px">
+        <div><span class="lab">Spot</span><span class="val">${money(g.spot)}</span></div>
+        <div><span class="lab">Flip</span><span class="val ${below?'down':'up'}">${g.flip==null?"&mdash;":money(g.flip)}</span></div>
+        <div><span class="lab">vs flip</span><span class="val ${below?'down':'up'}">${g.flip==null?"&mdash;":(below?"below":"above")}</span></div>
+        <div><span class="lab">Peak call</span><span class="val up">${money(g.peak_call_strike)}</span></div>
+        <div><span class="lab">Peak put</span><span class="val down">${money(g.peak_put_strike)}</span></div>
+        <div><span class="lab">Net</span><span class="val ${neg?'down':'up'}">$${(g.total/1e6).toFixed(0)}M</span></div>
+      </div></div>`;
+  }).join("") : '<p class="empty">No gamma snapshot yet.</p>';
+
   $("#watch").innerHTML = D.passing.length
     ? D.passing.map(r=>`<tr><td style="font-weight:600">${r.ticker}</td>
         <td class="n">${money(r.price)}</td><td class="n ${cls(r.mom)}">${pct(r.mom*100)}</td></tr>`).join("")
@@ -582,6 +602,12 @@ SHELL = """<title>Morning Desk</title>
       <p class="note">Long-only rules stand down when SPY's short averages roll over.
         Measured over 2007&ndash;2026 this filter did not improve 21-day outcomes,
         so forced trades ignore it while it is being tested.</p></div>
+    <div class="card"><h2>Dealer gamma</h2><div id="gex"></div>
+      <p class="note">Below the flip, dealer hedging amplifies moves; above it,
+        hedging damps them and price tends toward the big strikes. UNVALIDATED
+        here &mdash; snapshots are recorded daily so the claim can be tested,
+        which is not the same as it working. The long/short convention is an
+        assumption open interest cannot confirm.</p></div>
     <div class="card"><h2>Passing the checklist</h2><div class="scroll"><table>
       <thead><tr><th>Ticker</th><th class="n">Price</th><th class="n">Momentum</th></tr></thead>
       <tbody id="watch"></tbody></table></div></div>
