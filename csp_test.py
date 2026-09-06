@@ -93,7 +93,14 @@ def main():
     yrs = (d.index[-1] - d.index[0]).days / 365.25
     bh = (last / first) ** (1 / yrs) - 1
     print(f"\n  buy and hold the index over the same window: {bh*100:.1f}% a year")
-    print("  (before dividends, which would add roughly 2 points)")
+    print("  (price only; dividends would add roughly 2 points)")
+    print()
+    print("  ONE CORRECTION IN THE SELLER'S FAVOUR, which the table above omits.")
+    print("  The collateral is not idle - a cash-secured seller holds it in bills,")
+    print("  worth roughly 2.5 points a year over 1990-2026. That puts the 2% OTM")
+    print("  line nearer 10.4% than 7.9%, against a dividend-inclusive buy and hold")
+    print("  around 10.7%. Roughly a wash - with a far better win rate and a far")
+    print("  worse tail. The wrapper is not a disaster; it is just not an edge.")
 
     print("\n  WHERE THE LOSSES LIVE  (5% OTM)")
     print("  " + "-" * 76)
