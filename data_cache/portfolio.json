@@ -82,7 +82,9 @@
       "opened": "2026-09-07",
       "cost_basis": 26.55,
       "forced": true,
-      "note": "regime red"
+      "note": "regime red",
+      "last": 275.15,
+      "unrealised": -0.03
     }
   ],
   "closed": [],
@@ -93,10 +95,10 @@
     },
     {
       "date": "2026-09-07",
-      "equity": 421.72
+      "equity": 421.69
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 202.07,
-  "equity": 421.72
+  "market_value": 228.59,
+  "equity": 421.69
 }
