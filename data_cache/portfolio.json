@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 193.1,
+  "cash": 149.69,
   "positions": [
     {
       "ticker": "BLK",
@@ -13,8 +13,8 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1121.78,
-      "unrealised": 0.67
+      "last": 1105.6899,
+      "unrealised": -0.09
     },
     {
       "ticker": "LLY",
@@ -27,8 +27,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1148.74,
-      "unrealised": 0.08
+      "last": 1127.8149,
+      "unrealised": -0.88
     },
     {
       "ticker": "GM",
@@ -41,8 +41,8 @@
       "cost_basis": 34.18,
       "forced": true,
       "note": "regime red",
-      "last": 87.73,
-      "unrealised": 0.1
+      "last": 86.1268,
+      "unrealised": -0.52
     },
     {
       "ticker": "BMY",
@@ -55,8 +55,8 @@
       "cost_basis": 29.93,
       "forced": true,
       "note": "regime red",
-      "last": 66.825,
-      "unrealised": -0.13
+      "last": 64.99,
+      "unrealised": -0.94
     },
     {
       "ticker": "MS",
@@ -69,8 +69,8 @@
       "cost_basis": 31.87,
       "forced": true,
       "note": "regime red",
-      "last": 217.72,
-      "unrealised": -0.02
+      "last": 218.1325,
+      "unrealised": 0.04
     },
     {
       "ticker": "JNJ",
@@ -83,8 +83,20 @@
       "cost_basis": 26.55,
       "forced": true,
       "note": "regime red",
-      "last": 275.15,
-      "unrealised": -0.03
+      "last": 268.92,
+      "unrealised": -0.63
+    },
+    {
+      "ticker": "BAC",
+      "side": "long",
+      "qty": 0.6925,
+      "entry": 62.66,
+      "stop": 59.6423,
+      "target": 68.6954,
+      "opened": "2026-09-08",
+      "cost_basis": 43.41,
+      "forced": true,
+      "note": "regime red"
     }
   ],
   "closed": [],
@@ -96,9 +108,13 @@
     {
       "date": "2026-09-07",
       "equity": 421.69
+    },
+    {
+      "date": "2026-09-08",
+      "equity": 417.98
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 228.59,
-  "equity": 421.69
+  "market_value": 224.88,
+  "equity": 417.98
 }
