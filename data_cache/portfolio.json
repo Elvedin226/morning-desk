@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 149.69,
+  "cash": 118.5,
   "positions": [
     {
       "ticker": "BLK",
@@ -13,8 +13,8 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1105.6899,
-      "unrealised": -0.09
+      "last": 1103.175,
+      "unrealised": -0.21
     },
     {
       "ticker": "LLY",
@@ -27,8 +27,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1127.8149,
-      "unrealised": -0.88
+      "last": 1128.8,
+      "unrealised": -0.84
     },
     {
       "ticker": "GM",
@@ -41,8 +41,8 @@
       "cost_basis": 34.18,
       "forced": true,
       "note": "regime red",
-      "last": 86.1268,
-      "unrealised": -0.52
+      "last": 85.79,
+      "unrealised": -0.65
     },
     {
       "ticker": "BMY",
@@ -55,8 +55,8 @@
       "cost_basis": 29.93,
       "forced": true,
       "note": "regime red",
-      "last": 64.99,
-      "unrealised": -0.94
+      "last": 65.175,
+      "unrealised": -0.86
     },
     {
       "ticker": "MS",
@@ -69,8 +69,8 @@
       "cost_basis": 31.87,
       "forced": true,
       "note": "regime red",
-      "last": 218.1325,
-      "unrealised": 0.04
+      "last": 218.32,
+      "unrealised": 0.07
     },
     {
       "ticker": "JNJ",
@@ -83,8 +83,8 @@
       "cost_basis": 26.55,
       "forced": true,
       "note": "regime red",
-      "last": 268.92,
-      "unrealised": -0.63
+      "last": 269.75,
+      "unrealised": -0.55
     },
     {
       "ticker": "BAC",
@@ -95,6 +95,20 @@
       "target": 68.6954,
       "opened": "2026-09-08",
       "cost_basis": 43.41,
+      "forced": true,
+      "note": "regime red",
+      "last": 62.75,
+      "unrealised": 0.04
+    },
+    {
+      "ticker": "OXY",
+      "side": "long",
+      "qty": 0.5143,
+      "entry": 60.61,
+      "stop": 56.546,
+      "target": 68.738,
+      "opened": "2026-09-08",
+      "cost_basis": 31.19,
       "forced": true,
       "note": "regime red"
     }
@@ -111,10 +125,10 @@
     },
     {
       "date": "2026-09-08",
-      "equity": 417.98
+      "equity": 418.01
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 224.88,
-  "equity": 417.98
+  "market_value": 268.32,
+  "equity": 418.01
 }
