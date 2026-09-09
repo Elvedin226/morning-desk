@@ -57,12 +57,12 @@ def save(st: dict) -> None:
 
 
 def add(sym: str, pnl: float, pct: float | None = None, date: str | None = None,
-        note: str = "") -> dict:
+        note: str = "", opened: str | None = None) -> dict:
     st = load()
     row = {"sym": sym, "pnl": round(float(pnl), 2),
            "pct": None if pct is None else round(float(pct), 2),
            "date": date or datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-           "note": note,
+           "note": note, "opened": opened,
            "logged": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     st["trades"].append(row)
     save(st)
@@ -98,7 +98,16 @@ def stats(st: dict | None = None) -> dict:
     st = st or load()
     tr = st.get("trades", [])
     wins = [t for t in tr if t["pnl"] > 0]
-    days = sorted({t["date"] for t in tr} | set(st.get("flat_days", [])))
+    # A session is "used" if a position was OPENED, CLOSED, or held through it -
+    # not only the day it closed. Without this a two-day hold reads as one day
+    # of activity and one of nothing, which is how Sep 8 2026 got mislabelled
+    # flat while a CHPT short was open across it.
+    days = set(st.get("flat_days", []))
+    for t in tr:
+        days.add(t["date"])
+        if t.get("opened"):
+            days.add(t["opened"])
+    days = sorted(days)
     by_day = {}
     for t in tr:
         by_day[t["date"]] = by_day.get(t["date"], 0.0) + t["pnl"]
@@ -107,9 +116,12 @@ def stats(st: dict | None = None) -> dict:
 
     op = st.get("open", [])
     ch = [t for t in tr if CHALLENGE_START <= t["date"] <= CHALLENGE_END]
-    ch_days = sorted({t["date"] for t in ch}
-                     | {d for d in st.get("flat_days", [])
-                        if CHALLENGE_START <= d <= CHALLENGE_END})
+    ch_days = {d for d in st.get("flat_days", []) if CHALLENGE_START <= d <= CHALLENGE_END}
+    for t in ch:
+        ch_days.add(t["date"])
+        if t.get("opened") and CHALLENGE_START <= t["opened"] <= CHALLENGE_END:
+            ch_days.add(t["opened"])
+    ch_days = sorted(ch_days)
     return {
         "trades": len(tr),
         "pnl": round(sum(t["pnl"] for t in tr), 2),
@@ -142,13 +154,14 @@ if __name__ == "__main__":
     a.add_argument("--pnl", type=float, required=True)
     a.add_argument("--pct", type=float)
     a.add_argument("--date")
+    a.add_argument("--opened", help="entry date for a multi-session hold")
     a.add_argument("--note", default="")
     f = sub.add_parser("flat")
     f.add_argument("--date")
     args = ap.parse_args()
 
     if args.cmd == "add":
-        r = add(args.sym, args.pnl, args.pct, args.date, args.note)
+        r = add(args.sym, args.pnl, args.pct, args.date, args.note, args.opened)
         print(f"  logged {r['sym']}  ${r['pnl']:+.2f}  {r['date']}")
     elif args.cmd == "flat":
         flat(args.date)
