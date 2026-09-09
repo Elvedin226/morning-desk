@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 118.5,
+  "cash": 86.08,
   "positions": [
     {
       "ticker": "BLK",
@@ -13,8 +13,8 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1095.83,
-      "unrealised": -0.56
+      "last": 1080.09,
+      "unrealised": -1.31
     },
     {
       "ticker": "LLY",
@@ -27,8 +27,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1123.86,
-      "unrealised": -1.06
+      "last": 1125.125,
+      "unrealised": -1.0
     },
     {
       "ticker": "GM",
@@ -41,8 +41,8 @@
       "cost_basis": 34.18,
       "forced": true,
       "note": "regime red",
-      "last": 85.81,
-      "unrealised": -0.65
+      "last": 84.75,
+      "unrealised": -1.06
     },
     {
       "ticker": "BMY",
@@ -55,8 +55,8 @@
       "cost_basis": 29.93,
       "forced": true,
       "note": "regime red",
-      "last": 64.695,
-      "unrealised": -1.08
+      "last": 64.47,
+      "unrealised": -1.18
     },
     {
       "ticker": "MS",
@@ -69,8 +69,8 @@
       "cost_basis": 31.87,
       "forced": true,
       "note": "regime red",
-      "last": 216.31,
-      "unrealised": -0.22
+      "last": 216.0,
+      "unrealised": -0.27
     },
     {
       "ticker": "JNJ",
@@ -83,8 +83,8 @@
       "cost_basis": 26.55,
       "forced": true,
       "note": "regime red",
-      "last": 269.15,
-      "unrealised": -0.6
+      "last": 267.35,
+      "unrealised": -0.78
     },
     {
       "ticker": "BAC",
@@ -97,8 +97,8 @@
       "cost_basis": 43.41,
       "forced": true,
       "note": "regime red",
-      "last": 62.38,
-      "unrealised": -0.21
+      "last": 62.765,
+      "unrealised": 0.05
     },
     {
       "ticker": "OXY",
@@ -111,8 +111,20 @@
       "cost_basis": 31.19,
       "forced": true,
       "note": "regime red",
-      "last": 60.66,
-      "unrealised": 0.01
+      "last": 61.335,
+      "unrealised": 0.35
+    },
+    {
+      "ticker": "XOM",
+      "side": "long",
+      "qty": 0.1978,
+      "entry": 163.82,
+      "stop": 153.3112,
+      "target": 184.8376,
+      "opened": "2026-09-09",
+      "cost_basis": 32.42,
+      "forced": true,
+      "note": "regime red"
     }
   ],
   "closed": [],
@@ -128,9 +140,13 @@
     {
       "date": "2026-09-08",
       "equity": 416.63
+    },
+    {
+      "date": "2026-09-09",
+      "equity": 415.82
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 298.13,
-  "equity": 416.63
+  "market_value": 297.32,
+  "equity": 415.82
 }
