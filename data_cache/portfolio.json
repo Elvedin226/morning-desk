@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 86.08,
+  "cash": 58.69,
   "positions": [
     {
       "ticker": "BLK",
@@ -13,8 +13,8 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1080.09,
-      "unrealised": -1.31
+      "last": 1081.79,
+      "unrealised": -1.22
     },
     {
       "ticker": "LLY",
@@ -27,8 +27,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1125.125,
-      "unrealised": -1.0
+      "last": 1121.765,
+      "unrealised": -1.16
     },
     {
       "ticker": "GM",
@@ -41,8 +41,8 @@
       "cost_basis": 34.18,
       "forced": true,
       "note": "regime red",
-      "last": 84.75,
-      "unrealised": -1.06
+      "last": 84.93,
+      "unrealised": -0.99
     },
     {
       "ticker": "BMY",
@@ -55,8 +55,8 @@
       "cost_basis": 29.93,
       "forced": true,
       "note": "regime red",
-      "last": 64.47,
-      "unrealised": -1.18
+      "last": 64.56,
+      "unrealised": -1.14
     },
     {
       "ticker": "MS",
@@ -69,8 +69,8 @@
       "cost_basis": 31.87,
       "forced": true,
       "note": "regime red",
-      "last": 216.0,
-      "unrealised": -0.27
+      "last": 216.21,
+      "unrealised": -0.24
     },
     {
       "ticker": "JNJ",
@@ -83,8 +83,8 @@
       "cost_basis": 26.55,
       "forced": true,
       "note": "regime red",
-      "last": 267.35,
-      "unrealised": -0.78
+      "last": 267.8332,
+      "unrealised": -0.73
     },
     {
       "ticker": "BAC",
@@ -111,8 +111,8 @@
       "cost_basis": 31.19,
       "forced": true,
       "note": "regime red",
-      "last": 61.335,
-      "unrealised": 0.35
+      "last": 61.436,
+      "unrealised": 0.41
     },
     {
       "ticker": "XOM",
@@ -123,6 +123,20 @@
       "target": 184.8376,
       "opened": "2026-09-09",
       "cost_basis": 32.42,
+      "forced": true,
+      "note": "regime red",
+      "last": 164.735,
+      "unrealised": 0.16
+    },
+    {
+      "ticker": "PFE",
+      "side": "long",
+      "qty": 0.9809,
+      "entry": 27.905,
+      "stop": 25.7838,
+      "target": 32.1474,
+      "opened": "2026-09-09",
+      "cost_basis": 27.39,
       "forced": true,
       "note": "regime red"
     }
@@ -143,10 +157,10 @@
     },
     {
       "date": "2026-09-09",
-      "equity": 415.82
+      "equity": 416.15
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 297.32,
-  "equity": 415.82
+  "market_value": 330.07,
+  "equity": 416.15
 }
