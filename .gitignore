@@ -21,3 +21,6 @@ data_cache/*
 # enough of them - losing them to a fresh runner would reset the experiment.
 !data_cache/gex_history.jsonl
 !data_cache/gex_latest.json
+# The owner's real trades. Without this the live dashboard shows their arm as
+# zero, because CI never sees the file - which it did for four days.
+!data_cache/real_trades.json

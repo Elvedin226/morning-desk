@@ -1,0 +1,65 @@
+{
+  "trades": [
+    {
+      "sym": "MIMI cover",
+      "pnl": 6.37,
+      "pct": 13.07,
+      "date": "2026-09-03",
+      "note": "short cover",
+      "logged": "2026-09-04T15:47:28+00:00"
+    },
+    {
+      "sym": "SPXW 7735P 9/3",
+      "pnl": -5.0,
+      "pct": -100.0,
+      "date": "2026-09-03",
+      "note": "held to expiry",
+      "logged": "2026-09-04T15:47:28+00:00"
+    },
+    {
+      "sym": "SPXW 7695P 9/4",
+      "pnl": 35.0,
+      "pct": 13.21,
+      "date": "2026-09-04",
+      "note": "cut intraday",
+      "logged": "2026-09-04T15:47:28+00:00"
+    },
+    {
+      "sym": "SPXW 7760C 9/4",
+      "pnl": -20.0,
+      "pct": -15.39,
+      "date": "2026-09-04",
+      "note": "cut intraday",
+      "logged": "2026-09-04T15:47:28+00:00"
+    },
+    {
+      "sym": "GPRO cover",
+      "pnl": 21.02,
+      "pct": 5.59,
+      "date": "2026-09-04",
+      "note": "short cover",
+      "logged": "2026-09-04T15:47:29+00:00"
+    },
+    {
+      "sym": "ASTS 180C 1/15/27",
+      "pnl": 105.0,
+      "pct": 36.84,
+      "date": "2026-08-04",
+      "note": "bought 7/22 @2.85, sold 8/4 @3.90; 154% OTM, 6mo",
+      "logged": "2026-09-04T15:50:11+00:00"
+    }
+  ],
+  "flat_days": [],
+  "created": "2026-09-04T15:47:28+00:00",
+  "open": [
+    {
+      "sym": "MRVL 100C 1/15/27",
+      "cost": 16.95,
+      "mark": 111.35,
+      "opened": "2026-03-06",
+      "note": "SPY-inclusion thesis; MRVL 89.50 -> 220.24, +146%",
+      "unrealised": 9440.0,
+      "pct": 556.93
+    }
+  ]
+}
