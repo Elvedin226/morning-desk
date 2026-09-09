@@ -16,6 +16,7 @@ runs and the record accumulates in git history.
 
 import json, os, warnings
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 warnings.filterwarnings("ignore")
 import numpy as np, pandas as pd, yfinance as yf
 
@@ -336,6 +337,27 @@ def _gex_safe():
         return gamma.load_latest()
 
 
+def market_open_today():
+    """Is there a live session right now? Decided by evidence, not a calendar.
+
+    GitHub's cron fires on weekdays and knows nothing about market holidays,
+    so on Labor Day 2026 the bot priced two entries off Friday's close and
+    opened them into a session that did not exist. A holiday calendar would
+    fix that day and miss the next irregular closure. A 5-minute SPY bar
+    stamped today cannot be faked by a closed market.
+    """
+    try:
+        b = yf.download("SPY", period="1d", interval="5m", prepost=False,
+                        progress=False, auto_adjust=True)
+        if b.empty:
+            return False
+        last = b.index[-1].tz_convert("America/New_York").date()
+        return last == datetime.now(timezone.utc).astimezone(
+            ZoneInfo("America/New_York")).date()
+    except Exception:
+        return False
+
+
 def trade(d, intraday=False):
     """Advance the paper account one day: resolve open positions, then open the
     day's candidate if the risk layer allows it.
@@ -348,6 +370,9 @@ def trade(d, intraday=False):
 
     equity = book["equity"]
     held = [p["ticker"] for p in book["positions"]]
+    # Exits and marks always run - a stop must still fire on stale data if it
+    # was hit. Only ENTRIES need a live session.
+    d["market_open"] = market_open_today()
     # Computed AFTER exits settle, so a target hit this run counts toward the
     # day's number and can stop further entries immediately.
     day_pnl = portfolio.day_realised(book)
@@ -358,7 +383,10 @@ def trade(d, intraday=False):
     # Reading that field as permission to trade put a position on during a red
     # tape - the one condition this long-only strategy was never tested in.
     forced_note = None
-    if not d["reg"]["green"]:
+    if not d["market_open"]:
+        skip = "market closed - no live session today, entries suspended"
+        forced_note = None
+    elif not d["reg"]["green"]:
         skip = "regime red - strategy is long-only and untested in this tape"
         forced_note = "regime red"
     elif c is None:
@@ -391,7 +419,7 @@ def trade(d, intraday=False):
     # tagged forced=False because it IS a rule - just a different rule from the
     # 21-day swing checklist.
     d["rsi2"] = None
-    if RSI2_ENABLED:
+    if RSI2_ENABLED and d["market_open"]:
         cands = rsi2_candidates(d, held)
         d["rsi2_seen"] = [f"{c['ticker']} ({c['rsi2']:.1f})" for c in cands[:5]]
         g = risk.gate(equity, book["start_equity"],
@@ -434,7 +462,9 @@ def trade(d, intraday=False):
                         if p.get("forced") and p["opened"] == today_str)
                     + sum(1 for c in book.get("closed", [])
                           if c.get("forced") and c["opened"] == today_str))
-    if FORCE_DAILY and skip and opened_today >= MAX_FORCED_PER_DAY:
+    if not d["market_open"]:
+        d["forced"] = "market closed"
+    elif FORCE_DAILY and skip and opened_today >= MAX_FORCED_PER_DAY:
         d["forced"] = f"daily forced cap reached ({opened_today}/{MAX_FORCED_PER_DAY})"
     elif FORCE_DAILY and skip:
         curve = book.get("equity_curve", [])

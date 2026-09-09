@@ -3,227 +3,652 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-:root {
-  --ground:#0F1216; --surface:#171B21; --surface-2:#1F252D; --line:#2A313B;
-  --ink:#E6EAEF; --ink-soft:#98A2AE; --ink-faint:#6B7482;
-  --accent:#C9A227; --go:#3FB27F; --stop:#E06C5A;
-  --go-bg:#12271F; --stop-bg:#2A1815;
+:root{
+  /* Cool ground, warm accent. A neutral black with a gold accent is the safe
+     default for a trading screen and reads flat; a blue-violet ground with a
+     warm amber cutting across it has actual temperature contrast, which is what
+     makes a dark UI feel lit rather than switched off.
+     Neutrals are hue-biased toward the ground, never pure grey. */
+  --ground:#090C18; --ground-2:#0E1326;
+  --surface:#141A2E; --surface-2:#1D2540; --line:#2A3352; --line-soft:#212942;
+  --ink:#EEF1FA; --ink-soft:#98A3C4; --ink-faint:#626E96;
+  --accent:#FFB340;                        /* warm amber: structure and labels */
+  --up:#2EE6A8; --down:#FF5470;            /* semantic only, never decorative */
+  --up-dim:rgba(46,230,168,.14); --down-dim:rgba(255,84,112,.14);
+  --glow-up:rgba(46,230,168,.34); --glow-down:rgba(255,84,112,.34);
+  --r:16px;
 }
-:root[data-theme="light"] {
-  --ground:#F2F4F7; --surface:#FFFFFF; --surface-2:#E9EDF2; --line:#D3DAE3;
-  --ink:#161A1F; --ink-soft:#525C68; --ink-faint:#7C8694;
-  --accent:#8A6D0B; --go:#1F7A54; --stop:#B03F2C;
-  --go-bg:#DDEDE5; --stop-bg:#F6E1DC;
+:root[data-theme="light"]{
+  --ground:#F4F6FC; --ground-2:#FFFFFF;
+  --surface:#FFFFFF; --surface-2:#EDF1FA; --line:#D9E0F0; --line-soft:#E6EBF6;
+  --ink:#0B1024; --ink-soft:#4B5675; --ink-faint:#7A85A6;
+  --accent:#A45E00;
+  --up:#00875A; --down:#D01E45;
+  --up-dim:rgba(0,135,90,.10); --down-dim:rgba(208,30,69,.10);
+  --glow-up:rgba(0,135,90,.16); --glow-down:rgba(208,30,69,.16);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--ground);color:var(--ink);
-  font-family:Archivo,system-ui,sans-serif;font-size:16px;line-height:1.5;
-  -webkit-font-smoothing:antialiased}
-.wrap{max-width:520px;margin:0 auto;padding:20px 16px 56px;
-  display:flex;flex-direction:column;gap:18px}
-header{display:flex;flex-direction:column;gap:4px}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--accent)}
-.asof{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
-.verdict{border-radius:3px;padding:22px 20px;display:flex;flex-direction:column;gap:8px;
-  border:1px solid var(--line)}
-.verdict[data-state="go"]{background:var(--go-bg);border-color:var(--go)}
-.verdict[data-state="stop"]{background:var(--stop-bg);border-color:var(--stop)}
-.verdict h1{margin:0;font-size:clamp(2.2rem,11vw,3rem);line-height:1;font-weight:700;
-  letter-spacing:-.02em}
-.verdict[data-state="go"] h1{color:var(--go)}
-.verdict[data-state="stop"] h1{color:var(--stop)}
-.verdict p{margin:0;font-size:14.5px;color:var(--ink-soft);max-width:44ch}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:16px}
-h2{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--accent);margin:0 0 12px}
-.ticker-row{display:flex;align-items:baseline;justify-content:space-between;
-  padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line)}
-.ticker{font-size:1.7rem;font-weight:700;letter-spacing:-.01em}
-.last{font-family:"IBM Plex Mono",monospace;font-size:1.15rem;color:var(--ink-soft);
-  font-variant-numeric:tabular-nums}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 10px}
-.grid>div{display:flex;flex-direction:column;gap:2px}
-.lab{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; color:var(--ink);
+  background:
+    radial-gradient(120% 62% at 50% -8%, var(--ground-2) 0%, transparent 62%),
+    var(--ground);
+  background-attachment:fixed;
+  font-family:Archivo,system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.45; -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 64px}
+
+/* ---------- sticky bar: appears only once the hero scrolls away ---------- */
+#bar{
+  position:sticky; top:0; z-index:30; display:flex; align-items:center;
+  justify-content:space-between; gap:12px; padding:10px 16px;
+  margin:0 -16px 0; background:color-mix(in srgb,var(--ground) 88%,transparent);
+  backdrop-filter:blur(14px); border-bottom:1px solid transparent;
+  opacity:0; transform:translateY(-8px); pointer-events:none;
+  transition:opacity .22s ease, transform .22s ease, border-color .22s ease;
+}
+#bar.on{opacity:1;transform:none;border-bottom-color:var(--line)}
+#bar .b-eq{font-size:1.05rem;font-weight:600}
+#bar .b-d{font-size:.82rem}
+
+/* ---------- hero ---------- */
+header{padding:18px 0 4px}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--accent); display:flex; gap:8px;
+  align-items:center; flex-wrap:wrap;
+}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;
+  box-shadow:0 0 8px var(--accent)}
+.dot.live{background:var(--up);box-shadow:0 0 9px var(--glow-up);
+  animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+.equity{
+  font-size:clamp(2.9rem,13vw,3.9rem); font-weight:600; letter-spacing:-.035em;
+  line-height:1.02; margin:12px 0 4px;
+  /* A faint bloom off the ground colour. Enough to read as backlit, not enough
+     to soften the digits - legibility of the number is the whole job. */
+  text-shadow:0 0 34px rgba(238,241,250,.16);
+}
+.delta{display:flex;align-items:baseline;gap:9px;font-size:1rem;font-weight:500}
+.delta .pill{
+  padding:2px 8px;border-radius:999px;font-size:.82rem;
+  font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+}
+.up{color:var(--up)} .down{color:var(--down)}
+.pill.up{background:var(--up-dim)} .pill.down{background:var(--down-dim)}
+.sub{color:var(--ink-faint);font-size:.8rem;margin-top:7px}
+
+/* ---------- chart ---------- */
+.chartwrap{position:relative;margin:14px -4px 0;touch-action:pan-y}
+#eq{display:block;width:100%;height:190px;overflow:visible}
+/* The glow uses currentColor, so drawChart() sets `color` on these elements
+   alongside `stroke`/`fill` - otherwise currentColor inherits the ink and the
+   line blooms white regardless of whether the day was up or down. */
+#eq path.line{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px currentColor)}
+#eq .area{opacity:.9}
+#eq .base{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+#eq circle.head{filter:drop-shadow(0 0 7px currentColor)}
+.draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 1.15s cubic-bezier(.22,.8,.3,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.scrub{position:absolute;inset:0;cursor:crosshair}
+#cross{opacity:0;transition:opacity .12s}
+#cross.on{opacity:1}
+.readout{
+  position:absolute;top:0;left:0;pointer-events:none;opacity:0;
+  transition:opacity .12s; font-size:.74rem; white-space:nowrap;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+  padding:5px 9px; transform:translateX(-50%);
+}
+.readout.on{opacity:1}
+.ranges{display:flex;gap:6px;margin:12px 0 0}
+.range{
+  flex:1;padding:7px 0;border:0;border-radius:9px;background:var(--surface);
+  color:var(--ink-faint);font-family:"IBM Plex Mono",monospace;font-size:11px;
+  letter-spacing:.08em;cursor:pointer;transition:background .15s,color .15s;
+}
+.range[aria-selected="true"]{background:var(--surface-2);color:var(--ink)}
+
+/* ---------- status chip (replaces the big red block) ---------- */
+.status{
+  display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;padding:13px 15px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  border-left:3px solid var(--ink-faint);
+}
+/* Tint the whole chip toward its state instead of only the rail - a coloured
+   edge on a grey box still reads grey. */
+.status[data-s="go"]{border-left-color:var(--up);
+  background:linear-gradient(96deg,var(--up-dim) 0%,var(--surface) 58%)}
+.status[data-s="stop"]{border-left-color:var(--down);
+  background:linear-gradient(96deg,var(--down-dim) 0%,var(--surface) 58%)}
+.status h3{margin:0 0 2px;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;
+  font-family:"IBM Plex Mono",monospace}
+.status[data-s="go"] h3{color:var(--up)} .status[data-s="stop"] h3{color:var(--down)}
+.status p{margin:0;font-size:.86rem;color:var(--ink-soft);line-height:1.4}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;margin:22px 0 14px;background:var(--surface);
+  padding:4px;border-radius:11px}
+.tab{
+  flex:1;padding:9px 4px;border:0;border-radius:8px;background:transparent;
+  color:var(--ink-faint);font-family:Archivo,sans-serif;font-size:.82rem;
+  font-weight:500;cursor:pointer;transition:background .18s,color .18s;
+}
+.tab[aria-selected="true"]{background:var(--surface-2);color:var(--ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.panel[hidden]{display:none}
+.panel{animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- cards / rows ---------- */
+/* A flat fill reads as a grey box. The gradient is barely perceptible on its
+   own; what sells it is the 1px inset highlight on the top edge, which is how a
+   raised surface catches light. */
+.card{background:linear-gradient(174deg,var(--surface-2) 0%,var(--surface) 46%);
+  border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045), 0 1px 2px rgba(0,0,0,.28);
+  padding:16px;margin-bottom:12px}
+.card h2{
+  margin:0 0 12px;font-family:"IBM Plex Mono",monospace;font-size:10px;
+  letter-spacing:.19em;text-transform:uppercase;color:var(--accent);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.card h2 span{color:var(--ink-faint);letter-spacing:.08em}
+.row{
+  display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:12px 0;
+  border-bottom:1px solid var(--line);cursor:pointer;
+}
+.row:last-child{border-bottom:0}
+.row:first-of-type{padding-top:2px}
+.rname{display:flex;align-items:center;gap:7px;font-weight:600;font-size:1rem}
+.rmeta{font-size:.72rem;color:var(--ink-faint);font-family:"IBM Plex Mono",monospace}
+.rval{text-align:right;font-weight:600;font-size:1rem}
+.rsub{text-align:right;font-size:.75rem}
+.tag{
+  font-family:"IBM Plex Mono",monospace;font-size:8.5px;letter-spacing:.11em;
+  text-transform:uppercase;padding:2px 5px;border-radius:4px;
+  border:1px solid var(--line);color:var(--ink-faint);font-weight:500;
+}
+.tag[data-t="long"]{color:var(--up);border-color:color-mix(in srgb,var(--up) 45%,transparent)}
+.tag[data-t="short"]{color:var(--down);border-color:color-mix(in srgb,var(--down) 45%,transparent)}
+.tag[data-t="forced"]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.tag[data-t="rsi-2"]{color:var(--ink);border-color:var(--ink-faint)}
+.detail{grid-column:1/-1;overflow:hidden;max-height:0;transition:max-height .28s ease}
+.row.open .detail{max-height:260px}
+.dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;padding:13px 0 3px}
+.dgrid div{display:flex;flex-direction:column;gap:2px}
+.lab{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--ink-faint)}
-.val{font-family:"IBM Plex Mono",monospace;font-size:1.02rem;font-weight:500;
+.val{font-family:"IBM Plex Mono",monospace;font-size:.92rem;font-weight:500;
   font-variant-numeric:tabular-nums}
-.val small{font-size:.72em;color:var(--ink-faint)}
-.go-c{color:var(--go)} .stop-c{color:var(--stop)}
-.chart{display:block;width:100%;height:auto;margin:2px 0 10px;overflow:visible}
-.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:14px;
-  font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--ink-faint)}
-.legend span{display:flex;align-items:center;gap:5px}
-.legend i{width:12px;height:2px;display:inline-block;border-radius:1px}
-.k-price{background:var(--ink)} .k-sma20{background:var(--accent)}
-.k-sma50{background:var(--ink-faint)}
-.k-stop{background:repeating-linear-gradient(90deg,var(--stop) 0 3px,transparent 3px 6px)}
+.track{height:5px;border-radius:3px;background:var(--surface-2);position:relative;
+  overflow:hidden;margin-top:9px}
+.track i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--accent);
+  width:0;transition:width .9s cubic-bezier(.22,.8,.3,1)}
+.track i.up{background:var(--up)}
+.tick{position:absolute;top:-2px;bottom:-2px;width:1.5px;background:var(--ink-faint);opacity:.5}
+.gexchart{display:block;width:100%;height:132px;margin:10px 0 2px}
+.gexhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gexkey{display:flex;flex-wrap:wrap;gap:4px 13px;font-family:"IBM Plex Mono",monospace;
+  font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint)}
+.gexkey span{display:flex;align-items:center;gap:5px}
+.gexkey i{width:11px;height:2px;display:inline-block;border-radius:1px}
+.gexkey i.dash{background:repeating-linear-gradient(90deg,var(--accent) 0 3px,transparent 3px 6px)}
+.gexrow{padding:11px 0;border-bottom:1px solid var(--line)}
+.gexrow:last-child{border-bottom:0}
+.empty{color:var(--ink-faint);font-size:.86rem;padding:16px 0;text-align:center}
+.note{font-size:.78rem;color:var(--ink-faint);margin:11px 0 0;line-height:1.5}
 .spark{display:block}
-.sparkcell{width:92px;padding-right:4px}
-table{width:100%;border-collapse:collapse;font-size:14.5px}
-th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--ink-faint);text-align:left;font-weight:500;
-  padding-bottom:8px;border-bottom:1px solid var(--line)}
-th.num,td.num{text-align:right;font-family:"IBM Plex Mono",monospace;
+.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 10px}
+.statgrid>div{display:flex;flex-direction:column;gap:3px}
+.big{font-family:"IBM Plex Mono",monospace;font-size:1.25rem;font-weight:600;
   font-variant-numeric:tabular-nums}
-td{padding:9px 0;border-bottom:1px solid var(--line)}
-tr:last-child td{border-bottom:none}
-.tick{font-weight:600}
-tr.lead td:first-child{color:var(--accent)}
-td.up{color:var(--go)} td.down{color:var(--stop)}
-tr[data-hot="1"] td.num:last-child{color:var(--accent);font-weight:600}
-.empty{color:var(--ink-faint);font-style:italic;padding:14px 0}
-.note{font-size:13px;color:var(--ink-faint);margin:12px 0 0}
-.acct-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:2px}
-.equity{font-family:"IBM Plex Mono",monospace;font-size:2.1rem;font-weight:600;letter-spacing:-.02em;
-font-variant-numeric:tabular-nums;line-height:1}
-.delta{font-family:"IBM Plex Mono",monospace;font-size:1rem;font-variant-numeric:tabular-nums}
-.eqline{display:block;width:100%;height:auto;margin:10px 0 14px}
-.acct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 8px;
-padding-top:14px;border-top:1px solid var(--line)}
-.acct-grid>div{display:flex;flex-direction:column;gap:2px}
-.pos-bar{height:4px;border-radius:2px;background:var(--line);position:relative;overflow:hidden;
-margin-top:5px}
-.pos-bar i{position:absolute;top:0;bottom:0;left:0;border-radius:2px;background:var(--accent)}
-.posname{display:flex;align-items:baseline;gap:7px}
-.posmeta{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-faint);
-letter-spacing:.04em}
-.why{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);
-margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line)}
-.tag{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
-padding:2px 5px;border-radius:2px;border:1px solid var(--line);color:var(--ink-faint)}
-.tag[data-r="target"]{color:var(--go);border-color:var(--go)}
-.tag[data-r="stop"]{color:var(--stop);border-color:var(--stop)}
-.tag[data-s="short"]{color:var(--stop);border-color:var(--stop)}
-.tag[data-s="long"]{color:var(--go);border-color:var(--go)}
-.tag[data-s="forced"]{color:var(--accent);border-color:var(--accent)}
-.target{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
-.target-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px}
-.arms td:first-child{font-family:"IBM Plex Mono",monospace;font-size:11px;
-letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
-footer{font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.7;
-  color:var(--ink-faint);border-top:1px solid var(--line);padding-top:16px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-faint);text-align:left;font-weight:500;
+  padding-bottom:9px;border-bottom:1px solid var(--line)}
+th.n,td.n{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+td{padding:10px 0;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+footer{font-size:.74rem;line-height:1.65;color:var(--ink-faint);
+  border-top:1px solid var(--line);padding-top:16px;margin-top:22px}
+.reveal{opacity:0;transform:translateY(10px);animation:rise .5s cubic-bezier(.22,.8,.3,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+  .draw{stroke-dashoffset:0}
+  .reveal{opacity:1;transform:none}
+}
 </style>
+
+<div id="bar">
+  <span class="eyebrow"><i class="dot live"></i>Morning Desk</span>
+  <span><span id="bar-eq" class="b-eq mono"></span> <span id="bar-d" class="b-d mono"></span></span>
+</div>
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Morning Desk &middot; 1% risk per trade</span>
-    <span class="asof">as of Wed 09 Sep 2026, 08:07</span>
+    <div class="eyebrow"><i class="dot live"></i>Paper account
+      <span style="color:var(--ink-faint);letter-spacing:.08em">&middot; simulated</span></div>
+    <div id="eq-val" class="equity mono">$0.00</div>
+    <div id="eq-delta" class="delta"></div>
+    <div class="sub">Updated <span id="ago">just now</span> &middot; prices as of the last run, not live</div>
   </header>
 
-  <section class="verdict" data-state="stop">
-    <h1>NO TRADE</h1>
-    <p>Market regime is red. This strategy is long-only and only tested in bullish conditions.</p>
-  </section>
-<section class="card">
-<h2>Paper account</h2>
-<div class="acct-top"><span class="equity">$417.63</span>
-<span class="delta stop-c">-0.80%</span></div>
-<span class="posmeta">from $421 &middot; simulated, no real money</span>
-<svg class="eqline" viewBox="0 0 220 44" width="100%" height="44" preserveAspectRatio="none" role="img" aria-label="Account equity over time"><polygon points="1.0,44 1.0,6.0 219.0,40.0 219.0,44" fill="var(--stop)" opacity="0.10"/><polyline points="1.0,6.0 219.0,40.0" fill="none" stroke="var(--stop)" stroke-width="1.6"/><circle cx="219.0" cy="40.0" r="2.4" fill="var(--stop)"/></svg>
-<div class="acct-grid">
-<div><span class="lab">Cash</span><span class="val">$252</span></div>
-<div><span class="lab">Realised</span><span class="val go-c">$+0</span></div>
-<div><span class="lab">Open P&amp;L</span><span class="val stop-c">$-3</span></div>
-<div><span class="lab">Win rate</span><span class="val">&mdash;<small> 0/0</small></span></div>
-</div>
-<div class="target"><div class="target-top">
-<span class="lab">Goal &middot; $1,000 by 12-31</span>
-<span class="val">-0.6%</span></div>
-<div class="pos-bar"><i style="width:0%"></i></div>
-<p class="note">$582 to go. Measured probability for the
-current engine is near zero over the remaining sessions &mdash; the edge is real but
-small. See target_test.py.</p></div>
-<div class="target"><div class="target-top"><span class="lab">Today &middot; target $20</span>
-<span class="val go-c">$+0.00</span></div>
-<div class="pos-bar"><i style="width:0%"></i></div></div>
-</section>
-<section class="card"><h2>Open positions</h2><table>
-<thead><tr><th>Position</th><th class="num">Entry</th><th class="num">Last</th><th class="num">P&amp;L</th></tr></thead>
-<tbody><tr><td><div class="posname"><span class="tick">BLK</span><span class="tag" data-s="long">long</span><span class="posmeta">0.048 sh</span></div><div class="posmeta">$1,018.51 &rarr; $1,284.21</div><div class="pos-bar"><i style="width:29%"></i></div></td><td class="num">$1,107.08</td><td class="num">$1,095.37</td><td class="num down">$-0.58</td></tr><tr><td><div class="posname"><span class="tick">LLY</span><span class="tag" data-s="long">long</span><span class="posmeta">0.046 sh</span></div><div class="posmeta">$1,054.73 &rarr; $1,329.88</div><div class="pos-bar"><i style="width:25%"></i></div></td><td class="num">$1,146.44</td><td class="num">$1,123.91</td><td class="num down">$-1.06</td></tr><tr><td><div class="posname"><span class="tick">GM</span><span class="tag" data-s="long">long</span><span class="tag" data-s="forced">forced</span><span class="posmeta">0.391 sh</span></div><div class="posmeta">$82.04 &rarr; $98.22</div><div class="pos-bar"><i style="width:23%"></i></div></td><td class="num">$87.43</td><td class="num">$85.79</td><td class="num down">$-0.65</td></tr><tr><td><div class="posname"><span class="tick">BMY</span><span class="tag" data-s="long">long</span><span class="tag" data-s="forced">forced</span><span class="posmeta">0.446 sh</span></div><div class="posmeta">$62.34 &rarr; $76.52</div><div class="pos-bar"><i style="width:17%"></i></div></td><td class="num">$67.06</td><td class="num">$64.69</td><td class="num down">$-1.08</td></tr></tbody></table></section>
-<section class="card"><h2>Rules vs forced</h2><table class="arms">
-<thead><tr><th>Arm</th><th class="num">Closed</th><th class="num">Dir</th>
-<th class="num">Win</th><th class="num">Avg</th><th class="num">P&amp;L</th></tr></thead>
-<tbody><tr><td>By the rules</td><td class="num">0<small> +2 open</small></td><td class="num">0L / 0S</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num up">$+0.00</td></tr><tr><td>Forced</td><td class="num">0<small> +2 open</small></td><td class="num">0L / 0S</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num up">$+0.00</td></tr></tbody></table>
-<p class="note">Forced trades are taken at half size on days the checklist declined,
-to produce a record during testing. They are scored separately because the point
-is to compare them against the rules &mdash; pooling them would answer neither
-question.</p></section>
+  <div class="chartwrap">
+    <svg id="eq" viewBox="0 0 560 190" preserveAspectRatio="none" role="img"
+         aria-label="Account equity over time"></svg>
+    <div id="readout" class="readout mono"></div>
+    <div class="scrub"></div>
+  </div>
+  <div class="ranges" role="tablist" aria-label="Chart range">
+    <button class="range" data-r="7" role="tab" aria-selected="false">1W</button>
+    <button class="range" data-r="21" role="tab" aria-selected="false">1M</button>
+    <button class="range" data-r="63" role="tab" aria-selected="false">3M</button>
+    <button class="range" data-r="ALL" role="tab" aria-selected="true">ALL</button>
+  </div>
 
+  <div id="status" class="status">
+    <div><h3 id="st-h"></h3><p id="st-p"></p></div>
+  </div>
 
-      <section class="card position">
-        <div class="ticker-row">
-          <span class="ticker">OXY</span>
-          <span class="last">$60.65</span>
-        </div>
-        <svg class="chart" viewBox="0 0 460 170" width="100%" height="170" role="img" aria-label="Six-month price with 20 and 50 day averages and the stop level"><line x1="2" x2="458" y1="89.1" y2="89.1" stroke="var(--stop)" stroke-width="1" stroke-dasharray="4 3"/><polyline points="180.8,74.4 184.4,73.5 188.0,73.0 191.7,72.9 195.3,73.0 199.0,73.0 202.6,73.1 206.3,73.4 209.9,73.5 213.6,73.7 217.2,73.8 220.9,74.2 224.5,75.0 228.2,76.1 231.8,77.4 235.5,78.8 239.1,80.2 242.8,81.1 246.4,82.4 250.1,83.8 253.7,85.3 257.4,86.5 261.0,87.5 264.7,88.3 268.3,89.4 272.0,90.0 275.6,90.9 279.2,92.0 282.9,92.8 286.5,93.8 290.2,94.9 293.8,96.2 297.5,97.1 301.1,97.6 304.8,98.3 308.4,99.2 312.1,100.1 315.7,101.0 319.4,101.7 323.0,102.7 326.7,103.3 330.3,103.3 334.0,102.8 337.6,102.1 341.3,101.7 344.9,101.5 348.6,101.6 352.2,102.1 355.9,102.6 359.5,103.1 363.2,103.6 366.8,104.1 370.4,104.7 374.1,105.4 377.7,105.6 381.4,105.7 385.0,105.5 388.7,105.0 392.3,105.0 396.0,105.2 399.6,105.4 403.3,105.3 406.9,104.8 410.6,104.3 414.2,103.5 417.9,102.9 421.5,102.1 425.2,101.8 428.8,101.2 432.5,100.3 436.1,99.4 439.8,98.1 443.4,96.7 447.1,95.3 450.7,93.8 454.4,92.5 458.0,90.8" fill="none" stroke="var(--ink-faint)" stroke-width="1.1" stroke-linejoin="round"/><polyline points="71.3,58.8 75.0,56.2 78.6,55.1 82.3,55.2 85.9,55.2 89.6,55.9 93.2,56.6 96.8,57.2 100.5,59.5 104.1,61.9 107.8,63.4 111.4,65.1 115.1,66.6 118.7,69.5 122.4,72.6 126.0,75.6 129.7,77.2 133.3,77.9 137.0,79.5 140.6,80.6 144.3,82.0 147.9,83.8 151.6,85.6 155.2,87.5 158.9,88.6 162.5,88.3 166.2,88.1 169.8,88.1 173.5,85.9 177.1,83.8 180.8,82.1 184.4,81.4 188.0,81.0 191.7,80.4 195.3,80.3 199.0,81.0 202.6,82.3 206.3,83.9 209.9,83.8 213.6,84.2 217.2,84.1 220.9,82.7 224.5,81.6 228.2,79.8 231.8,79.3 235.5,78.9 239.1,79.0 242.8,79.1 246.4,81.0 250.1,83.2 253.7,86.1 257.4,88.8 261.0,91.3 264.7,93.8 268.3,96.2 272.0,98.3 275.6,101.0 279.2,103.9 282.9,107.8 286.5,112.1 290.2,116.2 293.8,119.9 297.5,121.9 301.1,123.3 304.8,124.8 308.4,126.5 312.1,126.7 315.7,127.5 319.4,127.8 323.0,127.8 326.7,127.1 330.3,125.8 334.0,124.0 337.6,121.9 341.3,119.4 344.9,117.0 348.6,115.1 352.2,113.2 355.9,110.3 359.5,107.2 363.2,104.0 366.8,101.4 370.4,100.0 374.1,99.9 377.7,98.5 381.4,97.3 385.0,95.8 388.7,94.0 392.3,92.2 396.0,90.6 399.6,89.2 403.3,87.7 406.9,86.4 410.6,85.4 414.2,83.9 417.9,82.3 421.5,80.3 425.2,78.5 428.8,77.5 432.5,76.3 436.1,75.5 439.8,73.6 443.4,71.4 447.1,68.6 450.7,66.8 454.4,65.2 458.0,64.4" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linejoin="round"/><polyline points="2.0,117.8 5.6,98.7 9.3,76.6 12.9,80.8 16.6,85.7 20.2,81.9 23.9,76.9 27.5,67.5 31.2,58.8 34.8,61.9 38.5,54.6 42.1,49.9 45.8,30.4 49.4,22.9 53.1,15.7 56.7,25.4 60.4,46.9 64.0,41.2 67.7,41.2 71.3,41.4 75.0,66.1 78.6,75.7 82.3,80.1 85.9,79.4 89.6,100.2 93.2,96.7 96.8,88.6 100.5,112.6 104.1,107.2 107.8,92.8 111.4,87.2 115.1,81.2 118.7,86.7 122.4,85.5 126.0,75.1 129.7,58.4 133.3,59.8 137.0,74.3 140.6,62.2 144.3,69.4 147.9,102.2 151.6,111.4 155.2,118.5 158.9,102.1 162.5,93.3 166.2,94.0 169.8,88.9 173.5,67.2 177.1,66.6 180.8,58.8 184.4,73.1 188.0,73.4 191.7,73.5 195.3,84.0 199.0,88.5 202.6,85.1 206.3,90.5 209.9,72.7 213.6,71.4 217.2,67.1 220.9,74.6 224.5,88.2 228.2,83.9 231.8,91.1 235.5,84.8 239.1,97.5 242.8,89.2 246.4,105.4 250.1,111.6 253.7,116.5 257.4,126.1 261.0,124.6 264.7,122.8 268.3,131.8 272.0,130.8 275.6,140.4 279.2,147.4 282.9,151.5 286.5,156.4 290.2,148.8 293.8,149.6 297.5,127.1 301.1,112.2 304.8,122.3 308.4,117.7 312.1,102.7 315.7,104.6 319.4,110.8 323.0,111.8 326.7,102.3 330.3,99.7 334.0,89.5 337.6,81.7 341.3,80.9 344.9,83.2 348.6,101.7 352.2,109.6 355.9,93.1 359.5,93.8 363.2,85.0 366.8,97.5 370.4,100.5 374.1,110.5 377.7,93.1 381.4,94.1 385.0,72.7 388.7,69.5 392.3,73.5 396.0,80.1 399.6,74.9 403.3,69.6 406.9,63.7 410.6,61.4 414.2,50.2 417.9,52.0 421.5,61.3 425.2,74.5 428.8,72.9 432.5,68.6 436.1,69.2 439.8,60.7 443.4,54.7 447.1,55.0 450.7,57.4 454.4,61.8 458.0,57.0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linejoin="round"/></svg>
-        <div class="legend">
-          <span><i class="k-price"></i>price</span>
-          <span><i class="k-sma20"></i>20-day</span>
-          <span><i class="k-sma50"></i>50-day</span>
-          <span><i class="k-stop"></i>stop</span>
-        </div>
-        <div class="grid">
-          <div><span class="lab">Buy</span><span class="val">1.0258<small> sh</small></span></div>
-          <div><span class="lab">Position</span><span class="val">$62</span></div>
-          <div><span class="lab">Stop</span><span class="val stop-c">$56.55</span></div>
-          <div><span class="lab">Target</span><span class="val go-c">$68.86</span></div>
-          <div><span class="lab">At risk</span><span class="val">$4.21</span></div>
-          <div><span class="lab">Earnings</span><span class="val">61<small> d</small></span></div>
-        </div>
-      </section>
-  <section class="card">
-    <h2>Regime &middot; SPY 765.96</h2>
-    <table>
-      <tr><td>10-day</td><td class="num">767.57</td></tr>
-      <tr><td>20-day</td><td class="num">768.70</td></tr>
-      <tr><td>50-day</td><td class="num">757.60</td></tr>
-      <tr><td>Stacked / rising</td><td class="num">False / True</td></tr>
-    </table>
+  <div class="tabs" role="tablist">
+    <button class="tab" data-p="p-book" role="tab" aria-selected="true">Book</button>
+    <button class="tab" data-p="p-perf" role="tab" aria-selected="false">Performance</button>
+    <button class="tab" data-p="p-sig"  role="tab" aria-selected="false">Signals</button>
+  </div>
+
+  <section id="p-book" class="panel">
+    <div class="card"><h2>Open positions <span id="pos-n"></span></h2><div id="pos"></div>
+      <p class="note">Tap a position for its stop, target and cost.</p></div>
+    <div class="card"><h2>Closed trades</h2><div id="closed"></div></div>
   </section>
 
-  <section class="card">
-    <h2>Pre-market gaps</h2>
-    <table>
-      <thead><tr><th>Ticker</th><th class="num">Pre</th><th class="num">Gap</th><th class="num">/ADR</th></tr></thead>
-      <tbody>
-<tr><td colspan="4" class="empty">Nothing gapped 3%+ this morning.</td></tr>
-      </tbody>
-    </table>
-    <p class="note">Gap divided by average daily range. Above 2x the move is already
-    outsized &mdash; the regime where intraday fill rates fall to roughly 1 in 5.</p>
+  <section id="p-perf" class="panel" hidden>
+    <div class="card"><h2>You vs the bot</h2><div id="real" class="statgrid"></div>
+      <div class="target"><div class="target-top" id="ch-head"></div>
+        <div id="ch-track" class="track"><i class="up" data-w="0"></i></div></div>
+      <div class="scroll" style="margin-top:12px"><table>
+        <thead><tr><th>Session</th><th class="n">Your P&amp;L</th></tr></thead>
+        <tbody id="realdays"></tbody></table></div>
+      <p class="note">Two separate books. The bot tests a fixed rule set; you are
+        testing discretionary direction calls. Pooling them would answer neither.
+        Your trades are self-reported.</p></div>
+    <div class="card"><h2>Today</h2><div id="today" class="statgrid"></div>
+      <div id="t-track" class="track"><i class="up" data-w="0"></i></div>
+      <p class="note">The bot stops opening new positions once the day's realised
+        profit reaches its target. Open positions keep running.</p></div>
+    <div class="card"><h2>Goal</h2><div id="goal" class="statgrid"></div>
+      <div id="g-track" class="track"><i data-w="0"></i></div>
+      <p class="note" id="g-note"></p></div>
+    <div class="card"><h2>Rules vs forced</h2><div class="scroll"><table>
+      <thead><tr><th>Arm</th><th class="n">Closed</th><th class="n">Dir</th>
+      <th class="n">Win</th><th class="n">P&amp;L</th></tr></thead>
+      <tbody id="arms"></tbody></table></div>
+      <p class="note">Forced trades are taken at half size on days the checklist declined.
+        They are scored separately &mdash; pooling them would answer neither question.</p></div>
   </section>
 
-  <section class="card">
-    <h2>Passing the checklist</h2>
-    <table>
-      <thead><tr><th>Ticker</th><th>3 months</th><th class="num">Price</th><th class="num">Mom</th></tr></thead>
-      <tbody>
-<tr><td class="tick">OXY</td><td class="sparkcell"><svg class="spark" viewBox="0 0 88 26" width="88" height="26" aria-hidden="true"><polyline points="1.0,10.5 2.4,9.2 3.8,11.8 5.2,10.1 6.5,13.4 7.9,14.7 9.3,15.7 10.7,17.7 12.1,17.4 13.5,17.1 14.9,18.9 16.3,18.7 17.6,20.7 19.0,22.1 20.4,23.0 21.8,24.0 23.2,22.4 24.6,22.6 26.0,17.9 27.4,14.8 28.7,16.9 30.1,16.0 31.5,12.9 32.9,13.3 34.3,14.6 35.7,14.7 37.1,12.8 38.5,12.3 39.8,10.1 41.2,8.5 42.6,8.4 44.0,8.8 45.4,12.7 46.8,14.3 48.2,10.9 49.5,11.0 50.9,9.2 52.3,11.8 53.7,12.4 55.1,14.5 56.5,10.9 57.9,11.1 59.3,6.6 60.6,6.0 62.0,6.8 63.4,8.2 64.8,7.1 66.2,6.0 67.6,4.8 69.0,4.3 70.4,2.0 71.7,2.4 73.1,4.3 74.5,7.0 75.9,6.7 77.3,5.8 78.7,5.9 80.1,4.2 81.5,2.9 82.8,3.0 84.2,3.5 85.6,4.4 87.0,3.4" fill="none" stroke="var(--go)" stroke-width="1.4" stroke-linejoin="round"/><circle cx="87.0" cy="3.4" r="2" fill="var(--go)"/></svg></td><td class="num">$60.65</td><td class="num">+26%</td></tr>
-<tr><td class="tick">WFC</td><td class="sparkcell"><svg class="spark" viewBox="0 0 88 26" width="88" height="26" aria-hidden="true"><polyline points="1.0,23.9 2.4,24.0 3.8,22.9 5.2,19.5 6.5,21.0 7.9,16.0 9.3,19.2 10.7,23.4 12.1,19.2 13.5,18.4 14.9,18.0 16.3,16.8 17.6,19.1 19.0,20.0 20.4,22.3 21.8,13.7 23.2,14.9 24.6,9.8 26.0,10.5 27.4,14.7 28.7,11.2 30.1,10.6 31.5,9.3 32.9,15.4 34.3,9.7 35.7,8.2 37.1,9.7 38.5,12.7 39.8,9.1 41.2,12.5 42.6,13.1 44.0,12.8 45.4,10.3 46.8,11.3 48.2,19.1 49.5,15.1 50.9,12.4 52.3,8.7 53.7,7.4 55.1,5.4 56.5,9.5 57.9,9.1 59.3,8.4 60.6,8.5 62.0,4.7 63.4,6.8 64.8,5.0 66.2,8.3 67.6,8.7 69.0,12.5 70.4,18.3 71.7,17.9 73.1,15.6 74.5,15.5 75.9,14.3 77.3,15.0 78.7,10.5 80.1,11.3 81.5,9.6 82.8,3.8 84.2,4.0 85.6,2.0 87.0,7.2" fill="none" stroke="var(--go)" stroke-width="1.4" stroke-linejoin="round"/><circle cx="87.0" cy="7.2" r="2" fill="var(--go)"/></svg></td><td class="num">$87.96</td><td class="num">+13%</td></tr>
-      </tbody>
-    </table>
-
-  </section>
-
-  <section class="card">
-    <h2>Sector strength</h2>
-    <table>
-      <thead><tr><th>Sector</th><th class="num">1mo</th><th class="num">3mo</th></tr></thead>
-      <tbody>
-<tr class="lead"><td>Energy</td><td class="num">+12.6%</td><td class="num">+11.8%</td></tr>
-<tr class="lead"><td>Financials</td><td class="num">-0.5%</td><td class="num">+10.6%</td></tr>
-<tr class="lead"><td>Materials</td><td class="num">-1.7%</td><td class="num">+4.4%</td></tr>
-<tr class="lead"><td>Technology</td><td class="num">-0.1%</td><td class="num">+2.1%</td></tr>
-<tr><td>Cons Staples</td><td class="num">-1.3%</td><td class="num">+1.8%</td></tr>
-<tr><td>Utilities</td><td class="num">-0.4%</td><td class="num">+0.5%</td></tr>
-      </tbody>
-    </table>
+  <section id="p-sig" class="panel" hidden>
+    <div class="card"><h2>Regime</h2><div id="regime" class="dgrid"></div>
+      <p class="note">Long-only rules stand down when SPY's short averages roll over.
+        Measured over 2007&ndash;2026 this filter did not improve 21-day outcomes,
+        so forced trades ignore it while it is being tested.</p></div>
+    <div class="card"><h2>Dealer gamma</h2><div id="gex"></div>
+      <p class="note">Below the flip, dealer hedging amplifies moves; above it,
+        hedging damps them and price tends toward the big strikes. UNVALIDATED
+        here &mdash; snapshots are recorded daily so the claim can be tested,
+        which is not the same as it working. The long/short convention is an
+        assumption open interest cannot confirm.</p></div>
+    <div class="card"><h2>Passing the checklist</h2><div class="scroll"><table>
+      <thead><tr><th>Ticker</th><th class="n">Price</th><th class="n">Momentum</th></tr></thead>
+      <tbody id="watch"></tbody></table></div></div>
+    <div class="card"><h2>Sector strength</h2><div class="scroll"><table>
+      <thead><tr><th>Sector</th><th class="n">1mo</th><th class="n">3mo</th></tr></thead>
+      <tbody id="sectors"></tbody></table></div></div>
+    <div class="card"><h2>Pre-market gaps</h2><div class="scroll"><table>
+      <thead><tr><th>Ticker</th><th class="n">Pre</th><th class="n">Gap</th></tr></thead>
+      <tbody id="gaps"></tbody></table></div></div>
   </section>
 
   <footer>
-    Snapshot, not live &mdash; shows the last run on your PC, not current prices.<br>
-    Output of fixed rules. Not a recommendation, and not evidence of an edge.
+    Simulated account &mdash; no broker is connected and no real order is placed.
+    Entries fill at the decision price, exits at the stop or target, 5bp cost each way.
+    Real fills would be worse.<br><br>
+    Prices are a snapshot from the last scheduled run, not a live feed &mdash; this page
+    cannot reach a market-data host. Output of fixed rules; not a recommendation,
+    and not evidence of an edge.
   </footer>
 </div>
+
+<script>window.__DESK__ = {"built": "2026-09-09T18:34:22+00:00", "intraday": true, "equity": 416.0, "start_equity": 421.0, "cash": 58.69, "curve": [{"date": "2026-09-04", "equity": 421.74}, {"date": "2026-09-07", "equity": 421.69}, {"date": "2026-09-08", "equity": 416.63}, {"date": "2026-09-09", "equity": 416.0}], "positions": [{"ticker": "BLK", "side": "long", "qty": 0.0475, "entry": 1107.08, "stop": 1018.5136, "target": 1284.2127, "opened": "2026-09-04", "cost_basis": 52.61, "forced": false, "note": "RSI-2 0.7", "last": 1079.495, "unrealised": -1.33}, {"ticker": "LLY", "side": "long", "qty": 0.046, "entry": 1146.4449, "stop": 1054.7294, "target": 1329.8761, "opened": "2026-09-04", "cost_basis": 52.76, "forced": false, "note": "RSI-2 2.9", "last": 1120.295, "unrealised": -1.23}, {"ticker": "GM", "side": "long", "qty": 0.3908, "entry": 87.43, "stop": 82.0358, "target": 98.2184, "opened": "2026-09-04", "cost_basis": 34.18, "forced": true, "note": "regime red", "last": 85.14, "unrealised": -0.91}, {"ticker": "BMY", "side": "long", "qty": 0.446, "entry": 67.065, "stop": 62.3378, "target": 76.5194, "opened": "2026-09-04", "cost_basis": 29.93, "forced": true, "note": "regime red", "last": 64.61, "unrealised": -1.11}, {"ticker": "MS", "side": "long", "qty": 0.1463, "entry": 217.72, "stop": 203.301, "target": 246.558, "opened": "2026-09-07", "cost_basis": 31.87, "forced": true, "note": "regime red", "last": 216.19, "unrealised": -0.24}, {"ticker": "JNJ", "side": "long", "qty": 0.0964, "entry": 275.23, "stop": 253.3545, "target": 318.9811, "opened": "2026-09-07", "cost_basis": 26.55, "forced": true, "note": "regime red", "last": 268.32, "unrealised": -0.68}, {"ticker": "BAC", "side": "long", "qty": 0.6925, "entry": 62.66, "stop": 59.6423, "target": 68.6954, "opened": "2026-09-08", "cost_basis": 43.41, "forced": true, "note": "regime red", "last": 62.705, "unrealised": 0.01}, {"ticker": "OXY", "side": "long", "qty": 0.5143, "entry": 60.61, "stop": 56.546, "target": 68.738, "opened": "2026-09-08", "cost_basis": 31.19, "forced": true, "note": "regime red", "last": 61.355, "unrealised": 0.36}, {"ticker": "XOM", "side": "long", "qty": 0.1978, "entry": 163.82, "stop": 153.3112, "target": 184.8376, "opened": "2026-09-09", "cost_basis": 32.42, "forced": true, "note": "regime red", "last": 164.525, "unrealised": 0.12}, {"ticker": "PFE", "side": "long", "qty": 0.9809, "entry": 27.905, "stop": 25.7838, "target": 32.1474, "opened": "2026-09-09", "cost_basis": 27.39, "forced": true, "note": "regime red", "last": 27.93, "unrealised": 0.01}], "closed": [], "arms": {"qualified": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 2}, "forced": {"n": 0, "pnl": 0, "win_rate": null, "avg_pct": null, "longs": 0, "shorts": 0, "open": 8}}, "day_realised": 0, "day_target": 20.0, "goal_target": 1000.0, "goal_date": "Dec 31", "days_left": 81, "verdict": "NO TRADE", "why": "Regime is red. The long-only swing rules stand down.", "lines": ["no RSI-2 entry: already holding 10 positions (max 3)", "daily forced cap reached (2/2)", "Swing rules: regime red - strategy is long-only and untested in this tape"], "real": {"trades": 6, "pnl": 142.39, "wins": 4, "win_rate": 0.6666666666666666, "best": 105.0, "worst": -20.0, "sessions": 3, "open_positions": 1, "unrealised": 9440.0, "open_list": [{"sym": "MRVL 100C 1/15/27", "cost": 16.95, "mark": 111.35, "opened": "2026-03-06", "note": "SPY-inclusion thesis; MRVL 89.50 -> 220.24, +146%", "unrealised": 9440.0, "pct": 556.93}], "per_session": 47.46, "by_day": {"2026-08-04": 105.0, "2026-09-03": 1.37, "2026-09-04": 36.019999999999996}, "challenge": {"target": 100.0, "window": "2026-09-07 to 2026-09-11", "sessions_used": 0, "sessions_total": 4, "pnl": 0, "trades": 0}}, "stats_realised": 0, "gex": [{"ts": "2026-09-09T17:00:20+00:00", "ticker": "SPY", "spot": 762.62, "expiries": ["2026-09-09", "2026-09-10", "2026-09-11"], "total": -7557247327.007933, "flip": 766.82, "peak_call_strike": 775.0, "peak_call": 51866714.80515413, "peak_put_strike": 760.0, "peak_put": -2194039165.843838, "regime": "negative", "above_flip": false, "strikes": [[650.0, 4510.188962570711], [655.0, 5301.274215473612], [660.0, -12345.025241967105], [665.0, -10199.509860165093], [670.0, -35607.819870642896], [675.0, -41484.61236551823], [680.0, -151813.9166852926], [685.0, -139220.8374583049], [690.0, -86904.04269870673], [691.0, -119009.14919086412], [692.0, -96154.83268063843], [693.0, -57395.47067030285], [694.0, -345632.53483280307], [695.0, -15606.757197588282], [696.0, -2177.921742110114], [697.0, -5387.819807756592], [698.0, -5049.5148039171645], [699.0, -142847.63393629706], [700.0, -286731.9474827552], [701.0, -25472.623755470486], [702.0, 2099.094969430862], [703.0, -15531.214496046163], [704.0, -15866.704594140772], [705.0, -43068.78427762902], [706.0, 22580.197724906808], [707.0, -21341.176971025583], [708.0, -24184.51289063959], [709.0, -147390.19503348516], [710.0, -154712.47670948008], [711.0, -82390.3113250521], [712.0, -9874.080494892793], [713.0, -42296.33854375409], [714.0, -23563.891799811], [715.0, -243870.2897593656], [716.0, -144966.06704383352], [717.0, -340794.53547624906], [718.0, -36242.54003449486], [719.0, -109022.63997977256], [720.0, -1144001.6219655527], [721.0, -100168.2918468814], [722.0, -152406.731044533], [723.0, -192446.18453509168], [724.0, -124726.23909298283], [725.0, -580202.2664403082], [726.0, -788443.8568066431], [727.0, -366904.8358571108], [728.0, -354431.5259249709], [729.0, -1501105.1974351087], [730.0, -2457500.246499856], [731.0, -412645.6551760703], [732.0, -6217906.3178421175], [733.0, -1602906.0476514483], [734.0, -4698637.5964890225], [735.0, -2892178.5469341665], [736.0, -1942318.842965399], [737.0, -1355165.2580423788], [738.0, -3906688.9441181263], [739.0, -19776406.91307173], [740.0, -22938328.216369018], [741.0, -6575328.298591212], [742.0, -3447308.7259649523], [743.0, -7104622.5542072235], [744.0, -12063067.898171445], [745.0, -16175430.678857047], [746.0, -6271072.112041848], [747.0, -10910595.826659665], [748.0, -30937182.718355868], [749.0, -22268329.024238225], [750.0, -111180825.15056258], [751.0, -21363671.61246186], [752.0, -49365314.0109336], [753.0, -27100981.617713116], [754.0, -74165066.59188998], [755.0, -618456503.7617067], [756.0, -66945107.55473764], [757.0, -85795384.25063778], [758.0, -187636289.1183384], [759.0, -237484157.57933342], [760.0, -2194039165.843838], [761.0, -394666770.9609872], [762.0, -750522466.4554796], [763.0, -1230446424.7284346], [764.0, -538008838.7672055], [765.0, -444213186.50770473], [766.0, -192874117.32581037], [767.0, -209982335.1440254], [768.0, -63786077.02806392], [769.0, -67227412.0105665], [770.0, -11966632.698087394], [771.0, 6978646.172308907], [772.0, 26549822.85347925], [773.0, 12107506.487825815], [774.0, 3169722.3974820375], [775.0, 51866714.80515413], [776.0, 8264079.771146747], [777.0, 50210492.78077928], [778.0, 7026391.379643174], [779.0, 3119068.318305103], [780.0, 20799934.13914701], [781.0, 3362846.6077592997], [782.0, 2878778.0855287104], [783.0, 2814656.731512627], [784.0, 1225408.8200472947], [785.0, 2703328.3167425888], [786.0, 1491877.3404793441], [787.0, 631330.9245558826], [788.0, 546626.6888318997], [789.0, 392323.44485997147], [790.0, 855623.4750438066], [791.0, 713720.2512374693], [792.0, 1057486.7783742226], [793.0, 160683.5548020221], [794.0, 92153.29341383475], [795.0, 264779.90296845435], [796.0, 404400.8322472342], [797.0, 198486.19893359113], [798.0, 422235.0701348822], [799.0, 179645.72070398374], [800.0, 396171.2728046697], [801.0, 155593.00847706926], [802.0, 76947.9154683794], [803.0, 69173.31140107953], [804.0, 131450.03174472947], [805.0, 32952.066014977405], [806.0, 14686.000646312028], [807.0, 43546.039915146925], [808.0, 8588.069417074283], [809.0, 46892.827550155554], [810.0, 58634.22048049234], [811.0, 18824.303729482337], [812.0, 58195.011355867915], [813.0, 43642.95072222578], [814.0, 35349.20195913613], [815.0, 32597.067030929105], [816.0, 19303.48762461286], [817.0, 6494.752788445214], [818.0, 36917.49904121557], [819.0, 30114.63387260992], [820.0, 17488.42618952792], [821.0, 11105.355644809386], [822.0, 6041.757022843555], [823.0, 141115.95957496812], [824.0, 127216.9448790247], [825.0, 24255.228393414942], [830.0, 42296.201860599], [835.0, 17473.43547105667], [840.0, 32746.095403700398], [845.0, 1577.6935758006464], [850.0, 3595.833496075747], [855.0, 1091.765798301074], [860.0, 1464.1561927685716], [865.0, 1998.1657100316543], [870.0, 1263.9145104288973], [875.0, 1950.1084038107208]]}, {"ts": "2026-09-09T17:00:21+00:00", "ticker": "QQQ", "spot": 716.45, "expiries": ["2026-09-09", "2026-09-10", "2026-09-11"], "total": -1706745054.390085, "flip": 718.39, "peak_call_strike": 722.0, "peak_call": 102435052.973463, "peak_put_strike": 714.0, "peak_put": -447282948.185443, "regime": "negative", "above_flip": false, "strikes": [[610.0, -7281.518118376535], [615.0, -8261.892620546836], [620.0, -14352.961908292336], [625.0, -17464.88097253125], [630.0, -153307.95245001512], [631.0, -521282.2150284589], [632.0, -25266.8045265767], [633.0, -10020.389234799632], [634.0, -7809.63754388971], [635.0, -35135.216622892025], [636.0, -11168.058168428071], [637.0, -6643.341022663688], [638.0, -19861.134308547924], [639.0, -302620.6923347705], [640.0, -135077.1409039681], [641.0, -8829.649700144368], [642.0, -21216.850599683617], [643.0, -28827.502073393083], [644.0, -41797.457203669655], [645.0, -38088.63660389714], [646.0, -54561.468207827005], [647.0, -38535.05232419999], [648.0, -15068.141684998254], [649.0, -19530.243911988637], [650.0, -594311.6099490955], [651.0, -122637.4400860333], [652.0, -33280.73619343752], [653.0, -79836.63866749316], [654.0, -46588.35688799216], [655.0, -261060.52700537388], [656.0, -154759.38299213175], [657.0, -149363.7586525627], [658.0, -57917.77497996634], [659.0, -51737.138010637405], [660.0, -359028.6026469281], [661.0, -50933.14686310661], [662.0, -117567.1689850174], [663.0, -77251.09238613502], [664.0, -78863.12643082037], [665.0, -1445315.6918790902], [666.0, -153335.72371453594], [667.0, -83130.93294100199], [668.0, -178386.5472615833], [669.0, -204231.30736964243], [670.0, -731912.6344783447], [671.0, -291129.06226158724], [672.0, -125905.7180764358], [673.0, -217565.7085856119], [674.0, -371470.30817846704], [675.0, -2833334.9530606507], [676.0, -210306.64016936842], [677.0, -525699.0551815645], [678.0, -611008.684802527], [679.0, -1173193.1541754722], [680.0, -11459997.14531731], [681.0, -994100.7327157247], [682.0, -1483635.7977348582], [683.0, -538127.5837428569], [684.0, -972825.6507713657], [685.0, -2793963.0745036295], [686.0, -1140586.2421247463], [687.0, -1062826.1172735658], [688.0, -1090729.8675599592], [689.0, -1231351.5950460334], [690.0, -19034001.903701663], [691.0, -3379002.106429025], [692.0, -2436377.7672722284], [693.0, -3494423.2858197326], [694.0, -2596734.8379543526], [695.0, -32377790.803035423], [696.0, -2974483.616688417], [697.0, -12159733.593684245], [698.0, -17356832.81038122], [699.0, -7701716.456161675], [700.0, -85558398.03212692], [701.0, -13864505.168068627], [702.0, -11329687.49874953], [703.0, -17238465.75997794], [704.0, -14276943.223937076], [705.0, -252731264.42767048], [706.0, -19897576.61846939], [707.0, -15674273.803831173], [708.0, -42466364.81933955], [709.0, -35825176.31667384], [710.0, -103396080.66329272], [711.0, -57043715.86564651], [712.0, -80377570.08055249], [713.0, -77447979.93283182], [714.0, -447282948.185443], [715.0, -362155946.01039505], [716.0, -17542928.98685602], [717.0, -247790222.84320074], [718.0, -58294771.762575716], [719.0, -95608468.77556092], [720.0, -44907000.978780955], [721.0, 38225172.79237409], [722.0, 102435052.973463], [723.0, 31994673.523021646], [724.0, 18635273.210545205], [725.0, 83878853.87897241], [726.0, 21780380.519159615], [727.0, 28853605.67277369], [728.0, 11075595.754096374], [729.0, 39971258.545188144], [730.0, 47166143.50469945], [731.0, 26186235.66529675], [732.0, 7733413.805748097], [733.0, 5254115.7831735], [734.0, 25926235.062225234], [735.0, 19036847.778861668], [736.0, 1564429.9462289514], [737.0, 7992200.409325786], [738.0, 1701861.9490133221], [739.0, 1644079.1708648605], [740.0, 7267567.943520231], [741.0, 455184.8186407351], [742.0, 343759.78785076743], [743.0, 254048.4537055331], [744.0, 206839.7452821044], [745.0, 486885.0002135499], [746.0, 58047.215625629615], [747.0, 109916.591967533], [748.0, 783986.6038883941], [749.0, 91204.22764325714], [750.0, 911313.9000502456], [751.0, 53602.21460982427], [752.0, 112016.14577894902], [753.0, 59758.78987067731], [754.0, 154479.4363564502], [755.0, 161485.20578876155], [756.0, 14125.281935417383], [757.0, 64386.0614076292], [758.0, 92239.12104618349], [759.0, 24805.1739040214], [760.0, 134997.85426269908], [765.0, 47579.430352411284], [770.0, 75645.14203705058], [775.0, 40053.02499007487], [780.0, 36244.2632558179], [785.0, 36928.20610275119], [790.0, 15108.91031554541], [795.0, 3686.1348236079584], [800.0, 16608.72808073752], [805.0, 1265.3486810217787], [810.0, 3703.538333813261], [815.0, 2195.237057595061], [820.0, 2450.330349524225]]}], "regime": {"green": false, "spy": 762.8200073242188, "s10": 767.2659973144531, "s20": 768.3124938964844, "s50": 758.0330017089843}, "passing": [{"ticker": "XOM", "price": 164.5399932861328, "mom": 0.4763971238097495}, {"ticker": "OXY", "price": 61.380001068115234, "mom": 0.32616036204646615}, {"ticker": "BAC", "price": 62.70500183105469, "mom": 0.2903193768489396}, {"ticker": "PFE", "price": 27.934999465942383, "mom": 0.1714721951514464}, {"ticker": "VZ", "price": 50.005001068115234, "mom": 0.1531459872707739}], "sectors": [{"sector": "Energy", "m1": 0.08590890898517767, "m3": 0.14691213414668436}, {"sector": "Financials", "m1": -0.01098429547043478, "m3": 0.09369582129220166}, {"sector": "Health Care", "m1": -0.010419169184131327, "m3": 0.08313455630657351}, {"sector": "Technology", "m1": 0.008479961948027803, "m3": 0.040681716653846456}, {"sector": "Materials", "m1": -0.027735962122165336, "m3": 0.022224337271926187}, {"sector": "Communication", "m1": -0.006438354725155526, "m3": -0.0007260879517431151}], "gaps": []};</script>
+<script>
+const D = window.__DESK__;
+const $ = s => document.querySelector(s);
+const money = n => (n<0?"-":"") + "$" + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const sign  = n => (n>=0?"+":"-") + "$" + Math.abs(n).toFixed(2);
+const pct   = n => (n>=0?"+":"") + n.toFixed(2) + "%";
+const cls   = n => n>=0 ? "up" : "down";
+
+/* ---- elapsed time, recomputed locally so it is never a stale string ---- */
+function ago(){
+  const s = Math.max(0,(Date.now()-new Date(D.built).getTime())/1000);
+  if(s<90) return Math.round(s)+"s ago";
+  if(s<5400) return Math.round(s/60)+"m ago";
+  if(s<172800) return Math.round(s/3600)+"h ago";
+  return Math.round(s/86400)+"d ago";
+}
+function tickAgo(){ const e=$("#ago"); if(e) e.textContent = ago(); }
+
+/* ---- count-up on the hero number ---- */
+function countUp(el, to, ms){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ el.textContent = money(to); return; }
+  const from = to * 0.985, t0 = performance.now();
+  (function step(t){
+    const k = Math.min(1,(t-t0)/ms), e = 1-Math.pow(1-k,3);
+    el.textContent = money(from+(to-from)*e);
+    if(k<1) requestAnimationFrame(step);
+  })(t0);
+}
+
+/* ---- equity chart, with touch/mouse scrubbing ---- */
+const W=560,H=190,PAD=6;
+let series=[], xs=[], ys=[];
+function drawChart(range){
+  const all = D.curve;
+  const n = range==="ALL" ? all.length : Math.min(all.length, range);
+  series = all.slice(-Math.max(n,2));
+  if(series.length < 2){ series = all.length ? [all[0],all[0]] : [{date:"",equity:D.equity},{date:"",equity:D.equity}]; }
+  const v = series.map(p=>p.equity);
+  const lo = Math.min(...v), hi = Math.max(...v);
+  const span = (hi-lo) || Math.max(hi*0.01, 1);
+  const base = series[0].equity;
+  const gain = v[v.length-1] >= base;
+  const css = getComputedStyle(document.documentElement);
+  // Resolve to a literal so `color` can drive the drop-shadow glow; a var()
+  // reference inside currentColor does not cascade the way we need here.
+  const col = css.getPropertyValue(gain ? "--up" : "--down").trim() || (gain?"#2EE6A8":"#FF5470");
+
+  xs = v.map((_,i)=> PAD + i*(W-2*PAD)/(v.length-1));
+  ys = v.map(x => H-PAD - (x-lo)/span*(H-2*PAD));
+
+  const d = xs.map((x,i)=>(i?"L":"M")+x.toFixed(1)+" "+ys[i].toFixed(1)).join(" ");
+  const area = d + ` L${xs[xs.length-1].toFixed(1)} ${H} L${xs[0].toFixed(1)} ${H} Z`;
+  const by = H-PAD-(base-lo)/span*(H-2*PAD);
+
+  $("#eq").innerHTML = `
+    <defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="${col}" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <line class="base" x1="0" x2="${W}" y1="${by.toFixed(1)}" y2="${by.toFixed(1)}"/>
+    <path class="area" d="${area}" fill="url(#g)"/>
+    <path class="line draw" d="${d}" stroke="${col}" style="color:${col}"/>
+    <circle class="head" cx="${xs[xs.length-1].toFixed(1)}" cy="${ys[ys.length-1].toFixed(1)}"
+      r="3.8" fill="${col}" style="color:${col}"/>
+    <g id="cross"><line y1="0" y2="${H}" stroke="var(--ink-faint)" stroke-width="1"/>
+      <circle r="4.5" fill="${col}" stroke="var(--ground)" stroke-width="2"/></g>`;
+  const path = $("#eq path.line");
+  const len = path.getTotalLength();
+  path.style.setProperty("--len", len);
+}
+
+function scrub(clientX){
+  const box = $(".chartwrap").getBoundingClientRect();
+  const x = (clientX - box.left) / box.width * W;
+  let i = 0, best = 1e9;
+  xs.forEach((v,k)=>{ const dd=Math.abs(v-x); if(dd<best){best=dd;i=k;} });
+  const g = $("#cross"), r = $("#readout");
+  g.classList.add("on");
+  g.querySelector("line").setAttribute("x1", xs[i]); g.querySelector("line").setAttribute("x2", xs[i]);
+  g.querySelector("circle").setAttribute("cx", xs[i]); g.querySelector("circle").setAttribute("cy", ys[i]);
+  const p = series[i], base = series[0].equity;
+  const dv = p.equity - base;
+  r.classList.add("on");
+  r.innerHTML = `<span class="mono">${money(p.equity)}</span> <span class="mono ${cls(dv)}">${sign(dv)}</span><br><span class="mono" style="color:var(--ink-faint);font-size:.68rem">${p.date||""}</span>`;
+  const left = Math.min(Math.max(xs[i]/W*box.width, 54), box.width-54);
+  r.style.left = left+"px"; r.style.top = "-6px";
+}
+function endScrub(){ $("#cross").classList.remove("on"); $("#readout").classList.remove("on"); }
+
+/* ---- gamma profile: strikes as bars, spot and flip as lines ---- */
+function gexCard(g){
+  const below = g.flip!=null && g.spot < g.flip;
+  const neg = g.regime === "negative";
+  const W=560, H=132, PAD=8;
+  const lad = (g.strikes||[]).filter(([k])=> k >= g.spot*0.965 && k <= g.spot*1.035);
+  let chart = "";
+  if(lad.length > 3){
+    const ks = lad.map(r=>r[0]), vs = lad.map(r=>r[1]);
+    const kmin=Math.min(...ks), kmax=Math.max(...ks);
+    const amp = Math.max(...vs.map(Math.abs)) || 1;
+    const x = k => PAD + (k-kmin)/((kmax-kmin)||1)*(W-2*PAD);
+    const mid = H/2;
+    const bars = lad.map(([k,v])=>{
+      const h = Math.abs(v)/amp*(mid-PAD);
+      const up = v>=0;
+      return `<rect x="${(x(k)-1.4).toFixed(1)}" y="${(up?mid-h:mid).toFixed(1)}"
+        width="2.8" height="${Math.max(h,0.5).toFixed(1)}"
+        fill="${up?'var(--up)':'var(--down)'}" opacity=".8"/>`;
+    }).join("");
+    const spotX = x(Math.min(Math.max(g.spot,kmin),kmax));
+    const flipX = g.flip==null ? null : x(Math.min(Math.max(g.flip,kmin),kmax));
+    chart = `<svg class="gexchart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"
+        role="img" aria-label="${g.ticker} dealer gamma by strike, with spot and gamma flip marked">
+      <line x1="0" x2="${W}" y1="${mid}" y2="${mid}" stroke="var(--line)" stroke-width="1"/>
+      ${bars}
+      ${flipX==null?"":`<line x1="${flipX.toFixed(1)}" x2="${flipX.toFixed(1)}" y1="2" y2="${H-2}"
+        stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"/>`}
+      <line x1="${spotX.toFixed(1)}" x2="${spotX.toFixed(1)}" y1="2" y2="${H-2}"
+        stroke="var(--ink)" stroke-width="1.5"/>
+    </svg>
+    <div class="gexkey">
+      <span><i style="background:var(--ink)"></i>spot ${money(g.spot)}</span>
+      <span><i class="dash"></i>flip ${g.flip==null?"&mdash;":money(g.flip)}</span>
+      <span><i style="background:var(--up)"></i>call gamma</span>
+      <span><i style="background:var(--down)"></i>put gamma</span>
+    </div>`;
+  }
+  const gap = g.flip==null ? null : g.spot - g.flip;
+  return `<div class="gexrow">
+    <div class="gexhead">
+      <div class="posname"><span class="tick">${g.ticker}</span>
+        <span class="tag" data-t="${neg?'short':'long'}">${g.regime} gamma</span></div>
+      <span class="mono ${below?'down':'up'}" style="font-size:.86rem">
+        ${gap==null?"&mdash;":(below?"":"+")+gap.toFixed(2)} vs flip</span>
+    </div>
+    ${chart}
+    <div class="dgrid" style="padding-top:10px">
+      <div><span class="lab">Spot</span><span class="val">${money(g.spot)}</span></div>
+      <div><span class="lab">Flip</span><span class="val ${below?'down':'up'}">${g.flip==null?"&mdash;":money(g.flip)}</span></div>
+      <div><span class="lab">Net</span><span class="val ${neg?'down':'up'}">$${(g.total/1e6).toFixed(0)}M</span></div>
+      <div><span class="lab">Peak call</span><span class="val up">${money(g.peak_call_strike)}</span></div>
+      <div><span class="lab">Peak put</span><span class="val down">${money(g.peak_put_strike)}</span></div>
+      <div><span class="lab">Regime</span><span class="val ${below?'down':'up'}">${below?"amplifying":"damping"}</span></div>
+    </div></div>`;
+}
+
+/* ---- rows ---- */
+function posRow(p){
+  const last = p.last ?? p.entry, pnl = p.unrealised ?? 0;
+  const short = p.side === "short";
+  const span = Math.abs(p.target - p.stop);
+  const trav = span>0 ? (short ? (p.stop-last)/span : (last-p.stop)/span) : 0;
+  const frac = Math.min(Math.max(trav,0),1);
+  const entryFrac = span>0 ? Math.min(Math.max(short?(p.stop-p.entry)/span:(p.entry-p.stop)/span,0),1) : 0;
+  const tags = [`<span class="tag" data-t="${p.side}">${p.side}</span>`]
+    .concat(p.forced ? [`<span class="tag" data-t="forced">forced</span>`] : [])
+    .concat(!p.forced && (p.note||"").startsWith("RSI-2") ? [`<span class="tag" data-t="rsi-2">rsi-2</span>`] : [])
+    .join("");
+  return `<div class="row" tabindex="0" role="button" aria-expanded="false">
+    <div class="rname">${p.ticker}${tags}</div>
+    <div class="rval mono">${money(last)}</div>
+    <div class="rmeta">${p.qty.toFixed(3)} sh &middot; in ${money(p.entry)}</div>
+    <div class="rsub mono ${cls(pnl)}">${sign(pnl)}</div>
+    <div class="detail"><div class="dgrid">
+      <div><span class="lab">Stop</span><span class="val down">${money(p.stop)}</span></div>
+      <div><span class="lab">Target</span><span class="val up">${money(p.target)}</span></div>
+      <div><span class="lab">Cost</span><span class="val">${money(p.cost_basis)}</span></div>
+    </div>
+    <div class="track"><i class="${pnl>=0?"up":""}" data-w="${(frac*100).toFixed(0)}"></i>
+      <span class="tick" style="left:${(entryFrac*100).toFixed(0)}%"></span></div>
+    <p class="note">Opened ${p.opened}${p.note?" &middot; "+p.note:""}. Bar runs stop &rarr; target; the mark is entry.</p>
+    </div></div>`;
+}
+function closedRow(t){
+  const win = t.pnl >= 0;
+  return `<div class="row" tabindex="0" role="button" aria-expanded="false">
+    <div class="rname">${t.ticker}
+      <span class="tag" data-t="${t.side||'long'}">${t.side||'long'}</span>
+      ${t.forced?'<span class="tag" data-t="forced">forced</span>':''}</div>
+    <div class="rval mono ${cls(t.pnl)}">${sign(t.pnl)}</div>
+    <div class="rmeta">${t.opened} &rarr; ${t.closed} &middot; ${t.reason}</div>
+    <div class="rsub mono ${cls(t.pnl)}">${pct(t.pnl_pct)}</div>
+    <div class="detail"><div class="dgrid">
+      <div><span class="lab">In</span><span class="val">${money(t.entry)}</span></div>
+      <div><span class="lab">Out</span><span class="val">${money(t.exit)}</span></div>
+      <div><span class="lab">Exit</span><span class="val">${t.reason}</span></div>
+    </div></div></div>`;
+}
+
+function render(){
+  /* hero */
+  const dEq = D.equity - D.start_equity;
+  countUp($("#eq-val"), D.equity, 850);
+  $("#eq-delta").innerHTML =
+    `<span class="mono ${cls(dEq)}">${sign(dEq)}</span>` +
+    `<span class="pill mono ${cls(dEq)}">${pct(D.start_equity?dEq/D.start_equity*100:0)}</span>` +
+    `<span style="color:var(--ink-faint);font-size:.82rem">all time</span>`;
+  $("#bar-eq").textContent = money(D.equity);
+  $("#bar-d").className = "b-d mono " + cls(dEq);
+  $("#bar-d").textContent = pct(D.start_equity?dEq/D.start_equity*100:0);
+
+  /* status */
+  const st = $("#status");
+  st.dataset.s = D.verdict === "TRADE" ? "go" : "stop";
+  $("#st-h").textContent = D.verdict;
+  $("#st-p").innerHTML = D.lines.length ? D.lines.join("<br>") : D.why;
+
+  /* positions */
+  $("#pos").innerHTML = D.positions.length
+    ? D.positions.map(posRow).join("")
+    : '<p class="empty">No open positions.</p>';
+  $("#pos-n").textContent = D.positions.length + " open";
+
+  /* closed */
+  $("#closed").innerHTML = D.closed.length
+    ? D.closed.slice().reverse().slice(0,12).map(closedRow).join("")
+    : '<p class="empty">Nothing has closed yet. Positions resolve at their stop, target, or time limit.</p>';
+
+  /* today + goal */
+  const dr = D.day_realised, gp = D.goal_target - D.start_equity;
+  $("#today").innerHTML =
+    `<div><span class="lab">Booked today</span><span class="big ${cls(dr)}">${sign(dr)}</span></div>
+     <div><span class="lab">Stops at</span><span class="big">${money(D.day_target)}</span></div>`;
+  $("#t-track i").dataset.w = Math.min(Math.max(dr/D.day_target*100,0),100).toFixed(0);
+  $("#goal").innerHTML =
+    `<div><span class="lab">Equity</span><span class="big">${money(D.equity)}</span></div>
+     <div><span class="lab">Goal ${D.goal_date}</span><span class="big">${money(D.goal_target)}</span></div>`;
+  $("#g-track i").dataset.w = Math.min(Math.max(gp?(D.equity-D.start_equity)/gp*100:0,0),100).toFixed(0);
+  $("#g-note").textContent = money(D.goal_target-D.equity)+" to go, "+D.days_left+" sessions left";
+
+  /* you vs the bot */
+  const R = D.real, C = R.challenge;
+  const chPct = Math.min(Math.max(C.pnl / C.target * 100, 0), 100);
+  $("#real").innerHTML =
+    `<div><span class="lab">Your net P&L</span><span class="big ${cls(R.pnl)}">${sign(R.pnl)}</span></div>
+     <div><span class="lab">Win rate</span><span class="big">${R.win_rate==null?"&mdash;":(R.win_rate*100).toFixed(0)+"%"}<small> ${R.wins}/${R.trades}</small></span></div>
+     <div><span class="lab">Per session</span><span class="big ${cls(R.per_session||0)}">${R.per_session==null?"&mdash;":sign(R.per_session)}</span></div>
+     <div><span class="lab">Your open P&L</span><span class="big ${cls(R.unrealised||0)}">${sign(R.unrealised||0)}<small> ${R.open_positions||0} pos</small></span></div>
+     <div><span class="lab">Bot net P&L</span><span class="big ${cls(D.stats_realised)}">${sign(D.stats_realised)}</span></div>`;
+  $("#ch-head").innerHTML =
+    `<span class="lab">Challenge &middot; ${C.sessions_used}/${C.sessions_total} sessions</span>
+     <span class="val ${cls(C.pnl)}">${sign(C.pnl)} / $${C.target.toFixed(0)}</span>`;
+  $("#ch-track i").dataset.w = chPct.toFixed(0);
+  const days = Object.entries(R.by_day||{});
+  $("#realdays").innerHTML = days.length
+    ? days.reverse().map(([d,v])=>`<tr><td>${d}</td><td class="n ${cls(v)}">${sign(v)}</td></tr>`).join("")
+    : '<tr><td colspan="2" class="empty">No sessions logged yet.</td></tr>';
+
+  /* arms */
+  const arm = (k,x)=>`<tr><td>${k}</td><td class="n">${x.n}<span style="color:var(--ink-faint)"> +${x.open}</span></td>
+    <td class="n">${x.longs}L/${x.shorts}S</td>
+    <td class="n">${x.win_rate==null?"&mdash;":(x.win_rate*100).toFixed(0)+"%"}</td>
+    <td class="n ${cls(x.pnl)}">${sign(x.pnl)}</td></tr>`;
+  $("#arms").innerHTML = arm("By the rules", D.arms.qualified) + arm("Forced", D.arms.forced);
+
+  /* signals */
+  $("#regime").innerHTML =
+    `<div><span class="lab">SPY</span><span class="val">${D.regime.spy.toFixed(2)}</span></div>
+     <div><span class="lab">10 / 20 / 50</span><span class="val">${D.regime.s10.toFixed(0)} / ${D.regime.s20.toFixed(0)} / ${D.regime.s50.toFixed(0)}</span></div>
+     <div><span class="lab">Regime</span><span class="val ${D.regime.green?"up":"down"}">${D.regime.green?"GREEN":"RED"}</span></div>`;
+  /* dealer gamma */
+  const gx = D.gex || [];
+  $("#gex").innerHTML = gx.length ? gx.map(g=>gexCard(g)).join("")
+    : '<p class="empty">No gamma snapshot yet.</p>';
+
+  $("#watch").innerHTML = D.passing.length
+    ? D.passing.map(r=>`<tr><td style="font-weight:600">${r.ticker}</td>
+        <td class="n">${money(r.price)}</td><td class="n ${cls(r.mom)}">${pct(r.mom*100)}</td></tr>`).join("")
+    : '<tr><td colspan="3" class="empty">Nothing passes the checklist.</td></tr>';
+  $("#sectors").innerHTML = D.sectors.map((s,i)=>
+    `<tr><td style="${i<4?"color:var(--accent)":""}">${s.sector}</td>
+     <td class="n ${cls(s.m1)}">${pct(s.m1*100)}</td>
+     <td class="n ${cls(s.m3)}">${pct(s.m3*100)}</td></tr>`).join("");
+  $("#gaps").innerHTML = D.gaps.length
+    ? D.gaps.map(g=>`<tr><td style="font-weight:600">${g.ticker}</td>
+        <td class="n">${money(g.pre)}</td><td class="n ${cls(g.gap)}">${pct(g.gap*100)}</td></tr>`).join("")
+    : '<tr><td colspan="3" class="empty">'+(D.intraday?"Gap scan runs pre-market only.":"Nothing gapped 3%+ this morning.")+'</td></tr>';
+
+  requestAnimationFrame(()=>document.querySelectorAll(".track i").forEach(i=>i.style.width=i.dataset.w+"%"));
+}
+
+/* ---- wiring ---- */
+document.addEventListener("click", e=>{
+  const row = e.target.closest(".row");
+  if(row){ row.classList.toggle("open");
+    row.setAttribute("aria-expanded", row.classList.contains("open")); }
+});
+document.addEventListener("keydown", e=>{
+  if((e.key==="Enter"||e.key===" ") && e.target.classList?.contains("row")){
+    e.preventDefault(); e.target.click(); }
+});
+
+function boot(){
+  render();
+  drawChart("ALL");
+  tickAgo(); setInterval(tickAgo, 30000);
+
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected", x===t));
+    document.querySelectorAll(".panel").forEach(p=>p.hidden = p.id !== t.dataset.p);
+  }));
+  document.querySelectorAll(".range").forEach(r=>r.addEventListener("click",()=>{
+    document.querySelectorAll(".range").forEach(x=>x.setAttribute("aria-selected", x===r));
+    drawChart(r.dataset.r==="ALL"?"ALL":parseInt(r.dataset.r,10));
+  }));
+
+  const cw = $(".chartwrap");
+  cw.addEventListener("mousemove", e=>scrub(e.clientX));
+  cw.addEventListener("mouseleave", endScrub);
+  cw.addEventListener("touchstart", e=>scrub(e.touches[0].clientX), {passive:true});
+  cw.addEventListener("touchmove",  e=>scrub(e.touches[0].clientX), {passive:true});
+  cw.addEventListener("touchend", endScrub);
+
+  const hero = $("header");
+  new IntersectionObserver(([e])=>$("#bar").classList.toggle("on", !e.isIntersecting),
+    {rootMargin:"-56px 0px 0px 0px"}).observe(hero);
+
+  document.querySelectorAll(".card").forEach((c,i)=>{
+    c.classList.add("reveal"); c.style.animationDelay = Math.min(i*55,340)+"ms";
+  });
+}
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", boot) : boot();
+</script>
