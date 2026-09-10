@@ -83,6 +83,29 @@ def add_open(sym: str, cost: float, mark: float, opened: str, note: str = "") ->
     return row
 
 
+def call(sym: str, side: str, price: float, date: str, taken: bool,
+         outcome_pct: float | None = None, note: str = "") -> dict:
+    """A stated directional READ, whether or not it was traded.
+
+    Executed trades measure read + execution together. A read that was NOT
+    taken measures the read alone - no fill, no stop, no sizing - which makes
+    passed calls the cleanest evidence of directional skill in the whole book.
+    They are also the ones that vanish if nobody writes them down, because a
+    correct read you sat out never shows on a P&L screen.
+
+    `price` is where it stood when the call was made; `outcome_pct` is what the
+    call would have returned, filled in later. Log the call BEFORE the outcome
+    is known wherever possible - that is what makes it pre-registered.
+    """
+    st = load()
+    row = {"sym": sym, "side": side, "price": float(price), "date": date,
+           "taken": bool(taken), "outcome_pct": outcome_pct, "note": note,
+           "logged": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    st.setdefault("calls", []).append(row)
+    save(st)
+    return row
+
+
 def flat(date: str | None = None) -> None:
     """Record a session with no trades. Without this, a quiet day is
     indistinguishable from a day that was never logged, and the per-session
@@ -130,6 +153,10 @@ def stats(st: dict | None = None) -> dict:
         "best": max((t["pnl"] for t in tr), default=None),
         "worst": min((t["pnl"] for t in tr), default=None),
         "sessions": len(days),
+        "calls": st.get("calls", []),
+        "calls_right": sum(1 for c in st.get("calls", [])
+                           if c.get("outcome_pct") is not None and c["outcome_pct"] > 0),
+        "calls_scored": sum(1 for c in st.get("calls", []) if c.get("outcome_pct") is not None),
         "open_positions": len(op),
         "unrealised": round(sum(o["unrealised"] for o in op), 2),
         "open_list": op,
@@ -158,6 +185,11 @@ if __name__ == "__main__":
     a.add_argument("--note", default="")
     f = sub.add_parser("flat")
     f.add_argument("--date")
+    c = sub.add_parser("call")
+    c.add_argument("--sym", required=True); c.add_argument("--side", required=True, choices=["long", "short"])
+    c.add_argument("--price", type=float, required=True); c.add_argument("--date", required=True)
+    c.add_argument("--taken", action="store_true"); c.add_argument("--outcome", type=float)
+    c.add_argument("--note", default="")
     args = ap.parse_args()
 
     if args.cmd == "add":
@@ -166,6 +198,10 @@ if __name__ == "__main__":
     elif args.cmd == "flat":
         flat(args.date)
         print("  no-trade day recorded")
+    elif args.cmd == "call":
+        r = call(args.sym, args.side, args.price, args.date, args.taken, args.outcome, args.note)
+        print(f"  call logged: {r['side']} {r['sym']} @ {r['price']:.2f} on {r['date']}"
+              f"  taken={r['taken']}  outcome={r['outcome_pct']}")
 
     s = stats()
     c = s["challenge"]
@@ -181,6 +217,12 @@ if __name__ == "__main__":
     print(f"  CHALLENGE: ${c['target']:.0f} across {c['sessions_total']} sessions, {c['window']}")
     print(f"    booked        ${c['pnl']:+,.2f}   ({c['pnl']/c['target']*100:.0f}% of target)")
     print(f"    sessions used {c['sessions_used']}/{c['sessions_total']}")
+    if s["calls_scored"]:
+        print(f"    reads scored  {s['calls_right']}/{s['calls_scored']} right")
+        for c in s["calls"]:
+            print(f"      {c['date']}  {c['side']:<5} {c['sym']:<6} @ {c['price']:.2f}"
+                  f"  {'taken' if c['taken'] else 'PASSED'}"
+                  f"  {'' if c['outcome_pct'] is None else '%+.1f%%' % c['outcome_pct']}")
     if s["by_day"]:
         print()
         for d, v in s["by_day"].items():

@@ -88,5 +88,17 @@
       "unrealised": 9440.0,
       "pct": 556.93
     }
+  ],
+  "calls": [
+    {
+      "sym": "SUNE",
+      "side": "short",
+      "price": 4.5,
+      "date": "2026-09-09",
+      "taken": false,
+      "outcome_pct": 25.4,
+      "note": "eyed at 15:10 ET Wed, passed; +8.2% adverse to 4.87 first, then 3.36 Thu close",
+      "logged": "2026-09-10T20:14:28+00:00"
+    }
   ]
 }
