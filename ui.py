@@ -510,6 +510,33 @@ function render(){
     `<div><span class="lab">SPY</span><span class="val">${D.regime.spy.toFixed(2)}</span></div>
      <div><span class="lab">10 / 20 / 50</span><span class="val">${D.regime.s10.toFixed(0)} / ${D.regime.s20.toFixed(0)} / ${D.regime.s50.toFixed(0)}</span></div>
      <div><span class="lab">Regime</span><span class="val ${D.regime.green?"up":"down"}">${D.regime.green?"GREEN":"RED"}</span></div>`;
+  /* scanner: the owner's setups, found - not traded */
+  const S = D.scan || {rows: []};
+  const n = v => (v == null || Number.isNaN(v)) ? "&mdash;" : v;
+  const fx = (v, d=1, suf="") => (v == null || Number.isNaN(v)) ? "&mdash;" : v.toFixed(d) + suf;
+  const sgn = (v, d=1) => (v == null || Number.isNaN(v)) ? "&mdash;" : (v >= 0 ? "+" : "") + v.toFixed(d) + "%";
+  $("#scan").innerHTML = S.rows.length ? S.rows.map(r => {
+    const rolling = r.last_hr != null && r.prev_hr != null && r.last_hr < 0 && r.prev_hr > 0;
+    return `<div class="row" tabindex="0" role="button" aria-expanded="false">
+      <div class="rname">${r.ticker}<span class="tag" data-t="short">+${fx(r.move,0)}%</span>
+        ${rolling ? '<span class="tag" data-t="forced">rolling</span>' : ''}</div>
+      <div class="rval mono">${money(r.price)}</div>
+      <div class="rmeta">${fx(r.float_turnover,0,"x float")} &middot; ${fx(r.rel_vol,0,"x vol")} &middot; $${r.mktcap>=1e9?(r.mktcap/1e9).toFixed(1)+"B":(r.mktcap/1e6).toFixed(0)+"M"}</div>
+      <div class="rsub mono ${r.off_high != null && r.off_high < -5 ? 'down' : ''}">${sgn(r.off_high)} off hi</div>
+      <div class="detail"><div class="dgrid">
+        <div><span class="lab">Gap</span><span class="val ${r.gap!=null&&r.gap>0?'up':''}">${sgn(r.gap)}</span></div>
+        <div><span class="lab">vs VWAP</span><span class="val">${sgn(r.vs_vwap)}</span></div>
+        <div><span class="lab">Float</span><span class="val">${r.float?(r.float/1e6).toFixed(1)+"M":"&mdash;"}</span></div>
+        <div><span class="lab">RSI day</span><span class="val ${r.rsi_d>70?'down':''}">${fx(r.rsi_d,0)}</span></div>
+        <div><span class="lab">RSI 5m</span><span class="val ${r.rsi_5m>70?'down':''}">${fx(r.rsi_5m,0)}</span></div>
+        <div><span class="lab">Short int</span><span class="val">${fx(r.short_pct,1,"%")}</span></div>
+        <div><span class="lab">Last hour</span><span class="val ${cls(r.last_hr||0)}">${sgn(r.last_hr)}</span></div>
+        <div><span class="lab">Prior hour</span><span class="val ${cls(r.prev_hr||0)}">${sgn(r.prev_hr)}</span></div>
+        <div><span class="lab">From 20d low</span><span class="val">${sgn(r.from_lo20,0)}</span></div>
+      </div><p class="note">${r.name||""}. Gap zone ${r.gap_lo!=null?money(r.gap_lo)+" &rarr; "+money(r.gap_hi):"&mdash;"}. Price &ge; $1: ${r.shortable_price?"yes":"no"}.</p></div></div>`;
+  }).join("") : '<p class="empty">Nothing over ' + (S.filters?S.filters.min_move_pct:15) + '% on volume right now.</p>';
+  $("#scan-n").textContent = S.rows.length + " names" + (S.ts ? " at " + new Date(S.ts).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) : "");
+
   /* dealer gamma */
   const gx = D.gex || [];
   $("#gex").innerHTML = gx.length ? gx.map(g=>gexCard(g)).join("")
@@ -612,12 +639,21 @@ SHELL = """<title>Morning Desk</title>
   </div>
 
   <div class="tabs" role="tablist">
-    <button class="tab" data-p="p-book" role="tab" aria-selected="true">Book</button>
+    <button class="tab" data-p="p-scan" role="tab" aria-selected="true">Scan</button>
+    <button class="tab" data-p="p-book" role="tab" aria-selected="false">Book</button>
     <button class="tab" data-p="p-perf" role="tab" aria-selected="false">Performance</button>
     <button class="tab" data-p="p-sig"  role="tab" aria-selected="false">Signals</button>
   </div>
 
-  <section id="p-book" class="panel">
+  <section id="p-scan" class="panel">
+    <div class="card"><h2>Movers on volume <span id="scan-n"></span></h2><div id="scan"></div>
+      <p class="note">Today's biggest US gainers over 15% on real volume, price $1 and up,
+        ranked by how many times the float changed hands. The bot finds these; it does not
+        trade them. "Rolling" = last hour down after the prior hour up. Tap a name for gap,
+        VWAP, RSI on both frames, and float. Borrow availability is your broker's, not checkable here.</p></div>
+  </section>
+
+  <section id="p-book" class="panel" hidden>
     <div class="card"><h2>Open positions <span id="pos-n"></span></h2><div id="pos"></div>
       <p class="note">Tap a position for its stop, target and cost.</p></div>
     <div class="card"><h2>Closed trades</h2><div id="closed"></div></div>

@@ -24,6 +24,7 @@ import gamma
 import portfolio
 import realbook
 import risk
+import scanner
 
 ACCOUNT, RISK = 421.0, 0.01
 
@@ -327,6 +328,14 @@ def fallback(d, held):
             best = {"ticker": t, "price": price, "stop": stop, "target": target,
                     "side": side, "mom": mom, "score": score}
     return best
+
+
+def _scan_safe():
+    """The dashboard must not fail because the screener did not answer."""
+    try:
+        return scanner.scan()
+    except Exception:
+        return scanner.load_latest()
 
 
 def _gex_safe():
@@ -837,6 +846,9 @@ def payload(d):
         # direction calls, and pooling them would answer neither.
         "real": realbook.stats(), "stats_realised": st["realised_pnl"],
         "gex": d.get("gex") or [],
+        # The scanner runs on EVERY pass, morning and intraday - a spike found
+        # at 10:00 and reported at 13:00 is not a setup, it is history.
+        "scan": _scan_safe(),
         "regime": {"green": reg["green"], "spy": reg["spy"], "s10": reg["s10"],
                    "s20": reg["s20"], "s50": reg["s50"]},
         "passing": [{"ticker": r["ticker"], "price": r["price"], "mom": r["mom"]}
