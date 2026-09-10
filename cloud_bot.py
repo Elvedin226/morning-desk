@@ -64,6 +64,13 @@ RSI2_ENABLED = True
 RSI2_ENTRY = 5.0      # RSI(2) below this, inside a 200-day uptrend
 RSI2_STOP = 0.08      # hard stop the original strategy lacks
 
+# Internal Bar Strength. See ibs_candidates() for what the testing showed.
+IBS_ENABLED = True
+IBS_ENTRY = 0.2       # close in the bottom fifth of the day's range
+IBS_EXIT = 0.8        # exit on a close in the top fifth - a SIGNAL, not a level
+IBS_STOP = 0.08       # hard floor the measured rule lacks; see note below
+IBS_TARGET = 0.25     # wide on purpose: the signal exit governs, this is a fence
+
 # Stated goal: $421 -> $1,000 by 31 Dec 2026. Tracked on the dashboard so the
 # gap between the goal and the trajectory stays visible rather than assumed.
 # target_test.py measures P(hit) for the current engine at essentially 0% - the
@@ -295,6 +302,50 @@ def rsi2_candidates(d, held):
     return sorted(out, key=lambda x: x["rsi2"])
 
 
+def ibs_candidates(d, held):
+    """Internal Bar Strength: (close - low) / (high - low). Buy a close near
+    the day's low, sell a close near the day's high.
+
+    Added because it is the first entry rule in this project to beat a RANDOM
+    entry on the same names (ibs_test.py, 2011-2026: edge +0.03% to +0.11%
+    per trade, t = 2.7 to 4.6). Agent 3's full run put it at 12.19% CAGR,
+    Sharpe 0.96, max drawdown -20.1% against buy-and-hold's 17.93% / 0.89 /
+    -48.7% - lower return, half the risk, better risk-adjusted. It was positive
+    in every bear year 2000-2008; that did NOT persist in 2018 and 2022, where
+    the edge over random was zero. Strongest when ranges are violent (2020,
+    t = 7.85). So: real, small, regime-dependent. In the paper book to be judged
+    by the live record.
+
+    The measured rule has no stop. A 46%-exposure strategy with no stop on a
+    $421 book is not a test, it is a hope, so IBS_STOP is a hard floor. Note it
+    changes the rule slightly from what was measured.
+
+    Uses the LATEST bar: complete on the morning run, the running session bar
+    on intraday runs - where IBS < 0.2 means "closing near the session low so
+    far", which is the intraday reading of the same signal.
+    """
+    raw = yf.download(list(SECTORS), period="5d", auto_adjust=True,
+                      progress=False, group_by="ticker")
+    lvl0 = set(raw.columns.get_level_values(0)) if isinstance(raw.columns, pd.MultiIndex) else set()
+    out = []
+    for t in SECTORS:
+        if t not in lvl0 or t in held:
+            continue
+        df = raw[t].dropna()
+        if df.empty:
+            continue
+        r = df.iloc[-1]
+        h, l, c = float(r["High"]), float(r["Low"]), float(r["Close"])
+        if not (h > l and c > 0):
+            continue
+        ibs = (c - l) / (h - l)
+        if ibs >= IBS_ENTRY:
+            continue
+        out.append({"ticker": t, "price": c, "stop": c * (1 - IBS_STOP),
+                    "target": c * (1 + IBS_TARGET), "side": "long", "ibs": ibs})
+    return sorted(out, key=lambda x: x["ibs"])
+
+
 def fallback(d, held):
     """Best available trade when the checklist approves nothing.
 
@@ -464,6 +515,37 @@ def trade(d, intraday=False):
                 break
             else:
                 d["rsi2"] = "RSI-2 signals all vetoed (correlation or size)"
+
+    # IBS. Same gates as RSI-2, its own tag, tested by the same live record.
+    d["ibs"] = None
+    if IBS_ENABLED:
+        cands = ibs_candidates(d, held)
+        d["ibs_seen"] = [f"{c3['ticker']} ({c3['ibs']:.2f})" for c3 in cands[:5]]
+        curve = book.get("equity_curve", [])
+        day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
+        g = risk.gate(equity, book["start_equity"], day_start, len(held), True, day_pnl=day_pnl)
+        if not g.allowed:
+            d["ibs"] = f"no IBS entry: {g.reason}"
+        elif not cands:
+            d["ibs"] = "no IBS signal now"
+        else:
+            for c3 in cands:
+                corr = risk.correlation_veto(c3["ticker"], held, d["close"])
+                if not corr.allowed:
+                    continue
+                sized = risk.size(equity, c3["price"], c3["stop"], cash=book["cash"])
+                if not sized.allowed:
+                    continue
+                portfolio.open_position(
+                    book, c3["ticker"], sized.qty, c3["price"], c3["stop"], c3["target"],
+                    side="long", forced=False, note=f"IBS {c3['ibs']:.2f}",
+                    exit_signal={"type": "ibs", "level": IBS_EXIT})
+                held.append(c3["ticker"])
+                d["ibs"] = f"IBS LONG {c3['ticker']} @ ${c3['price']:,.2f} (IBS {c3['ibs']:.2f})"
+                skip = None
+                break
+            else:
+                d["ibs"] = "IBS signals all vetoed (correlation or size)"
 
     # FORCED FALLBACK. Only when the rules declined and no slot conflict exists.
     # Deliberately does NOT override the risk gate: position limits, the daily
@@ -828,7 +910,7 @@ def payload(d):
     else:
         verdict, why = "TRADE", f"{c['ticker']} passes every filter."
 
-    lines = [x for x in (d.get("rsi2"), d.get("forced")) if x]
+    lines = [x for x in (d.get("rsi2"), d.get("ibs"), d.get("forced")) if x]
     if d.get("skip"):
         lines.append("Swing rules: " + d["skip"])
 

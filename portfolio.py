@@ -114,7 +114,8 @@ def _intraday_bars(tickers: list[str]) -> dict[str, pd.DataFrame]:
 
 def open_position(state: dict, ticker: str, qty: float, entry: float,
                   stop: float, target: float, side: str = "long",
-                  forced: bool = False, note: str = "") -> dict:
+                  forced: bool = False, note: str = "",
+                  exit_signal: dict | None = None) -> dict:
     """Record a simulated entry.
 
     A SHORT is modelled as collateral rather than as borrowed stock: the same
@@ -143,7 +144,12 @@ def open_position(state: dict, ticker: str, qty: float, entry: float,
     pos = {"ticker": ticker, "side": side, "qty": round(qty, 6), "entry": round(entry, 4),
            "stop": round(stop, 4), "target": round(target, 4),
            "opened": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-           "cost_basis": round(cost, 2), "forced": forced, "note": note}
+           "cost_basis": round(cost, 2), "forced": forced, "note": note,
+           # Optional rule-based exit checked each bar, e.g. {"type": "ibs",
+           # "level": 0.8}. Mean-reversion entries exit on a SIGNAL - a close
+           # back near the day's high - not at a price level. Faking that with a
+           # tight target would test a different rule than the one measured.
+           "exit_signal": exit_signal}
     state["positions"].append(pos)
     state["cash"] = round(state["cash"] - cost, 2)
     return pos
@@ -228,6 +234,13 @@ def update(state: dict, intraday: bool = False) -> tuple[dict, list[dict]]:
         if hit_tgt:
             closes.append(_close(state, pos, tgt_fill, "target"))
             continue
+
+        xs = pos.get("exit_signal")
+        if xs and xs.get("type") == "ibs" and h > l:
+            # Internal bar strength of THIS bar: 1.0 = closed at the high.
+            if (c - l) / (h - l) > float(xs.get("level", 0.8)):
+                closes.append(_close(state, pos, c, "ibs exit"))
+                continue
 
         held = (datetime.now(timezone.utc).date()
                 - datetime.strptime(pos["opened"], "%Y-%m-%d").date()).days

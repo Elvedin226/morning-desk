@@ -75,7 +75,8 @@ def bars(t: str) -> pd.DataFrame:
 
 
 def main() -> None:
-    names = sorted(watchlist.SECTORS)[:45] + ["SPY", "QQQ", "IWM"]
+    # Re-scoped after the 48-name / 40-null run timed out at ten minutes.
+    names = sorted(watchlist.SECTORS)[:12] + ["SPY", "QQQ", "IWM"]
     print(f"\n  EXIT RULE COMPARISON on {len(names)} names, {START} to now, 5bp/side")
     print("  " + "=" * 78)
     print(f"  {'':<22}{'CAGR':>9}{'Sharpe':>9}{'trades':>9}{'win%':>7}"
@@ -123,7 +124,7 @@ def main() -> None:
     for nm, label in (("connors_rsi2", "SMA5 exit"), ("rsi2_priorhigh", "prior-high exit")):
         wf = validate.walk_forward(spy, nm, fee=0.0, slippage=0.0005)
         real = wf.oos_metrics["sharpe"]
-        null = validate.permutation_null(spy, nm, runs=40, fee=0.0, slippage=0.0005)
+        null = validate.permutation_null(spy, nm, runs=20, fee=0.0, slippage=0.0005)
         p = float(np.mean(null >= real))
         print(f"  {label:<18} real OOS Sharpe {real:>5.2f}   shuffled 95th "
               f"{np.percentile(null,95):>5.2f}   p = {p:.2f}")
