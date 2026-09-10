@@ -13,8 +13,8 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1071.0,
-      "unrealised": -1.74
+      "last": 1069.345,
+      "unrealised": -1.82
     },
     {
       "ticker": "LLY",
@@ -27,8 +27,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1125.64,
-      "unrealised": -0.98
+      "last": 1126.61,
+      "unrealised": -0.94
     },
     {
       "ticker": "GM",
@@ -41,8 +41,8 @@
       "cost_basis": 34.18,
       "forced": true,
       "note": "regime red",
-      "last": 85.38,
-      "unrealised": -0.81
+      "last": 85.47,
+      "unrealised": -0.78
     },
     {
       "ticker": "BMY",
@@ -55,8 +55,8 @@
       "cost_basis": 29.93,
       "forced": true,
       "note": "regime red",
-      "last": 63.89,
-      "unrealised": -1.44
+      "last": 63.95,
+      "unrealised": -1.41
     },
     {
       "ticker": "MS",
@@ -69,8 +69,8 @@
       "cost_basis": 31.87,
       "forced": true,
       "note": "regime red",
-      "last": 213.94,
-      "unrealised": -0.57
+      "last": 213.85,
+      "unrealised": -0.58
     },
     {
       "ticker": "JNJ",
@@ -83,8 +83,8 @@
       "cost_basis": 26.55,
       "forced": true,
       "note": "regime red",
-      "last": 266.175,
-      "unrealised": -0.89
+      "last": 266.79,
+      "unrealised": -0.83
     },
     {
       "ticker": "BAC",
@@ -97,8 +97,8 @@
       "cost_basis": 43.41,
       "forced": true,
       "note": "regime red",
-      "last": 62.255,
-      "unrealised": -0.3
+      "last": 62.39,
+      "unrealised": -0.2
     },
     {
       "ticker": "OXY",
@@ -111,8 +111,8 @@
       "cost_basis": 31.19,
       "forced": true,
       "note": "regime red",
-      "last": 61.21,
-      "unrealised": 0.29
+      "last": 61.37,
+      "unrealised": 0.37
     },
     {
       "ticker": "XOM",
@@ -125,8 +125,8 @@
       "cost_basis": 32.42,
       "forced": true,
       "note": "regime red",
-      "last": 165.47,
-      "unrealised": 0.31
+      "last": 165.605,
+      "unrealised": 0.34
     },
     {
       "ticker": "PFE",
@@ -139,8 +139,8 @@
       "cost_basis": 27.39,
       "forced": true,
       "note": "regime red",
-      "last": 27.465,
-      "unrealised": -0.45
+      "last": 27.505,
+      "unrealised": -0.41
     },
     {
       "ticker": "VZ",
@@ -152,7 +152,9 @@
       "opened": "2026-09-10",
       "cost_basis": 35.9,
       "forced": true,
-      "note": "regime red"
+      "note": "regime red",
+      "last": 50.0,
+      "unrealised": -0.01
     }
   ],
   "closed": [],
@@ -175,10 +177,10 @@
     },
     {
       "date": "2026-09-10",
-      "equity": 414.42
+      "equity": 414.74
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 355.73,
-  "equity": 414.42
+  "market_value": 391.95,
+  "equity": 414.74
 }
