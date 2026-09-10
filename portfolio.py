@@ -332,6 +332,34 @@ def arms(state: dict) -> dict:
             "open": sum(1 for p in state.get("positions", [])
                         if bool(p.get("forced")) is want),
         }
+    # Per-RULE breakdown of the qualified arm. With two rule arms in the book
+    # (RSI-2 and IBS) a pooled "by the rules" row cannot say which one is
+    # working, and an arm that cannot be seen separately cannot be judged.
+    # Keyed on the note's first token, which every rule entry sets ("RSI-2 0.7",
+    # "IBS 0.02"); anything unlabelled lands under "rule".
+    rules = {}
+    def _bucket(note):
+        return (note or "").split()[0] if (note or "").strip() else "rule"
+    for c in state.get("closed", []):
+        if c.get("forced"):
+            continue
+        b = rules.setdefault(_bucket(c.get("note")),
+                             {"n": 0, "pnl": 0.0, "wins": 0, "pcts": [], "longs": 0, "shorts": 0, "open": 0})
+        b["n"] += 1; b["pnl"] += c["pnl"]; b["wins"] += c["pnl"] > 0
+        b["pcts"].append(c.get("pnl_pct") or 0.0)
+        b["longs" if c.get("side", "long") == "long" else "shorts"] += 1
+    for p_ in state.get("positions", []):
+        if p_.get("forced"):
+            continue
+        b = rules.setdefault(_bucket(p_.get("note")),
+                             {"n": 0, "pnl": 0.0, "wins": 0, "pcts": [], "longs": 0, "shorts": 0, "open": 0})
+        b["open"] += 1
+    for b in rules.values():
+        b["pnl"] = round(b["pnl"], 2)
+        b["win_rate"] = b["wins"] / b["n"] if b["n"] else None
+        b["avg_pct"] = round(sum(b["pcts"]) / len(b["pcts"]), 2) if b["pcts"] else None
+        del b["pcts"]
+    out["rules"] = rules
     return out
 
 

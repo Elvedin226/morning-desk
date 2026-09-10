@@ -503,7 +503,8 @@ function render(){
     <td class="n">${x.longs}L/${x.shorts}S</td>
     <td class="n">${x.win_rate==null?"&mdash;":(x.win_rate*100).toFixed(0)+"%"}</td>
     <td class="n ${cls(x.pnl)}">${sign(x.pnl)}</td></tr>`;
-  $("#arms").innerHTML = arm("By the rules", D.arms.qualified) + arm("Forced", D.arms.forced);
+  const rules = D.arms.rules && Object.keys(D.arms.rules).length ? D.arms.rules : {"By the rules": D.arms.qualified};
+  $("#arms").innerHTML = Object.keys(rules).sort().map(k => arm(k, rules[k])).join("") + arm("Forced", D.arms.forced);
 
   /* signals */
   $("#regime").innerHTML =

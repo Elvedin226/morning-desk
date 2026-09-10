@@ -462,7 +462,7 @@ def trade(d, intraday=False):
     else:
         curve = book.get("equity_curve", [])
         day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
-        g = risk.gate(equity, book["start_equity"], day_start, len(held), True,
+        g = risk.gate(equity, book["start_equity"], day_start, sum(1 for p_ in book["positions"] if not p_.get("forced")), True,
                       day_pnl=day_pnl)
         if not g.allowed:
             skip = g.reason
@@ -492,7 +492,7 @@ def trade(d, intraday=False):
         g = risk.gate(equity, book["start_equity"],
                       (book.get("equity_curve") or [{}])[-2].get("equity", equity)
                       if len(book.get("equity_curve", [])) >= 2 else equity,
-                      len(held), True, day_pnl=day_pnl)
+                      sum(1 for p_ in book["positions"] if not p_.get("forced")), True, day_pnl=day_pnl)
         if not g.allowed:
             d["rsi2"] = f"no RSI-2 entry: {g.reason}"
         elif not cands:
@@ -523,7 +523,7 @@ def trade(d, intraday=False):
         d["ibs_seen"] = [f"{c3['ticker']} ({c3['ibs']:.2f})" for c3 in cands[:5]]
         curve = book.get("equity_curve", [])
         day_start = curve[-2]["equity"] if len(curve) >= 2 else equity
-        g = risk.gate(equity, book["start_equity"], day_start, len(held), True, day_pnl=day_pnl)
+        g = risk.gate(equity, book["start_equity"], day_start, sum(1 for p_ in book["positions"] if not p_.get("forced")), True, day_pnl=day_pnl)
         if not g.allowed:
             d["ibs"] = f"no IBS entry: {g.reason}"
         elif not cands:
