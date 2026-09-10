@@ -56,6 +56,24 @@
       "note": "short cover; 2-session hold, opened Tue 09-08",
       "logged": "2026-09-09T18:40:40+00:00",
       "opened": "2026-09-08"
+    },
+    {
+      "sym": "TNON cover",
+      "pnl": 23.69,
+      "pct": 4.98,
+      "date": "2026-09-10",
+      "note": "short cover",
+      "opened": null,
+      "logged": "2026-09-10T20:09:12+00:00"
+    },
+    {
+      "sym": "SPY 760C 9/10",
+      "pnl": 26.0,
+      "pct": 16.89,
+      "date": "2026-09-10",
+      "note": "0DTE call, closed intraday, not held to expiry",
+      "opened": null,
+      "logged": "2026-09-10T20:09:12+00:00"
     }
   ],
   "flat_days": [],
