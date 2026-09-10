@@ -39,7 +39,14 @@ ACCOUNT, RISK = 421.0, 0.01
 # SEPARATELY. That separation is the whole reason this is defensible: without
 # it, forced trades would contaminate the record of the strategy they exist to
 # be compared against.
-FORCE_DAILY = True
+# OFF as of 2026-09-10. In its first week it put on nine positions, every one
+# long into a red regime - the ranking scores longs by momentum and shorts by
+# negative momentum, and after a year-long bull run nearly every name still
+# carries positive 12-1 momentum, so a long won the ranking every day. That is
+# 82% of the book in trades the rules had already rejected. A control group that
+# takes the trades it exists to be compared against is not controlling for
+# anything. Open forced positions run to their stop, target, or time stop.
+FORCE_DAILY = False
 FORCED_RISK = 0.005   # half normal size - these are trades the rules rejected
 # Forced positions get their own slot budget. risk.MAX_POSITIONS is 3, which is
 # right for real capital but would fill in three days and then stop, giving you
