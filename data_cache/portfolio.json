@@ -13,8 +13,8 @@
       "cost_basis": 52.61,
       "forced": false,
       "note": "RSI-2 0.7",
-      "last": 1062.875,
-      "unrealised": -2.12
+      "last": 1065.845,
+      "unrealised": -1.98
     },
     {
       "ticker": "LLY",
@@ -27,8 +27,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1140.7,
-      "unrealised": -0.29
+      "last": 1137.03,
+      "unrealised": -0.46
     },
     {
       "ticker": "MS",
@@ -41,8 +41,8 @@
       "cost_basis": 31.87,
       "forced": true,
       "note": "regime red",
-      "last": 207.335,
-      "unrealised": -1.54
+      "last": 206.6,
+      "unrealised": -1.64
     },
     {
       "ticker": "JNJ",
@@ -55,8 +55,8 @@
       "cost_basis": 26.55,
       "forced": true,
       "note": "regime red",
-      "last": 267.36,
-      "unrealised": -0.78
+      "last": 266.34,
+      "unrealised": -0.87
     },
     {
       "ticker": "OXY",
@@ -69,8 +69,8 @@
       "cost_basis": 31.19,
       "forced": true,
       "note": "regime red",
-      "last": 61.54,
-      "unrealised": 0.46
+      "last": 61.79,
+      "unrealised": 0.59
     },
     {
       "ticker": "XOM",
@@ -83,8 +83,8 @@
       "cost_basis": 32.42,
       "forced": true,
       "note": "regime red",
-      "last": 164.315,
-      "unrealised": 0.08
+      "last": 165.07,
+      "unrealised": 0.23
     },
     {
       "ticker": "PFE",
@@ -97,8 +97,8 @@
       "cost_basis": 27.39,
       "forced": true,
       "note": "regime red",
-      "last": 27.71,
-      "unrealised": -0.21
+      "last": 27.735,
+      "unrealised": -0.18
     },
     {
       "ticker": "VZ",
@@ -111,8 +111,8 @@
       "cost_basis": 35.9,
       "forced": true,
       "note": "regime red",
-      "last": 51.3342,
-      "unrealised": 0.95
+      "last": 51.295,
+      "unrealised": 0.92
     },
     {
       "ticker": "SLB",
@@ -126,8 +126,8 @@
       "forced": false,
       "note": "RSI-2 1.5",
       "exit_signal": null,
-      "last": 53.175,
-      "unrealised": -0.24
+      "last": 53.3143,
+      "unrealised": -0.1
     }
   ],
   "closed": [
@@ -219,10 +219,10 @@
     },
     {
       "date": "2026-09-14",
-      "equity": 413.47
+      "equity": 413.65
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 338.79,
-  "equity": 413.47
+  "market_value": 338.97,
+  "equity": 413.65
 }
