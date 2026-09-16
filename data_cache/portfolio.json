@@ -1,21 +1,7 @@
 {
   "start_equity": 421.0,
-  "cash": 104.41,
+  "cash": 101.85,
   "positions": [
-    {
-      "ticker": "BLK",
-      "side": "long",
-      "qty": 0.0475,
-      "entry": 1107.08,
-      "stop": 1018.5136,
-      "target": 1284.2127,
-      "opened": "2026-09-04",
-      "cost_basis": 52.61,
-      "forced": false,
-      "note": "RSI-2 0.7",
-      "last": 1046.235,
-      "unrealised": -2.91
-    },
     {
       "ticker": "LLY",
       "side": "long",
@@ -27,8 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1142.5601,
-      "unrealised": -0.2
+      "last": 1138.21,
+      "unrealised": -0.4
     },
     {
       "ticker": "JNJ",
@@ -41,8 +27,8 @@
       "cost_basis": 26.55,
       "forced": true,
       "note": "regime red",
-      "last": 268.17,
-      "unrealised": -0.7
+      "last": 267.4,
+      "unrealised": -0.77
     },
     {
       "ticker": "OXY",
@@ -55,8 +41,8 @@
       "cost_basis": 31.19,
       "forced": true,
       "note": "regime red",
-      "last": 60.38,
-      "unrealised": -0.14
+      "last": 59.365,
+      "unrealised": -0.66
     },
     {
       "ticker": "XOM",
@@ -69,8 +55,8 @@
       "cost_basis": 32.42,
       "forced": true,
       "note": "regime red",
-      "last": 164.815,
-      "unrealised": 0.18
+      "last": 163.33,
+      "unrealised": -0.11
     },
     {
       "ticker": "PFE",
@@ -83,8 +69,8 @@
       "cost_basis": 27.39,
       "forced": true,
       "note": "regime red",
-      "last": 27.515,
-      "unrealised": -0.4
+      "last": 27.49,
+      "unrealised": -0.43
     },
     {
       "ticker": "VZ",
@@ -97,8 +83,8 @@
       "cost_basis": 35.9,
       "forced": true,
       "note": "regime red",
-      "last": 50.375,
-      "unrealised": 0.26
+      "last": 49.79,
+      "unrealised": -0.16
     },
     {
       "ticker": "SLB",
@@ -112,8 +98,21 @@
       "forced": false,
       "note": "RSI-2 1.5",
       "exit_signal": null,
-      "last": 53.33,
-      "unrealised": -0.09
+      "last": 52.31,
+      "unrealised": -1.08
+    },
+    {
+      "ticker": "BAC",
+      "side": "long",
+      "qty": 0.879,
+      "entry": 57.9,
+      "stop": 53.268,
+      "target": 67.164,
+      "opened": "2026-09-16",
+      "cost_basis": 50.92,
+      "forced": false,
+      "note": "RSI-2 2.1",
+      "exit_signal": null
     }
   ],
   "closed": [
@@ -196,6 +195,26 @@
       "proceeds": 29.73,
       "pnl": -2.14,
       "pnl_pct": -6.72
+    },
+    {
+      "ticker": "BLK",
+      "side": "long",
+      "qty": 0.0475,
+      "entry": 1107.08,
+      "stop": 1018.5136,
+      "target": 1284.2127,
+      "opened": "2026-09-04",
+      "cost_basis": 52.61,
+      "forced": false,
+      "note": "RSI-2 0.7",
+      "last": 1046.235,
+      "unrealised": -2.91,
+      "exit": 1018.5136,
+      "reason": "stop",
+      "closed": "2026-09-16",
+      "proceeds": 48.36,
+      "pnl": -4.25,
+      "pnl_pct": -8.09
     }
   ],
   "equity_curve": [
@@ -233,10 +252,10 @@
     },
     {
       "date": "2026-09-16",
-      "equity": 411.02
+      "equity": 407.16
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 306.61,
-  "equity": 411.02
+  "market_value": 254.39,
+  "equity": 407.16
 }
