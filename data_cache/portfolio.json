@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 101.85,
+  "cash": 127.66,
   "positions": [
     {
       "ticker": "LLY",
@@ -13,22 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1138.21,
-      "unrealised": -0.4
-    },
-    {
-      "ticker": "JNJ",
-      "side": "long",
-      "qty": 0.0964,
-      "entry": 275.23,
-      "stop": 253.3545,
-      "target": 318.9811,
-      "opened": "2026-09-07",
-      "cost_basis": 26.55,
-      "forced": true,
-      "note": "regime red",
-      "last": 267.4,
-      "unrealised": -0.77
+      "last": 1144.705,
+      "unrealised": -0.1
     },
     {
       "ticker": "OXY",
@@ -41,8 +27,8 @@
       "cost_basis": 31.19,
       "forced": true,
       "note": "regime red",
-      "last": 59.365,
-      "unrealised": -0.66
+      "last": 59.4199,
+      "unrealised": -0.63
     },
     {
       "ticker": "XOM",
@@ -55,8 +41,8 @@
       "cost_basis": 32.42,
       "forced": true,
       "note": "regime red",
-      "last": 163.33,
-      "unrealised": -0.11
+      "last": 162.825,
+      "unrealised": -0.21
     },
     {
       "ticker": "PFE",
@@ -69,8 +55,8 @@
       "cost_basis": 27.39,
       "forced": true,
       "note": "regime red",
-      "last": 27.49,
-      "unrealised": -0.43
+      "last": 27.63,
+      "unrealised": -0.29
     },
     {
       "ticker": "VZ",
@@ -83,8 +69,8 @@
       "cost_basis": 35.9,
       "forced": true,
       "note": "regime red",
-      "last": 49.79,
-      "unrealised": -0.16
+      "last": 48.51,
+      "unrealised": -1.07
     },
     {
       "ticker": "SLB",
@@ -98,8 +84,8 @@
       "forced": false,
       "note": "RSI-2 1.5",
       "exit_signal": null,
-      "last": 52.31,
-      "unrealised": -1.08
+      "last": 52.21,
+      "unrealised": -1.17
     },
     {
       "ticker": "BAC",
@@ -112,7 +98,9 @@
       "cost_basis": 50.92,
       "forced": false,
       "note": "RSI-2 2.1",
-      "exit_signal": null
+      "exit_signal": null,
+      "last": 58.28,
+      "unrealised": 0.31
     }
   ],
   "closed": [
@@ -215,6 +203,26 @@
       "proceeds": 48.36,
       "pnl": -4.25,
       "pnl_pct": -8.09
+    },
+    {
+      "ticker": "JNJ",
+      "side": "long",
+      "qty": 0.0964,
+      "entry": 275.23,
+      "stop": 253.3545,
+      "target": 318.9811,
+      "opened": "2026-09-07",
+      "cost_basis": 26.55,
+      "forced": true,
+      "note": "regime red",
+      "last": 267.4,
+      "unrealised": -0.77,
+      "exit": 267.905,
+      "reason": "time stop",
+      "closed": "2026-09-17",
+      "proceeds": 25.81,
+      "pnl": -0.74,
+      "pnl_pct": -2.78
     }
   ],
   "equity_curve": [
@@ -253,9 +261,13 @@
     {
       "date": "2026-09-16",
       "equity": 407.16
+    },
+    {
+      "date": "2026-09-17",
+      "equity": 406.85
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 254.39,
-  "equity": 407.16
+  "market_value": 279.19,
+  "equity": 406.85
 }
