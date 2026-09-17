@@ -13,8 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1145.9449,
-      "unrealised": -0.05
+      "last": 1152.4301,
+      "unrealised": 0.25
     },
     {
       "ticker": "OXY",
@@ -27,8 +27,8 @@
       "cost_basis": 31.19,
       "forced": true,
       "note": "regime red",
-      "last": 59.445,
-      "unrealised": -0.62
+      "last": 59.285,
+      "unrealised": -0.7
     },
     {
       "ticker": "XOM",
@@ -41,8 +41,8 @@
       "cost_basis": 32.42,
       "forced": true,
       "note": "regime red",
-      "last": 162.9875,
-      "unrealised": -0.18
+      "last": 163.26,
+      "unrealised": -0.13
     },
     {
       "ticker": "PFE",
@@ -55,8 +55,8 @@
       "cost_basis": 27.39,
       "forced": true,
       "note": "regime red",
-      "last": 27.645,
-      "unrealised": -0.27
+      "last": 27.63,
+      "unrealised": -0.29
     },
     {
       "ticker": "VZ",
@@ -69,8 +69,8 @@
       "cost_basis": 35.9,
       "forced": true,
       "note": "regime red",
-      "last": 48.6878,
-      "unrealised": -0.95
+      "last": 48.33,
+      "unrealised": -1.2
     },
     {
       "ticker": "SLB",
@@ -84,8 +84,8 @@
       "forced": false,
       "note": "RSI-2 1.5",
       "exit_signal": null,
-      "last": 52.38,
-      "unrealised": -1.01
+      "last": 52.085,
+      "unrealised": -1.29
     },
     {
       "ticker": "BAC",
@@ -99,8 +99,8 @@
       "forced": false,
       "note": "RSI-2 2.1",
       "exit_signal": null,
-      "last": 58.355,
-      "unrealised": 0.37
+      "last": 58.17,
+      "unrealised": 0.21
     }
   ],
   "closed": [
@@ -264,10 +264,10 @@
     },
     {
       "date": "2026-09-17",
-      "equity": 407.32
+      "equity": 406.87
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 279.66,
-  "equity": 407.32
+  "market_value": 279.21,
+  "equity": 406.87
 }
