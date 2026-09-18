@@ -13,8 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1145.485,
-      "unrealised": -0.07
+      "last": 1144.27,
+      "unrealised": -0.12
     },
     {
       "ticker": "XOM",
@@ -27,8 +27,8 @@
       "cost_basis": 32.42,
       "forced": true,
       "note": "regime red",
-      "last": 162.57,
-      "unrealised": -0.26
+      "last": 162.8,
+      "unrealised": -0.22
     },
     {
       "ticker": "PFE",
@@ -55,8 +55,8 @@
       "cost_basis": 35.9,
       "forced": true,
       "note": "regime red",
-      "last": 48.05,
-      "unrealised": -1.4
+      "last": 47.99,
+      "unrealised": -1.45
     },
     {
       "ticker": "SLB",
@@ -70,8 +70,8 @@
       "forced": false,
       "note": "RSI-2 1.5",
       "exit_signal": null,
-      "last": 51.105,
-      "unrealised": -2.24
+      "last": 51.145,
+      "unrealised": -2.21
     },
     {
       "ticker": "BAC",
@@ -85,8 +85,8 @@
       "forced": false,
       "note": "RSI-2 2.1",
       "exit_signal": null,
-      "last": 57.9,
-      "unrealised": -0.03
+      "last": 57.735,
+      "unrealised": -0.17
     }
   ],
   "closed": [
@@ -274,10 +274,10 @@
     },
     {
       "date": "2026-09-18",
-      "equity": 404.66
+      "equity": 404.5
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 246.77,
-  "equity": 404.66
+  "market_value": 246.61,
+  "equity": 404.5
 }
