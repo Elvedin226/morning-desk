@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 157.89,
+  "cash": 250.97,
   "positions": [
     {
       "ticker": "LLY",
@@ -13,50 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1152.7,
-      "unrealised": 0.26
-    },
-    {
-      "ticker": "XOM",
-      "side": "long",
-      "qty": 0.1978,
-      "entry": 163.82,
-      "stop": 153.3112,
-      "target": 184.8376,
-      "opened": "2026-09-09",
-      "cost_basis": 32.42,
-      "forced": true,
-      "note": "regime red",
-      "last": 163.185,
-      "unrealised": -0.14
-    },
-    {
-      "ticker": "PFE",
-      "side": "long",
-      "qty": 0.9809,
-      "entry": 27.905,
-      "stop": 25.7838,
-      "target": 32.1474,
-      "opened": "2026-09-09",
-      "cost_basis": 27.39,
-      "forced": true,
-      "note": "regime red",
-      "last": 27.61,
-      "unrealised": -0.31
-    },
-    {
-      "ticker": "VZ",
-      "side": "long",
-      "qty": 0.7179,
-      "entry": 49.9851,
-      "stop": 47.0988,
-      "target": 55.7577,
-      "opened": "2026-09-10",
-      "cost_basis": 35.9,
-      "forced": true,
-      "note": "regime red",
-      "last": 48.11,
-      "unrealised": -1.36
+      "last": 1168.58,
+      "unrealised": 0.99
     },
     {
       "ticker": "SLB",
@@ -70,8 +28,8 @@
       "forced": false,
       "note": "RSI-2 1.5",
       "exit_signal": null,
-      "last": 51.125,
-      "unrealised": -2.22
+      "last": 51.835,
+      "unrealised": -1.54
     },
     {
       "ticker": "BAC",
@@ -85,8 +43,8 @@
       "forced": false,
       "note": "RSI-2 2.1",
       "exit_signal": null,
-      "last": 57.71,
-      "unrealised": -0.19
+      "last": 58.06,
+      "unrealised": 0.11
     }
   ],
   "closed": [
@@ -229,6 +187,66 @@
       "proceeds": 30.23,
       "pnl": -0.96,
       "pnl_pct": -3.07
+    },
+    {
+      "ticker": "XOM",
+      "side": "long",
+      "qty": 0.1978,
+      "entry": 163.82,
+      "stop": 153.3112,
+      "target": 184.8376,
+      "opened": "2026-09-09",
+      "cost_basis": 32.42,
+      "forced": true,
+      "note": "regime red",
+      "last": 163.185,
+      "unrealised": -0.14,
+      "exit": 158.915,
+      "reason": "time stop",
+      "closed": "2026-09-21",
+      "proceeds": 31.42,
+      "pnl": -1.0,
+      "pnl_pct": -3.09
+    },
+    {
+      "ticker": "PFE",
+      "side": "long",
+      "qty": 0.9809,
+      "entry": 27.905,
+      "stop": 25.7838,
+      "target": 32.1474,
+      "opened": "2026-09-09",
+      "cost_basis": 27.39,
+      "forced": true,
+      "note": "regime red",
+      "last": 27.61,
+      "unrealised": -0.31,
+      "exit": 27.8635,
+      "reason": "time stop",
+      "closed": "2026-09-21",
+      "proceeds": 27.32,
+      "pnl": -0.07,
+      "pnl_pct": -0.26
+    },
+    {
+      "ticker": "VZ",
+      "side": "long",
+      "qty": 0.7179,
+      "entry": 49.9851,
+      "stop": 47.0988,
+      "target": 55.7577,
+      "opened": "2026-09-10",
+      "cost_basis": 35.9,
+      "forced": true,
+      "note": "regime red",
+      "last": 48.11,
+      "unrealised": -1.36,
+      "exit": 47.855,
+      "reason": "time stop",
+      "closed": "2026-09-21",
+      "proceeds": 34.34,
+      "pnl": -1.56,
+      "pnl_pct": -4.35
     }
   ],
   "equity_curve": [
@@ -275,9 +293,13 @@
     {
       "date": "2026-09-18",
       "equity": 405.1
+    },
+    {
+      "date": "2026-09-21",
+      "equity": 406.0
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 247.21,
-  "equity": 405.1
+  "market_value": 155.03,
+  "equity": 406.0
 }
