@@ -13,8 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1182.71,
-      "unrealised": 1.64
+      "last": 1186.24,
+      "unrealised": 1.81
     },
     {
       "ticker": "SLB",
@@ -28,8 +28,8 @@
       "forced": false,
       "note": "RSI-2 1.5",
       "exit_signal": null,
-      "last": 49.56,
-      "unrealised": -3.74
+      "last": 49.88,
+      "unrealised": -3.43
     },
     {
       "ticker": "BAC",
@@ -43,8 +43,8 @@
       "forced": false,
       "note": "RSI-2 2.1",
       "exit_signal": null,
-      "last": 55.115,
-      "unrealised": -2.47
+      "last": 54.985,
+      "unrealised": -2.59
     }
   ],
   "closed": [
@@ -320,10 +320,10 @@
     },
     {
       "date": "2026-09-29",
-      "equity": 401.86
+      "equity": 402.22
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 150.89,
-  "equity": 401.86
+  "market_value": 151.25,
+  "equity": 402.22
 }
