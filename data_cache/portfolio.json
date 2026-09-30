@@ -13,8 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1169.21,
-      "unrealised": 1.02
+      "last": 1159.3101,
+      "unrealised": 0.57
     },
     {
       "ticker": "BAC",
@@ -28,8 +28,8 @@
       "forced": false,
       "note": "RSI-2 2.1",
       "exit_signal": null,
-      "last": 54.455,
-      "unrealised": -3.05
+      "last": 54.41,
+      "unrealised": -3.09
     },
     {
       "ticker": "XOM",
@@ -43,8 +43,8 @@
       "forced": false,
       "note": "",
       "exit_signal": null,
-      "last": 163.54,
-      "unrealised": -0.19
+      "last": 162.87,
+      "unrealised": -0.49
     }
   ],
   "closed": [
@@ -345,10 +345,10 @@
     },
     {
       "date": "2026-09-30",
-      "equity": 400.02
+      "equity": 399.22
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 176.71,
-  "equity": 400.02
+  "market_value": 175.91,
+  "equity": 399.22
 }
