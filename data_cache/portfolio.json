@@ -13,8 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1164.8,
-      "unrealised": 0.82
+      "last": 1169.85,
+      "unrealised": 1.05
     },
     {
       "ticker": "XOM",
@@ -28,8 +28,8 @@
       "forced": false,
       "note": "",
       "exit_signal": null,
-      "last": 168.6701,
-      "unrealised": 2.17
+      "last": 168.55,
+      "unrealised": 2.11
     },
     {
       "ticker": "DE",
@@ -43,8 +43,8 @@
       "forced": false,
       "note": "RSI-2 1.6",
       "exit_signal": null,
-      "last": 652.03,
-      "unrealised": -0.79
+      "last": 652.61,
+      "unrealised": -0.75
     }
   ],
   "closed": [
@@ -391,9 +391,13 @@
     {
       "date": "2026-10-08",
       "equity": 400.32
+    },
+    {
+      "date": "2026-10-09",
+      "equity": 400.54
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 179.97,
-  "equity": 400.32
+  "market_value": 180.19,
+  "equity": 400.54
 }
