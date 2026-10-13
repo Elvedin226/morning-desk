@@ -13,8 +13,8 @@
       "cost_basis": 52.76,
       "forced": false,
       "note": "RSI-2 2.9",
-      "last": 1166.99,
-      "unrealised": 0.92
+      "last": 1167.58,
+      "unrealised": 0.95
     },
     {
       "ticker": "XOM",
@@ -402,10 +402,10 @@
     },
     {
       "date": "2026-10-13",
-      "equity": 402.78
+      "equity": 402.81
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 182.43,
-  "equity": 402.78
+  "market_value": 182.46,
+  "equity": 402.81
 }
