@@ -1,21 +1,7 @@
 {
   "start_equity": 421.0,
-  "cash": 220.35,
+  "cash": 225.3,
   "positions": [
-    {
-      "ticker": "LLY",
-      "side": "long",
-      "qty": 0.046,
-      "entry": 1146.4449,
-      "stop": 1054.7294,
-      "target": 1329.8761,
-      "opened": "2026-09-04",
-      "cost_basis": 52.76,
-      "forced": false,
-      "note": "RSI-2 2.9",
-      "last": 1167.58,
-      "unrealised": 0.95
-    },
     {
       "ticker": "XOM",
       "side": "long",
@@ -28,8 +14,8 @@
       "forced": false,
       "note": "",
       "exit_signal": null,
-      "last": 174.14,
-      "unrealised": 4.68
+      "last": 177.2,
+      "unrealised": 6.08
     },
     {
       "ticker": "DE",
@@ -43,8 +29,21 @@
       "forced": false,
       "note": "RSI-2 1.6",
       "exit_signal": null,
-      "last": 650.03,
-      "unrealised": -0.94
+      "last": 647.52,
+      "unrealised": -1.13
+    },
+    {
+      "ticker": "ARM",
+      "side": "long",
+      "qty": 0.2125,
+      "entry": 238.8,
+      "stop": 219.696,
+      "target": 277.008,
+      "opened": "2026-10-14",
+      "cost_basis": 50.77,
+      "forced": false,
+      "note": "RSI-2 0.7",
+      "exit_signal": null
     }
   ],
   "closed": [
@@ -289,6 +288,26 @@
       "proceeds": 46.8,
       "pnl": -4.12,
       "pnl_pct": -8.09
+    },
+    {
+      "ticker": "LLY",
+      "side": "long",
+      "qty": 0.046,
+      "entry": 1146.4449,
+      "stop": 1054.7294,
+      "target": 1329.8761,
+      "opened": "2026-09-04",
+      "cost_basis": 52.76,
+      "forced": false,
+      "note": "RSI-2 2.9",
+      "last": 1167.58,
+      "unrealised": 0.95,
+      "exit": 1211.825,
+      "reason": "time stop",
+      "closed": "2026-10-14",
+      "proceeds": 55.72,
+      "pnl": 2.96,
+      "pnl_pct": 5.6
     }
   ],
   "equity_curve": [
@@ -403,9 +422,13 @@
     {
       "date": "2026-10-13",
       "equity": 402.81
+    },
+    {
+      "date": "2026-10-14",
+      "equity": 406.03
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 182.46,
-  "equity": 402.81
+  "market_value": 129.96,
+  "equity": 406.03
 }
