@@ -14,8 +14,8 @@
       "forced": false,
       "note": "",
       "exit_signal": null,
-      "last": 177.94,
-      "unrealised": 6.42
+      "last": 178.98,
+      "unrealised": 6.9
     },
     {
       "ticker": "DE",
@@ -29,8 +29,8 @@
       "forced": false,
       "note": "RSI-2 1.6",
       "exit_signal": null,
-      "last": 639.0168,
-      "unrealised": -1.77
+      "last": 641.96,
+      "unrealised": -1.55
     },
     {
       "ticker": "ARM",
@@ -44,8 +44,8 @@
       "forced": false,
       "note": "RSI-2 0.7",
       "exit_signal": null,
-      "last": 232.32,
-      "unrealised": -1.4
+      "last": 227.75,
+      "unrealised": -2.37
     }
   ],
   "closed": [
@@ -435,10 +435,10 @@
     },
     {
       "date": "2026-10-16",
-      "equity": 404.33
+      "equity": 404.06
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 179.03,
-  "equity": 404.33
+  "market_value": 178.76,
+  "equity": 404.06
 }
