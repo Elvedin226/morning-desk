@@ -203,6 +203,17 @@ def update(state: dict, intraday: bool = False) -> tuple[dict, list[dict]]:
         return state, []
     state.pop("data_error", None)
 
+    # Daily history for signal exits that need it (an SMA cannot be computed
+    # from the single synthetic bar an intraday run produces).
+    sma_t = sorted({q["ticker"] for q in state["positions"]
+                    if (q.get("exit_signal") or {}).get("type") == "sma"})
+    daily_closes = {}
+    if sma_t:
+        try:
+            daily_closes = {t: df["Close"] for t, df in _bars(sma_t).items()}
+        except Exception:
+            daily_closes = {}
+
     closes, market_value = [], 0.0
     for pos in list(state["positions"]):
         df = bars.get(pos["ticker"])
@@ -240,6 +251,16 @@ def update(state: dict, intraday: bool = False) -> tuple[dict, list[dict]]:
             # Internal bar strength of THIS bar: 1.0 = closed at the high.
             if (c - l) / (h - l) > float(xs.get("level", 0.8)):
                 closes.append(_close(state, pos, c, "ibs exit"))
+                continue
+
+        if xs and xs.get("type") == "sma":
+            # Connors' own exit: close back above the N-day average. This is what
+            # makes RSI-2 a 1-3 day trade. Without it the arm held 12 to 40 days
+            # and was not the strategy that was tested.
+            n_sma = int(xs.get("n", 5))
+            hist = daily_closes.get(pos["ticker"])
+            if hist is not None and len(hist) >= n_sma and c > float(hist.tail(n_sma).mean()):
+                closes.append(_close(state, pos, c, "sma exit"))
                 continue
 
         held = (datetime.now(timezone.utc).date()

@@ -28,7 +28,10 @@
       "cost_basis": 49.76,
       "forced": false,
       "note": "RSI-2 1.6",
-      "exit_signal": null,
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
       "last": 627.02,
       "unrealised": -2.67
     },
@@ -43,7 +46,10 @@
       "cost_basis": 50.77,
       "forced": false,
       "note": "RSI-2 0.7",
-      "exit_signal": null,
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
       "last": 227.69,
       "unrealised": -2.39
     }

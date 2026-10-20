@@ -74,6 +74,51 @@
       "note": "0DTE call, closed intraday, not held to expiry",
       "opened": null,
       "logged": "2026-09-10T20:09:12+00:00"
+    },
+    {
+      "sym": "AEHL cover",
+      "pnl": 37.86,
+      "pct": 5.86,
+      "date": "2026-10-14",
+      "note": "short cover; screenshot 1W view",
+      "opened": null,
+      "logged": "2026-10-20T17:26:48+00:00"
+    },
+    {
+      "sym": "LQDA cover",
+      "pnl": -0.01,
+      "pct": 0.0,
+      "date": "2026-10-14",
+      "note": "short cover; scratch",
+      "opened": null,
+      "logged": "2026-10-20T17:26:48+00:00"
+    },
+    {
+      "sym": "AEHL cover",
+      "pnl": 23.04,
+      "pct": 5.22,
+      "date": "2026-10-14",
+      "note": "short cover; second AEHL close",
+      "opened": null,
+      "logged": "2026-10-20T17:26:48+00:00"
+    },
+    {
+      "sym": "TGL cover",
+      "pnl": 0.13,
+      "pct": 12.38,
+      "date": "2026-10-14",
+      "note": "short cover; roughly a $1 position",
+      "opened": null,
+      "logged": "2026-10-20T17:26:49+00:00"
+    },
+    {
+      "sym": "JBDI cover",
+      "pnl": 28.0,
+      "pct": null,
+      "date": "2026-10-14",
+      "note": "limit buy to close; date partly cropped in screenshot, pct cropped",
+      "opened": null,
+      "logged": "2026-10-20T17:26:49+00:00"
     }
   ],
   "flat_days": [],

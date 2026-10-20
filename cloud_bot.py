@@ -507,7 +507,8 @@ def trade(d, intraday=False):
                     continue
                 portfolio.open_position(book, c2["ticker"], sized.qty, c2["price"],
                                         c2["stop"], c2["target"], side="long",
-                                        forced=False, note=f"RSI-2 {c2['rsi2']:.1f}")
+                                        forced=False, note=f"RSI-2 {c2['rsi2']:.1f}",
+                                        exit_signal={"type": "sma", "n": 5})
                 held.append(c2["ticker"])
                 d["rsi2"] = (f"RSI-2 LONG {c2['ticker']} @ ${c2['price']:,.2f} "
                              f"(RSI {c2['rsi2']:.1f})")
