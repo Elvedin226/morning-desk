@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 225.3,
+  "cash": 221.82,
   "positions": [
     {
       "ticker": "XOM",
@@ -14,8 +14,8 @@
       "forced": false,
       "note": "",
       "exit_signal": null,
-      "last": 178.29,
-      "unrealised": 6.59
+      "last": 177.15,
+      "unrealised": 6.06
     },
     {
       "ticker": "DE",
@@ -32,26 +32,24 @@
         "type": "sma",
         "n": 5
       },
-      "last": 627.02,
-      "unrealised": -2.67
+      "last": 634.42,
+      "unrealised": -2.12
     },
     {
-      "ticker": "ARM",
+      "ticker": "CSCO",
       "side": "long",
-      "qty": 0.2125,
-      "entry": 238.8,
-      "stop": 219.696,
-      "target": 277.008,
-      "opened": "2026-10-14",
-      "cost_basis": 50.77,
+      "qty": 0.471,
+      "entry": 106.4,
+      "stop": 97.888,
+      "target": 123.424,
+      "opened": "2026-10-20",
+      "cost_basis": 50.14,
       "forced": false,
-      "note": "RSI-2 0.7",
+      "note": "RSI-2 1.9",
       "exit_signal": {
         "type": "sma",
         "n": 5
-      },
-      "last": 227.69,
-      "unrealised": -2.39
+      }
     }
   ],
   "closed": [
@@ -316,6 +314,30 @@
       "proceeds": 55.72,
       "pnl": 2.96,
       "pnl_pct": 5.6
+    },
+    {
+      "ticker": "ARM",
+      "side": "long",
+      "qty": 0.2125,
+      "entry": 238.8,
+      "stop": 219.696,
+      "target": 277.008,
+      "opened": "2026-10-14",
+      "cost_basis": 50.77,
+      "forced": false,
+      "note": "RSI-2 0.7",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
+      "last": 227.69,
+      "unrealised": -2.39,
+      "exit": 219.696,
+      "reason": "stop",
+      "closed": "2026-10-20",
+      "proceeds": 46.66,
+      "pnl": -4.11,
+      "pnl_pct": -8.09
     }
   ],
   "equity_curve": [
@@ -446,9 +468,13 @@
     {
       "date": "2026-10-19",
       "equity": 402.61
+    },
+    {
+      "date": "2026-10-20",
+      "equity": 400.92
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 177.31,
-  "equity": 402.61
+  "market_value": 128.96,
+  "equity": 400.92
 }
