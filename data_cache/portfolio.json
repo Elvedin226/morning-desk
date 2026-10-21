@@ -14,8 +14,8 @@
       "forced": false,
       "note": "",
       "exit_signal": null,
-      "last": 177.67,
-      "unrealised": 6.3
+      "last": 178.09,
+      "unrealised": 6.49
     },
     {
       "ticker": "DE",
@@ -32,8 +32,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 631.25,
-      "unrealised": -2.35
+      "last": 636.56,
+      "unrealised": -1.95
     },
     {
       "ticker": "CSCO",
@@ -50,8 +50,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 107.38,
-      "unrealised": 0.44
+      "last": 107.26,
+      "unrealised": 0.38
     }
   ],
   "closed": [
@@ -477,10 +477,10 @@
     },
     {
       "date": "2026-10-21",
-      "equity": 401.35
+      "equity": 401.89
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 179.53,
-  "equity": 401.35
+  "market_value": 180.07,
+  "equity": 401.89
 }
