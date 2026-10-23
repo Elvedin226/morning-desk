@@ -1,25 +1,7 @@
 {
   "start_equity": 421.0,
-  "cash": 252.35,
+  "cash": 252.1,
   "positions": [
-    {
-      "ticker": "CSCO",
-      "side": "long",
-      "qty": 0.471,
-      "entry": 106.4,
-      "stop": 97.888,
-      "target": 123.424,
-      "opened": "2026-10-20",
-      "cost_basis": 50.14,
-      "forced": false,
-      "note": "RSI-2 1.9",
-      "exit_signal": {
-        "type": "sma",
-        "n": 5
-      },
-      "last": 106.26,
-      "unrealised": -0.09
-    },
     {
       "ticker": "META",
       "side": "long",
@@ -35,8 +17,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 644.93,
-      "unrealised": -0.14
+      "last": 642.3,
+      "unrealised": -0.35
     },
     {
       "ticker": "WMT",
@@ -53,8 +35,24 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 119.425,
-      "unrealised": 0.06
+      "last": 119.87,
+      "unrealised": 0.25
+    },
+    {
+      "ticker": "NKE",
+      "side": "long",
+      "qty": 1.3499,
+      "entry": 37.3,
+      "stop": 34.316,
+      "target": 46.625,
+      "opened": "2026-10-23",
+      "cost_basis": 50.38,
+      "forced": false,
+      "note": "IBS 0.00",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      }
     }
   ],
   "closed": [
@@ -388,6 +386,30 @@
       "proceeds": 83.17,
       "pnl": 7.92,
       "pnl_pct": 10.53
+    },
+    {
+      "ticker": "CSCO",
+      "side": "long",
+      "qty": 0.471,
+      "entry": 106.4,
+      "stop": 97.888,
+      "target": 123.424,
+      "opened": "2026-10-20",
+      "cost_basis": 50.14,
+      "forced": false,
+      "note": "RSI-2 1.9",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
+      "last": 106.26,
+      "unrealised": -0.09,
+      "exit": 106.49,
+      "reason": "sma exit",
+      "closed": "2026-10-23",
+      "proceeds": 50.13,
+      "pnl": -0.01,
+      "pnl_pct": -0.02
     }
   ],
   "equity_curve": [
@@ -533,10 +555,10 @@
     },
     {
       "date": "2026-10-23",
-      "equity": 402.74
+      "equity": 402.8
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 150.39,
-  "equity": 402.74
+  "market_value": 100.32,
+  "equity": 402.8
 }
