@@ -17,8 +17,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 622.245,
-      "unrealised": -1.9
+      "last": 623.34,
+      "unrealised": -1.81
     },
     {
       "ticker": "WMT",
@@ -35,8 +35,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 118.925,
-      "unrealised": -0.15
+      "last": 119.2,
+      "unrealised": -0.03
     },
     {
       "ticker": "NKE",
@@ -53,8 +53,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 37.4301,
-      "unrealised": 0.15
+      "last": 37.455,
+      "unrealised": 0.18
     }
   ],
   "closed": [
@@ -565,10 +565,10 @@
     },
     {
       "date": "2026-10-27",
-      "equity": 401.0
+      "equity": 401.23
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 148.9,
-  "equity": 401.0
+  "market_value": 149.13,
+  "equity": 401.23
 }
