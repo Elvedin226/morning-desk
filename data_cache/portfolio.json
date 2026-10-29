@@ -1,43 +1,7 @@
 {
   "start_equity": 421.0,
-  "cash": 252.1,
+  "cash": 301.32,
   "positions": [
-    {
-      "ticker": "META",
-      "side": "long",
-      "qty": 0.0774,
-      "entry": 646.41,
-      "stop": 594.6972,
-      "target": 749.8356,
-      "opened": "2026-10-22",
-      "cost_basis": 50.06,
-      "forced": false,
-      "note": "RSI-2 3.2",
-      "exit_signal": {
-        "type": "sma",
-        "n": 5
-      },
-      "last": 612.49,
-      "unrealised": -2.65
-    },
-    {
-      "ticker": "WMT",
-      "side": "long",
-      "qty": 0.4222,
-      "entry": 119.21,
-      "stop": 109.6732,
-      "target": 149.0125,
-      "opened": "2026-10-23",
-      "cost_basis": 50.36,
-      "forced": false,
-      "note": "IBS 0.02",
-      "exit_signal": {
-        "type": "ibs",
-        "level": 0.8
-      },
-      "last": 118.86,
-      "unrealised": -0.18
-    },
     {
       "ticker": "NKE",
       "side": "long",
@@ -53,8 +17,24 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 37.165,
-      "unrealised": -0.21
+      "last": 38.355,
+      "unrealised": 1.4
+    },
+    {
+      "ticker": "NOW",
+      "side": "long",
+      "qty": 0.4626,
+      "entry": 109.05,
+      "stop": 100.326,
+      "target": 136.3125,
+      "opened": "2026-10-29",
+      "cost_basis": 50.47,
+      "forced": false,
+      "note": "IBS 0.01",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      }
     }
   ],
   "closed": [
@@ -412,6 +392,54 @@
       "proceeds": 50.13,
       "pnl": -0.01,
       "pnl_pct": -0.02
+    },
+    {
+      "ticker": "META",
+      "side": "long",
+      "qty": 0.0774,
+      "entry": 646.41,
+      "stop": 594.6972,
+      "target": 749.8356,
+      "opened": "2026-10-22",
+      "cost_basis": 50.06,
+      "forced": false,
+      "note": "RSI-2 3.2",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
+      "last": 612.49,
+      "unrealised": -2.65,
+      "exit": 626.84,
+      "reason": "sma exit",
+      "closed": "2026-10-29",
+      "proceeds": 48.49,
+      "pnl": -1.57,
+      "pnl_pct": -3.13
+    },
+    {
+      "ticker": "WMT",
+      "side": "long",
+      "qty": 0.4222,
+      "entry": 119.21,
+      "stop": 109.6732,
+      "target": 149.0125,
+      "opened": "2026-10-23",
+      "cost_basis": 50.36,
+      "forced": false,
+      "note": "IBS 0.02",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 118.86,
+      "unrealised": -0.18,
+      "exit": 121.33,
+      "reason": "ibs exit",
+      "closed": "2026-10-29",
+      "proceeds": 51.2,
+      "pnl": 0.84,
+      "pnl_pct": 1.67
     }
   ],
   "equity_curve": [
@@ -570,9 +598,13 @@
     {
       "date": "2026-10-28",
       "equity": 399.86
+    },
+    {
+      "date": "2026-10-29",
+      "equity": 403.57
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 147.76,
-  "equity": 399.86
+  "market_value": 51.78,
+  "equity": 403.57
 }
