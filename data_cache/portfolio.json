@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 302.69,
+  "cash": 252.15,
   "positions": [
     {
       "ticker": "NOW",
@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 109.35,
-      "unrealised": 0.12
+      "last": 109.65,
+      "unrealised": 0.25
     },
     {
       "ticker": "MU",
@@ -31,6 +31,24 @@
       "cost_basis": 50.54,
       "forced": false,
       "note": "IBS 0.07",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 934.26,
+      "unrealised": 0.19
+    },
+    {
+      "ticker": "BAC",
+      "side": "long",
+      "qty": 0.9878,
+      "entry": 51.14,
+      "stop": 47.0488,
+      "target": 63.925,
+      "opened": "2026-10-29",
+      "cost_basis": 50.54,
+      "forced": false,
+      "note": "IBS 0.02",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
@@ -625,10 +643,10 @@
     },
     {
       "date": "2026-10-29",
-      "equity": 403.82
+      "equity": 404.14
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 50.59,
-  "equity": 403.82
+  "market_value": 101.45,
+  "equity": 404.14
 }
