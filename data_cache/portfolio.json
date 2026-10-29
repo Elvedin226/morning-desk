@@ -1,25 +1,7 @@
 {
   "start_equity": 421.0,
-  "cash": 301.32,
+  "cash": 302.69,
   "positions": [
-    {
-      "ticker": "NKE",
-      "side": "long",
-      "qty": 1.3499,
-      "entry": 37.3,
-      "stop": 34.316,
-      "target": 46.625,
-      "opened": "2026-10-23",
-      "cost_basis": 50.38,
-      "forced": false,
-      "note": "IBS 0.00",
-      "exit_signal": {
-        "type": "ibs",
-        "level": 0.8
-      },
-      "last": 38.355,
-      "unrealised": 1.4
-    },
     {
       "ticker": "NOW",
       "side": "long",
@@ -31,6 +13,24 @@
       "cost_basis": 50.47,
       "forced": false,
       "note": "IBS 0.01",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 109.35,
+      "unrealised": 0.12
+    },
+    {
+      "ticker": "MU",
+      "side": "long",
+      "qty": 0.0543,
+      "entry": 930.2,
+      "stop": 855.784,
+      "target": 1162.75,
+      "opened": "2026-10-29",
+      "cost_basis": 50.54,
+      "forced": false,
+      "note": "IBS 0.07",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
@@ -440,6 +440,30 @@
       "proceeds": 51.2,
       "pnl": 0.84,
       "pnl_pct": 1.67
+    },
+    {
+      "ticker": "NKE",
+      "side": "long",
+      "qty": 1.3499,
+      "entry": 37.3,
+      "stop": 34.316,
+      "target": 46.625,
+      "opened": "2026-10-23",
+      "cost_basis": 50.38,
+      "forced": false,
+      "note": "IBS 0.00",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 38.355,
+      "unrealised": 1.4,
+      "exit": 38.475,
+      "reason": "ibs exit",
+      "closed": "2026-10-29",
+      "proceeds": 51.91,
+      "pnl": 1.53,
+      "pnl_pct": 3.04
     }
   ],
   "equity_curve": [
@@ -601,10 +625,10 @@
     },
     {
       "date": "2026-10-29",
-      "equity": 403.57
+      "equity": 403.82
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 51.78,
-  "equity": 403.57
+  "market_value": 50.59,
+  "equity": 403.82
 }
