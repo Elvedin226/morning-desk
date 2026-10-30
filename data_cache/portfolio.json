@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 103.655,
-      "unrealised": -2.52
+      "last": 105.135,
+      "unrealised": -1.83
     },
     {
       "ticker": "MU",
@@ -35,8 +35,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 866.5,
-      "unrealised": -3.49
+      "last": 884.89,
+      "unrealised": -2.49
     },
     {
       "ticker": "BAC",
@@ -53,8 +53,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 49.865,
-      "unrealised": -1.28
+      "last": 50.01,
+      "unrealised": -1.14
     }
   ],
   "closed": [
@@ -649,10 +649,10 @@
     },
     {
       "date": "2026-10-30",
-      "equity": 396.41
+      "equity": 398.23
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 144.26,
-  "equity": 396.41
+  "market_value": 146.08,
+  "equity": 398.23
 }
