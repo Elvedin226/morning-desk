@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 103.6858,
-      "unrealised": -2.5
+      "last": 103.655,
+      "unrealised": -2.52
     },
     {
       "ticker": "MU",
@@ -35,8 +35,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 866.15,
-      "unrealised": -3.51
+      "last": 866.5,
+      "unrealised": -3.49
     },
     {
       "ticker": "BAC",
@@ -53,7 +53,7 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 49.87,
+      "last": 49.865,
       "unrealised": -1.28
     }
   ],
