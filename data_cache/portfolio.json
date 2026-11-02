@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 252.15,
+  "cash": 249.0,
   "positions": [
     {
       "ticker": "NOW",
@@ -17,26 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 105.135,
-      "unrealised": -1.83
-    },
-    {
-      "ticker": "MU",
-      "side": "long",
-      "qty": 0.0543,
-      "entry": 930.2,
-      "stop": 855.784,
-      "target": 1162.75,
-      "opened": "2026-10-29",
-      "cost_basis": 50.54,
-      "forced": false,
-      "note": "IBS 0.07",
-      "exit_signal": {
-        "type": "ibs",
-        "level": 0.8
-      },
-      "last": 884.89,
-      "unrealised": -2.49
+      "last": 106.01,
+      "unrealised": -1.43
     },
     {
       "ticker": "BAC",
@@ -53,8 +35,24 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 50.01,
-      "unrealised": -1.14
+      "last": 49.57,
+      "unrealised": -1.57
+    },
+    {
+      "ticker": "PLTR",
+      "side": "long",
+      "qty": 0.278,
+      "entry": 178.34,
+      "stop": 164.0728,
+      "target": 206.8744,
+      "opened": "2026-11-02",
+      "cost_basis": 49.6,
+      "forced": false,
+      "note": "RSI-2 0.9",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      }
     }
   ],
   "closed": [
@@ -484,6 +482,30 @@
       "proceeds": 51.91,
       "pnl": 1.53,
       "pnl_pct": 3.04
+    },
+    {
+      "ticker": "MU",
+      "side": "long",
+      "qty": 0.0543,
+      "entry": 930.2,
+      "stop": 855.784,
+      "target": 1162.75,
+      "opened": "2026-10-29",
+      "cost_basis": 50.54,
+      "forced": false,
+      "note": "IBS 0.07",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 884.89,
+      "unrealised": -2.49,
+      "exit": 855.784,
+      "reason": "stop",
+      "closed": "2026-11-02",
+      "proceeds": 46.45,
+      "pnl": -4.09,
+      "pnl_pct": -8.1
     }
   ],
   "equity_curve": [
@@ -650,9 +672,13 @@
     {
       "date": "2026-10-30",
       "equity": 398.23
+    },
+    {
+      "date": "2026-11-02",
+      "equity": 396.61
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 146.08,
-  "equity": 398.23
+  "market_value": 98.01,
+  "equity": 396.61
 }
