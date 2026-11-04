@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 249.45,
+  "cash": 250.32,
   "positions": [
     {
       "ticker": "BAC",
@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 49.66,
-      "unrealised": -1.49
+      "last": 51.355,
+      "unrealised": 0.19
     },
     {
       "ticker": "PLTR",
@@ -35,26 +35,24 @@
         "type": "sma",
         "n": 5
       },
-      "last": 175.41,
-      "unrealised": -0.84
+      "last": 171.36,
+      "unrealised": -1.96
     },
     {
-      "ticker": "CRM",
+      "ticker": "OXY",
       "side": "long",
-      "qty": 0.2229,
-      "entry": 222.505,
-      "stop": 204.7046,
-      "target": 258.1058,
-      "opened": "2026-11-03",
-      "cost_basis": 49.62,
+      "qty": 0.8744,
+      "entry": 56.97,
+      "stop": 52.4124,
+      "target": 66.0852,
+      "opened": "2026-11-04",
+      "cost_basis": 49.84,
       "forced": false,
-      "note": "RSI-2 1.5",
+      "note": "RSI-2 3.1",
       "exit_signal": {
         "type": "sma",
         "n": 5
-      },
-      "last": 222.2,
-      "unrealised": -0.09
+      }
     }
   ],
   "closed": [
@@ -532,6 +530,30 @@
       "proceeds": 50.07,
       "pnl": -0.4,
       "pnl_pct": -0.79
+    },
+    {
+      "ticker": "CRM",
+      "side": "long",
+      "qty": 0.2229,
+      "entry": 222.505,
+      "stop": 204.7046,
+      "target": 258.1058,
+      "opened": "2026-11-03",
+      "cost_basis": 49.62,
+      "forced": false,
+      "note": "RSI-2 1.5",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
+      "last": 222.2,
+      "unrealised": -0.09,
+      "exit": 227.6201,
+      "reason": "sma exit",
+      "closed": "2026-11-04",
+      "proceeds": 50.71,
+      "pnl": 1.09,
+      "pnl_pct": 2.2
     }
   ],
   "equity_curve": [
@@ -709,10 +731,10 @@
     },
     {
       "date": "2026-11-04",
-      "equity": 396.8
+      "equity": 398.53
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 147.35,
-  "equity": 396.8
+  "market_value": 98.37,
+  "equity": 398.53
 }
