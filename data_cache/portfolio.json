@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 51.355,
-      "unrealised": 0.19
+      "last": 51.515,
+      "unrealised": 0.35
     },
     {
       "ticker": "PLTR",
@@ -35,8 +35,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 171.36,
-      "unrealised": -1.96
+      "last": 171.935,
+      "unrealised": -1.8
     },
     {
       "ticker": "OXY",
@@ -52,7 +52,9 @@
       "exit_signal": {
         "type": "sma",
         "n": 5
-      }
+      },
+      "last": 57.07,
+      "unrealised": 0.06
     }
   ],
   "closed": [
@@ -731,10 +733,10 @@
     },
     {
       "date": "2026-11-04",
-      "equity": 398.53
+      "equity": 398.91
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 98.37,
-  "equity": 398.53
+  "market_value": 148.59,
+  "equity": 398.91
 }
