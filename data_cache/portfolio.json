@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 49.55,
-      "unrealised": -1.59
+      "last": 49.66,
+      "unrealised": -1.49
     },
     {
       "ticker": "PLTR",
@@ -35,8 +35,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 176.28,
-      "unrealised": -0.59
+      "last": 175.41,
+      "unrealised": -0.84
     },
     {
       "ticker": "CRM",
@@ -53,8 +53,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 222.29,
-      "unrealised": -0.07
+      "last": 222.2,
+      "unrealised": -0.09
     }
   ],
   "closed": [
@@ -706,9 +706,13 @@
     {
       "date": "2026-11-03",
       "equity": 396.95
+    },
+    {
+      "date": "2026-11-04",
+      "equity": 396.8
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 147.5,
-  "equity": 396.95
+  "market_value": 147.35,
+  "equity": 396.8
 }
