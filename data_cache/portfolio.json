@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 50.55,
-      "unrealised": -0.61
+      "last": 50.575,
+      "unrealised": -0.58
     },
     {
       "ticker": "OXY",
@@ -35,8 +35,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 55.76,
-      "unrealised": -1.08
+      "last": 55.78,
+      "unrealised": -1.07
     },
     {
       "ticker": "AMZN",
@@ -52,7 +52,9 @@
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
-      }
+      },
+      "last": 267.01,
+      "unrealised": -0.01
     }
   ],
   "closed": [
@@ -795,10 +797,10 @@
     },
     {
       "date": "2026-11-09",
-      "equity": 398.96
+      "equity": 398.99
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 98.69,
-  "equity": 398.96
+  "market_value": 148.61,
+  "equity": 398.99
 }
