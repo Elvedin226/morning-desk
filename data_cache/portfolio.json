@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 250.38,
+  "cash": 300.88,
   "positions": [
     {
       "ticker": "BAC",
@@ -17,44 +17,24 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 50.575,
-      "unrealised": -0.58
+      "last": 50.718,
+      "unrealised": -0.44
     },
     {
-      "ticker": "OXY",
+      "ticker": "NOW",
       "side": "long",
-      "qty": 0.8744,
-      "entry": 56.97,
-      "stop": 52.4124,
-      "target": 66.0852,
-      "opened": "2026-11-04",
-      "cost_basis": 49.84,
+      "qty": 0.5109,
+      "entry": 98.15,
+      "stop": 90.298,
+      "target": 122.6875,
+      "opened": "2026-11-10",
+      "cost_basis": 50.17,
       "forced": false,
-      "note": "RSI-2 3.1",
-      "exit_signal": {
-        "type": "sma",
-        "n": 5
-      },
-      "last": 55.78,
-      "unrealised": -1.07
-    },
-    {
-      "ticker": "AMZN",
-      "side": "long",
-      "qty": 0.1868,
-      "entry": 266.93,
-      "stop": 245.5756,
-      "target": 333.6625,
-      "opened": "2026-11-09",
-      "cost_basis": 49.89,
-      "forced": false,
-      "note": "IBS 0.00",
+      "note": "IBS 0.15",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
-      },
-      "last": 267.01,
-      "unrealised": -0.01
+      }
     }
   ],
   "closed": [
@@ -604,6 +584,54 @@
       "proceeds": 53.78,
       "pnl": 4.36,
       "pnl_pct": 8.82
+    },
+    {
+      "ticker": "OXY",
+      "side": "long",
+      "qty": 0.8744,
+      "entry": 56.97,
+      "stop": 52.4124,
+      "target": 66.0852,
+      "opened": "2026-11-04",
+      "cost_basis": 49.84,
+      "forced": false,
+      "note": "RSI-2 3.1",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
+      "last": 55.78,
+      "unrealised": -1.07,
+      "exit": 57.166,
+      "reason": "sma exit",
+      "closed": "2026-11-10",
+      "proceeds": 49.96,
+      "pnl": 0.12,
+      "pnl_pct": 0.24
+    },
+    {
+      "ticker": "AMZN",
+      "side": "long",
+      "qty": 0.1868,
+      "entry": 266.93,
+      "stop": 245.5756,
+      "target": 333.6625,
+      "opened": "2026-11-09",
+      "cost_basis": 49.89,
+      "forced": false,
+      "note": "IBS 0.00",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 267.01,
+      "unrealised": -0.01,
+      "exit": 271.595,
+      "reason": "ibs exit",
+      "closed": "2026-11-10",
+      "proceeds": 50.71,
+      "pnl": 0.82,
+      "pnl_pct": 1.64
     }
   ],
   "equity_curve": [
@@ -798,9 +826,13 @@
     {
       "date": "2026-11-09",
       "equity": 398.99
+    },
+    {
+      "date": "2026-11-10",
+      "equity": 401.15
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 148.61,
-  "equity": 398.99
+  "market_value": 50.1,
+  "equity": 401.15
 }
