@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 300.88,
+  "cash": 250.68,
   "positions": [
     {
       "ticker": "BAC",
@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 50.718,
-      "unrealised": -0.44
+      "last": 50.6499,
+      "unrealised": -0.51
     },
     {
       "ticker": "NOW",
@@ -31,6 +31,24 @@
       "cost_basis": 50.17,
       "forced": false,
       "note": "IBS 0.15",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 98.765,
+      "unrealised": 0.29
+    },
+    {
+      "ticker": "IREN",
+      "side": "long",
+      "qty": 2.5875,
+      "entry": 19.39,
+      "stop": 17.8388,
+      "target": 24.2375,
+      "opened": "2026-11-10",
+      "cost_basis": 50.2,
+      "forced": false,
+      "note": "IBS 0.14",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
@@ -829,10 +847,10 @@
     },
     {
       "date": "2026-11-10",
-      "equity": 401.15
+      "equity": 401.37
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 50.1,
-  "equity": 401.15
+  "market_value": 100.49,
+  "equity": 401.37
 }
