@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 302.4,
+  "cash": 251.47,
   "positions": [
     {
       "ticker": "IREN",
@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 21.045,
-      "unrealised": 4.25
+      "last": 20.82,
+      "unrealised": 3.67
     },
     {
       "ticker": "AMZN",
@@ -31,6 +31,24 @@
       "cost_basis": 50.99,
       "forced": false,
       "note": "IBS 0.07",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 266.19,
+      "unrealised": -0.04
+    },
+    {
+      "ticker": "SOFI",
+      "side": "long",
+      "qty": 3.1286,
+      "entry": 16.27,
+      "stop": 14.9684,
+      "target": 20.3375,
+      "opened": "2026-11-11",
+      "cost_basis": 50.93,
+      "forced": false,
+      "note": "IBS 0.03",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
@@ -881,10 +899,10 @@
     },
     {
       "date": "2026-11-11",
-      "equity": 407.84
+      "equity": 407.22
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 54.45,
-  "equity": 407.84
+  "market_value": 104.82,
+  "equity": 407.22
 }
