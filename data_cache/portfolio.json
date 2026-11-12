@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 20.82,
-      "unrealised": 3.67
+      "last": 18.945,
+      "unrealised": -1.18
     },
     {
       "ticker": "AMZN",
@@ -35,8 +35,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 266.19,
-      "unrealised": -0.04
+      "last": 268.01,
+      "unrealised": 0.31
     },
     {
       "ticker": "SOFI",
@@ -52,7 +52,9 @@
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
-      }
+      },
+      "last": 15.635,
+      "unrealised": -2.01
     }
   ],
   "closed": [
@@ -900,9 +902,13 @@
     {
       "date": "2026-11-11",
       "equity": 407.22
+    },
+    {
+      "date": "2026-11-12",
+      "equity": 400.7
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 104.82,
-  "equity": 407.22
+  "market_value": 149.23,
+  "equity": 400.7
 }
