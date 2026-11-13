@@ -1,25 +1,7 @@
 {
   "start_equity": 421.0,
-  "cash": 251.47,
+  "cash": 247.97,
   "positions": [
-    {
-      "ticker": "IREN",
-      "side": "long",
-      "qty": 2.5875,
-      "entry": 19.39,
-      "stop": 17.8388,
-      "target": 24.2375,
-      "opened": "2026-11-10",
-      "cost_basis": 50.2,
-      "forced": false,
-      "note": "IBS 0.14",
-      "exit_signal": {
-        "type": "ibs",
-        "level": 0.8
-      },
-      "last": 19.48,
-      "unrealised": 0.2
-    },
     {
       "ticker": "AMZN",
       "side": "long",
@@ -35,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 267.46,
-      "unrealised": 0.2
+      "last": 265.41,
+      "unrealised": -0.19
     },
     {
       "ticker": "SOFI",
@@ -53,8 +35,24 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 15.62,
-      "unrealised": -2.06
+      "last": 15.495,
+      "unrealised": -2.45
+    },
+    {
+      "ticker": "AAPL",
+      "side": "long",
+      "qty": 0.139,
+      "entry": 356.88,
+      "stop": 328.3296,
+      "target": 446.1,
+      "opened": "2026-11-13",
+      "cost_basis": 49.63,
+      "forced": false,
+      "note": "IBS 0.02",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      }
     }
   ],
   "closed": [
@@ -700,6 +698,30 @@
       "proceeds": 52.51,
       "pnl": 2.34,
       "pnl_pct": 4.66
+    },
+    {
+      "ticker": "IREN",
+      "side": "long",
+      "qty": 2.5875,
+      "entry": 19.39,
+      "stop": 17.8388,
+      "target": 24.2375,
+      "opened": "2026-11-10",
+      "cost_basis": 50.2,
+      "forced": false,
+      "note": "IBS 0.14",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 19.48,
+      "unrealised": 0.2,
+      "exit": 17.8388,
+      "reason": "stop",
+      "closed": "2026-11-13",
+      "proceeds": 46.13,
+      "pnl": -4.07,
+      "pnl_pct": -8.1
     }
   ],
   "equity_curve": [
@@ -906,9 +928,13 @@
     {
       "date": "2026-11-12",
       "equity": 401.94
+    },
+    {
+      "date": "2026-11-13",
+      "equity": 396.88
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 150.47,
-  "equity": 401.94
+  "market_value": 99.28,
+  "equity": 396.88
 }
