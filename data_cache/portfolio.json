@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 265.41,
-      "unrealised": -0.19
+      "last": 266.475,
+      "unrealised": 0.01
     },
     {
       "ticker": "SOFI",
@@ -35,8 +35,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 15.495,
-      "unrealised": -2.45
+      "last": 15.44,
+      "unrealised": -2.62
     },
     {
       "ticker": "AAPL",
@@ -52,7 +52,9 @@
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
-      }
+      },
+      "last": 355.935,
+      "unrealised": -0.16
     }
   ],
   "closed": [
@@ -931,10 +933,10 @@
     },
     {
       "date": "2026-11-13",
-      "equity": 396.88
+      "equity": 396.75
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 99.28,
-  "equity": 396.88
+  "market_value": 148.78,
+  "equity": 396.75
 }
