@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 247.97,
+  "cash": 245.61,
   "positions": [
     {
       "ticker": "AMZN",
@@ -17,26 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 266.475,
-      "unrealised": 0.01
-    },
-    {
-      "ticker": "SOFI",
-      "side": "long",
-      "qty": 3.1286,
-      "entry": 16.27,
-      "stop": 14.9684,
-      "target": 20.3375,
-      "opened": "2026-11-11",
-      "cost_basis": 50.93,
-      "forced": false,
-      "note": "IBS 0.03",
-      "exit_signal": {
-        "type": "ibs",
-        "level": 0.8
-      },
-      "last": 15.44,
-      "unrealised": -2.62
+      "last": 257.75,
+      "unrealised": -1.66
     },
     {
       "ticker": "AAPL",
@@ -53,8 +35,24 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 355.935,
-      "unrealised": -0.16
+      "last": 352.78,
+      "unrealised": -0.59
+    },
+    {
+      "ticker": "GM",
+      "side": "long",
+      "qty": 0.5874,
+      "entry": 83.67,
+      "stop": 76.9764,
+      "target": 97.0572,
+      "opened": "2026-11-16",
+      "cost_basis": 49.17,
+      "forced": false,
+      "note": "RSI-2 4.6",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      }
     }
   ],
   "closed": [
@@ -724,6 +722,30 @@
       "proceeds": 46.13,
       "pnl": -4.07,
       "pnl_pct": -8.1
+    },
+    {
+      "ticker": "SOFI",
+      "side": "long",
+      "qty": 3.1286,
+      "entry": 16.27,
+      "stop": 14.9684,
+      "target": 20.3375,
+      "opened": "2026-11-11",
+      "cost_basis": 50.93,
+      "forced": false,
+      "note": "IBS 0.03",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 15.44,
+      "unrealised": -2.62,
+      "exit": 14.9684,
+      "reason": "stop",
+      "closed": "2026-11-16",
+      "proceeds": 46.81,
+      "pnl": -4.12,
+      "pnl_pct": -8.1
     }
   ],
   "equity_curve": [
@@ -934,9 +956,13 @@
     {
       "date": "2026-11-13",
       "equity": 396.75
+    },
+    {
+      "date": "2026-11-16",
+      "equity": 393.15
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 148.78,
-  "equity": 396.75
+  "market_value": 98.37,
+  "equity": 393.15
 }
