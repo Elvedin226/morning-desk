@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 257.89,
-      "unrealised": -1.63
+      "last": 257.85,
+      "unrealised": -1.64
     },
     {
       "ticker": "AAPL",
@@ -35,7 +35,7 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 351.91,
+      "last": 351.92,
       "unrealised": -0.71
     },
     {
@@ -53,8 +53,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 84.05,
-      "unrealised": 0.2
+      "last": 84.03,
+      "unrealised": 0.19
     }
   ],
   "closed": [
@@ -965,10 +965,10 @@
     },
     {
       "date": "2026-11-17",
-      "equity": 393.26
+      "equity": 393.24
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 147.65,
-  "equity": 393.26
+  "market_value": 147.63,
+  "equity": 393.24
 }
