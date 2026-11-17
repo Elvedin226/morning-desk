@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 257.8,
-      "unrealised": -1.65
+      "last": 257.89,
+      "unrealised": -1.63
     },
     {
       "ticker": "AAPL",
@@ -35,8 +35,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 352.7,
-      "unrealised": -0.6
+      "last": 351.91,
+      "unrealised": -0.71
     },
     {
       "ticker": "GM",
@@ -53,8 +53,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 83.67,
-      "unrealised": -0.02
+      "last": 84.05,
+      "unrealised": 0.2
     }
   ],
   "closed": [
@@ -962,9 +962,13 @@
     {
       "date": "2026-11-16",
       "equity": 393.13
+    },
+    {
+      "date": "2026-11-17",
+      "equity": 393.26
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 147.52,
-  "equity": 393.13
+  "market_value": 147.65,
+  "equity": 393.26
 }
