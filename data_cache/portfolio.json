@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 342.785,
-      "unrealised": -1.98
+      "last": 342.68,
+      "unrealised": -2.0
     },
     {
       "ticker": "GM",
@@ -35,8 +35,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 78.86,
-      "unrealised": -2.85
+      "last": 78.74,
+      "unrealised": -2.92
     },
     {
       "ticker": "MRK",
@@ -53,8 +53,8 @@
         "type": "sma",
         "n": 5
       },
-      "last": 133.655,
-      "unrealised": -1.48
+      "last": 133.705,
+      "unrealised": -1.47
     }
   ],
   "closed": [
@@ -1001,10 +1001,10 @@
     },
     {
       "date": "2026-11-20",
-      "equity": 389.31
+      "equity": 389.25
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 141.76,
-  "equity": 389.31
+  "market_value": 141.7,
+  "equity": 389.25
 }
