@@ -1,60 +1,22 @@
 {
   "start_equity": 421.0,
-  "cash": 247.55,
+  "cash": 346.18,
   "positions": [
     {
-      "ticker": "AAPL",
+      "ticker": "TXN",
       "side": "long",
-      "qty": 0.139,
-      "entry": 356.88,
-      "stop": 328.3296,
-      "target": 446.1,
-      "opened": "2026-11-13",
-      "cost_basis": 49.63,
+      "qty": 0.1914,
+      "entry": 258.44,
+      "stop": 237.7648,
+      "target": 323.05,
+      "opened": "2026-11-24",
+      "cost_basis": 49.49,
       "forced": false,
-      "note": "IBS 0.02",
+      "note": "IBS 0.03",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
-      },
-      "last": 349.62,
-      "unrealised": -1.03
-    },
-    {
-      "ticker": "GM",
-      "side": "long",
-      "qty": 0.5874,
-      "entry": 83.67,
-      "stop": 76.9764,
-      "target": 97.0572,
-      "opened": "2026-11-16",
-      "cost_basis": 49.17,
-      "forced": false,
-      "note": "RSI-2 4.6",
-      "exit_signal": {
-        "type": "sma",
-        "n": 5
-      },
-      "last": 81.65,
-      "unrealised": -1.21
-    },
-    {
-      "ticker": "MRK",
-      "side": "long",
-      "qty": 0.3576,
-      "entry": 137.75,
-      "stop": 126.73,
-      "target": 159.79,
-      "opened": "2026-11-18",
-      "cost_basis": 49.28,
-      "forced": false,
-      "note": "RSI-2 1.7",
-      "exit_signal": {
-        "type": "sma",
-        "n": 5
-      },
-      "last": 135.47,
-      "unrealised": -0.84
+      }
     }
   ],
   "closed": [
@@ -772,6 +734,78 @@
       "proceeds": 51.22,
       "pnl": 0.23,
       "pnl_pct": 0.45
+    },
+    {
+      "ticker": "AAPL",
+      "side": "long",
+      "qty": 0.139,
+      "entry": 356.88,
+      "stop": 328.3296,
+      "target": 446.1,
+      "opened": "2026-11-13",
+      "cost_basis": 49.63,
+      "forced": false,
+      "note": "IBS 0.02",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 349.62,
+      "unrealised": -1.03,
+      "exit": 354.07,
+      "reason": "ibs exit",
+      "closed": "2026-11-24",
+      "proceeds": 49.19,
+      "pnl": -0.44,
+      "pnl_pct": -0.88
+    },
+    {
+      "ticker": "GM",
+      "side": "long",
+      "qty": 0.5874,
+      "entry": 83.67,
+      "stop": 76.9764,
+      "target": 97.0572,
+      "opened": "2026-11-16",
+      "cost_basis": 49.17,
+      "forced": false,
+      "note": "RSI-2 4.6",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
+      "last": 81.65,
+      "unrealised": -1.21,
+      "exit": 82.32,
+      "reason": "sma exit",
+      "closed": "2026-11-24",
+      "proceeds": 48.33,
+      "pnl": -0.84,
+      "pnl_pct": -1.71
+    },
+    {
+      "ticker": "MRK",
+      "side": "long",
+      "qty": 0.3576,
+      "entry": 137.75,
+      "stop": 126.73,
+      "target": 159.79,
+      "opened": "2026-11-18",
+      "cost_basis": 49.28,
+      "forced": false,
+      "note": "RSI-2 1.7",
+      "exit_signal": {
+        "type": "sma",
+        "n": 5
+      },
+      "last": 135.47,
+      "unrealised": -0.84,
+      "exit": 141.57,
+      "reason": "sma exit",
+      "closed": "2026-11-24",
+      "proceeds": 50.6,
+      "pnl": 1.32,
+      "pnl_pct": 2.68
     }
   ],
   "equity_curve": [
@@ -1005,10 +1039,10 @@
     },
     {
       "date": "2026-11-24",
-      "equity": 392.55
+      "equity": 395.67
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 145.0,
-  "equity": 392.55
+  "market_value": 0.0,
+  "equity": 395.67
 }
