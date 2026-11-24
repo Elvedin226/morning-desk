@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 346.18,
+  "cash": 296.69,
   "positions": [
     {
       "ticker": "TXN",
@@ -13,6 +13,24 @@
       "cost_basis": 49.49,
       "forced": false,
       "note": "IBS 0.03",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 258.58,
+      "unrealised": 0.0
+    },
+    {
+      "ticker": "COIN",
+      "side": "long",
+      "qty": 0.4833,
+      "entry": 102.345,
+      "stop": 94.1574,
+      "target": 127.9313,
+      "opened": "2026-11-24",
+      "cost_basis": 49.49,
+      "forced": false,
+      "note": "IBS 0.08",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
@@ -1043,6 +1061,6 @@
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 0.0,
+  "market_value": 49.49,
   "equity": 395.67
 }
