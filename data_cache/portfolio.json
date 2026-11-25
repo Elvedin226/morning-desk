@@ -1,36 +1,18 @@
 {
   "start_equity": 421.0,
-  "cash": 296.69,
+  "cash": 348.65,
   "positions": [
     {
-      "ticker": "TXN",
+      "ticker": "VZ",
       "side": "long",
-      "qty": 0.1914,
-      "entry": 258.44,
-      "stop": 237.7648,
-      "target": 323.05,
-      "opened": "2026-11-24",
-      "cost_basis": 49.49,
+      "qty": 1.0535,
+      "entry": 47.28,
+      "stop": 43.4976,
+      "target": 59.1,
+      "opened": "2026-11-25",
+      "cost_basis": 49.83,
       "forced": false,
-      "note": "IBS 0.03",
-      "exit_signal": {
-        "type": "ibs",
-        "level": 0.8
-      },
-      "last": 258.58,
-      "unrealised": 0.0
-    },
-    {
-      "ticker": "COIN",
-      "side": "long",
-      "qty": 0.4833,
-      "entry": 102.345,
-      "stop": 94.1574,
-      "target": 127.9313,
-      "opened": "2026-11-24",
-      "cost_basis": 49.49,
-      "forced": false,
-      "note": "IBS 0.08",
+      "note": "IBS 0.00",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
@@ -824,6 +806,52 @@
       "proceeds": 50.6,
       "pnl": 1.32,
       "pnl_pct": 2.68
+    },
+    {
+      "ticker": "TXN",
+      "side": "long",
+      "qty": 0.1914,
+      "entry": 258.44,
+      "stop": 237.7648,
+      "target": 323.05,
+      "opened": "2026-11-24",
+      "cost_basis": 49.49,
+      "forced": false,
+      "note": "IBS 0.03",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 258.58,
+      "unrealised": 0.0,
+      "exit": 270.19,
+      "reason": "ibs exit",
+      "closed": "2026-11-25",
+      "proceeds": 51.69,
+      "pnl": 2.2,
+      "pnl_pct": 4.44
+    },
+    {
+      "ticker": "COIN",
+      "side": "long",
+      "qty": 0.4833,
+      "entry": 102.345,
+      "stop": 94.1574,
+      "target": 127.9313,
+      "opened": "2026-11-24",
+      "cost_basis": 49.49,
+      "forced": false,
+      "note": "IBS 0.08",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "exit": 103.72,
+      "reason": "ibs exit",
+      "closed": "2026-11-25",
+      "proceeds": 50.1,
+      "pnl": 0.61,
+      "pnl_pct": 1.24
     }
   ],
   "equity_curve": [
@@ -1058,9 +1086,13 @@
     {
       "date": "2026-11-24",
       "equity": 395.67
+    },
+    {
+      "date": "2026-11-25",
+      "equity": 398.48
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 49.49,
-  "equity": 395.67
+  "market_value": 0.0,
+  "equity": 398.48
 }
