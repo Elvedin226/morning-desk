@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 348.65,
+  "cash": 298.85,
   "positions": [
     {
       "ticker": "VZ",
@@ -13,6 +13,24 @@
       "cost_basis": 49.83,
       "forced": false,
       "note": "IBS 0.00",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 47.295,
+      "unrealised": -0.0
+    },
+    {
+      "ticker": "COST",
+      "side": "long",
+      "qty": 0.0458,
+      "entry": 1086.8101,
+      "stop": 999.8653,
+      "target": 1358.5126,
+      "opened": "2026-11-25",
+      "cost_basis": 49.8,
+      "forced": false,
+      "note": "IBS 0.05",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
@@ -1093,6 +1111,6 @@
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 0.0,
+  "market_value": 49.83,
   "equity": 398.48
 }
