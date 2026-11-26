@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 298.85,
+  "cash": 249.02,
   "positions": [
     {
       "ticker": "VZ",
@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 47.295,
-      "unrealised": -0.0
+      "last": 47.28,
+      "unrealised": -0.02
     },
     {
       "ticker": "COST",
@@ -31,6 +31,24 @@
       "cost_basis": 49.8,
       "forced": false,
       "note": "IBS 0.05",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 1086.8101,
+      "unrealised": -0.02
+    },
+    {
+      "ticker": "JNJ",
+      "side": "long",
+      "qty": 0.1818,
+      "entry": 273.94,
+      "stop": 252.0248,
+      "target": 342.425,
+      "opened": "2026-11-26",
+      "cost_basis": 49.83,
+      "forced": false,
+      "note": "IBS 0.08",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
@@ -1108,9 +1126,13 @@
     {
       "date": "2026-11-25",
       "equity": 398.48
+    },
+    {
+      "date": "2026-11-26",
+      "equity": 398.44
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 49.83,
-  "equity": 398.48
+  "market_value": 99.59,
+  "equity": 398.44
 }
