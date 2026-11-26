@@ -17,8 +17,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 47.28,
-      "unrealised": -0.02
+      "last": 47.295,
+      "unrealised": -0.0
     },
     {
       "ticker": "COST",
@@ -35,8 +35,8 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 1086.8101,
-      "unrealised": -0.02
+      "last": 1086.75,
+      "unrealised": -0.03
     },
     {
       "ticker": "JNJ",
@@ -52,7 +52,9 @@
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
-      }
+      },
+      "last": 273.94,
+      "unrealised": -0.03
     }
   ],
   "closed": [
@@ -1129,10 +1131,10 @@
     },
     {
       "date": "2026-11-26",
-      "equity": 398.44
+      "equity": 398.42
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 99.59,
-  "equity": 398.44
+  "market_value": 149.4,
+  "equity": 398.42
 }
