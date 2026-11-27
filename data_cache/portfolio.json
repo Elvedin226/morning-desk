@@ -1,6 +1,6 @@
 {
   "start_equity": 421.0,
-  "cash": 249.02,
+  "cash": 299.51,
   "positions": [
     {
       "ticker": "VZ",
@@ -17,44 +17,24 @@
         "type": "ibs",
         "level": 0.8
       },
-      "last": 47.54,
-      "unrealised": 0.25
+      "last": 47.675,
+      "unrealised": 0.4
     },
     {
-      "ticker": "COST",
+      "ticker": "CVX",
       "side": "long",
-      "qty": 0.0458,
-      "entry": 1086.8101,
-      "stop": 999.8653,
-      "target": 1358.5126,
-      "opened": "2026-11-25",
-      "cost_basis": 49.8,
+      "qty": 0.2352,
+      "entry": 212.45,
+      "stop": 195.454,
+      "target": 265.5625,
+      "opened": "2026-11-27",
+      "cost_basis": 49.99,
       "forced": false,
-      "note": "IBS 0.05",
+      "note": "IBS 0.11",
       "exit_signal": {
         "type": "ibs",
         "level": 0.8
-      },
-      "last": 1097.8101,
-      "unrealised": 0.48
-    },
-    {
-      "ticker": "JNJ",
-      "side": "long",
-      "qty": 0.1818,
-      "entry": 273.94,
-      "stop": 252.0248,
-      "target": 342.425,
-      "opened": "2026-11-26",
-      "cost_basis": 49.83,
-      "forced": false,
-      "note": "IBS 0.08",
-      "exit_signal": {
-        "type": "ibs",
-        "level": 0.8
-      },
-      "last": 275.51,
-      "unrealised": 0.26
+      }
     }
   ],
   "closed": [
@@ -890,6 +870,54 @@
       "proceeds": 50.1,
       "pnl": 0.61,
       "pnl_pct": 1.24
+    },
+    {
+      "ticker": "COST",
+      "side": "long",
+      "qty": 0.0458,
+      "entry": 1086.8101,
+      "stop": 999.8653,
+      "target": 1358.5126,
+      "opened": "2026-11-25",
+      "cost_basis": 49.8,
+      "forced": false,
+      "note": "IBS 0.05",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 1097.8101,
+      "unrealised": 0.48,
+      "exit": 1098.4301,
+      "reason": "ibs exit",
+      "closed": "2026-11-27",
+      "proceeds": 50.28,
+      "pnl": 0.48,
+      "pnl_pct": 0.97
+    },
+    {
+      "ticker": "JNJ",
+      "side": "long",
+      "qty": 0.1818,
+      "entry": 273.94,
+      "stop": 252.0248,
+      "target": 342.425,
+      "opened": "2026-11-26",
+      "cost_basis": 49.83,
+      "forced": false,
+      "note": "IBS 0.08",
+      "exit_signal": {
+        "type": "ibs",
+        "level": 0.8
+      },
+      "last": 275.51,
+      "unrealised": 0.26,
+      "exit": 276.24,
+      "reason": "ibs exit",
+      "closed": "2026-11-27",
+      "proceeds": 50.2,
+      "pnl": 0.37,
+      "pnl_pct": 0.73
     }
   ],
   "equity_curve": [
@@ -1135,10 +1163,10 @@
     },
     {
       "date": "2026-11-27",
-      "equity": 399.47
+      "equity": 399.73
     }
   ],
   "created": "2026-09-04T01:45:36+00:00",
-  "market_value": 150.45,
-  "equity": 399.47
+  "market_value": 50.23,
+  "equity": 399.73
 }
